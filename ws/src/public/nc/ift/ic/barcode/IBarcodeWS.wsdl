@@ -26,14 +26,127 @@ targetNamespace="http://barcode.ic.ift.nc/IBarcodeWS">
     		</jaxb:schemaBindings>
    		</xsd:appinfo>
    	</xsd:annotation>
-	<xsd:element name="getProductInfoByCode">
+	<xsd:element name="GetProductInfoByCode">
          <xsd:complexType>
             <xsd:sequence>
 				<xsd:element name="string"  minOccurs="0" nillable="true" type="xsd:string"/>
              </xsd:sequence>  
          </xsd:complexType>
      </xsd:element>
-	<xsd:element name="getProductInfoByCodeResponse">
+	<xsd:element name="GetProductInfoByCodeResponse">
+         <xsd:complexType>
+            <xsd:sequence>
+				<xsd:element name="return"  minOccurs="0" nillable="true" type="xsd:string"/>
+             </xsd:sequence>  
+         </xsd:complexType>
+     </xsd:element>
+	<xsd:element name="GetProductionOrderByNo">
+         <xsd:complexType>
+            <xsd:sequence>
+				<xsd:element name="string"  minOccurs="0" nillable="true" type="xsd:string"/>
+             </xsd:sequence>  
+         </xsd:complexType>
+     </xsd:element>
+	<xsd:element name="GetProductionOrderByNoResponse">
+         <xsd:complexType>
+            <xsd:sequence>
+				<xsd:element name="return"  minOccurs="0" nillable="true" type="xsd:string"/>
+             </xsd:sequence>  
+         </xsd:complexType>
+     </xsd:element>
+	<xsd:element name="PostGoodsReceiveNote">
+         <xsd:complexType>
+            <xsd:sequence>
+				<xsd:element name="string"  minOccurs="0" nillable="true" type="xsd:string"/>
+             </xsd:sequence>  
+         </xsd:complexType>
+     </xsd:element>
+	<xsd:element name="PostGoodsReceiveNoteResponse">
+         <xsd:complexType>
+            <xsd:sequence>
+				<xsd:element name="return"  minOccurs="0" nillable="true" type="xsd:string"/>
+             </xsd:sequence>  
+         </xsd:complexType>
+     </xsd:element>
+	<xsd:element name="GetDeliveryNoteByNo">
+         <xsd:complexType>
+            <xsd:sequence>
+				<xsd:element name="string"  minOccurs="0" nillable="true" type="xsd:string"/>
+				<xsd:element name="string1"  minOccurs="0" nillable="true" type="xsd:string"/>
+             </xsd:sequence>  
+         </xsd:complexType>
+     </xsd:element>
+	<xsd:element name="GetDeliveryNoteByNoResponse">
+         <xsd:complexType>
+            <xsd:sequence>
+				<xsd:element name="return"  minOccurs="0" nillable="true" type="xsd:string"/>
+             </xsd:sequence>  
+         </xsd:complexType>
+     </xsd:element>
+	<xsd:element name="PostDeliveryNoteDetailScanQty">
+         <xsd:complexType>
+            <xsd:sequence>
+				<xsd:element name="string"  minOccurs="0" nillable="true" type="xsd:string"/>
+             </xsd:sequence>  
+         </xsd:complexType>
+     </xsd:element>
+	<xsd:element name="PostDeliveryNoteDetailScanQtyResponse">
+         <xsd:complexType>
+            <xsd:sequence>
+				<xsd:element name="return"  minOccurs="0" nillable="true" type="xsd:string"/>
+             </xsd:sequence>  
+         </xsd:complexType>
+     </xsd:element>
+	<xsd:element name="PostOtherDeliveryNoteDetailActualQty">
+         <xsd:complexType>
+            <xsd:sequence>
+				<xsd:element name="string"  minOccurs="0" nillable="true" type="xsd:string"/>
+             </xsd:sequence>  
+         </xsd:complexType>
+     </xsd:element>
+	<xsd:element name="PostOtherDeliveryNoteDetailActualQtyResponse">
+         <xsd:complexType>
+            <xsd:sequence>
+				<xsd:element name="return"  minOccurs="0" nillable="true" type="xsd:string"/>
+             </xsd:sequence>  
+         </xsd:complexType>
+     </xsd:element>
+	<xsd:element name="PostTransferReceiveNote">
+         <xsd:complexType>
+            <xsd:sequence>
+				<xsd:element name="string"  minOccurs="0" nillable="true" type="xsd:string"/>
+             </xsd:sequence>  
+         </xsd:complexType>
+     </xsd:element>
+	<xsd:element name="PostTransferReceiveNoteResponse">
+         <xsd:complexType>
+            <xsd:sequence>
+				<xsd:element name="return"  minOccurs="0" nillable="true" type="xsd:string"/>
+             </xsd:sequence>  
+         </xsd:complexType>
+     </xsd:element>
+	<xsd:element name="PostTransferOutNote">
+         <xsd:complexType>
+            <xsd:sequence>
+				<xsd:element name="string"  minOccurs="0" nillable="true" type="xsd:string"/>
+             </xsd:sequence>  
+         </xsd:complexType>
+     </xsd:element>
+	<xsd:element name="PostTransferOutNoteResponse">
+         <xsd:complexType>
+            <xsd:sequence>
+				<xsd:element name="return"  minOccurs="0" nillable="true" type="xsd:string"/>
+             </xsd:sequence>  
+         </xsd:complexType>
+     </xsd:element>
+	<xsd:element name="PostTransferInNote">
+         <xsd:complexType>
+            <xsd:sequence>
+				<xsd:element name="string"  minOccurs="0" nillable="true" type="xsd:string"/>
+             </xsd:sequence>  
+         </xsd:complexType>
+     </xsd:element>
+	<xsd:element name="PostTransferInNoteResponse">
          <xsd:complexType>
             <xsd:sequence>
 				<xsd:element name="return"  minOccurs="0" nillable="true" type="xsd:string"/>
@@ -42,25 +155,177 @@ targetNamespace="http://barcode.ic.ift.nc/IBarcodeWS">
      </xsd:element>
    </xsd:schema>
 </wsdl:types>
-    <wsdl:message name="getProductInfoByCodeRequest">
-        <wsdl:part name="parameters"  element="ns0:getProductInfoByCode"/>
+    <wsdl:message name="GetProductInfoByCodeRequest">
+        <wsdl:part name="parameters"  element="ns0:GetProductInfoByCode"/>
     </wsdl:message>
-    <wsdl:message name="getProductInfoByCodeResponse">
-        <wsdl:part name="parameters"  element="ns0:getProductInfoByCodeResponse"/>
+    <wsdl:message name="GetProductInfoByCodeResponse">
+        <wsdl:part name="parameters"  element="ns0:GetProductInfoByCodeResponse"/>
+    </wsdl:message>
+    <wsdl:message name="GetProductionOrderByNoRequest">
+        <wsdl:part name="parameters"  element="ns0:GetProductionOrderByNo"/>
+    </wsdl:message>
+    <wsdl:message name="GetProductionOrderByNoResponse">
+        <wsdl:part name="parameters"  element="ns0:GetProductionOrderByNoResponse"/>
+    </wsdl:message>
+    <wsdl:message name="PostGoodsReceiveNoteRequest">
+        <wsdl:part name="parameters"  element="ns0:PostGoodsReceiveNote"/>
+    </wsdl:message>
+    <wsdl:message name="PostGoodsReceiveNoteResponse">
+        <wsdl:part name="parameters"  element="ns0:PostGoodsReceiveNoteResponse"/>
+    </wsdl:message>
+    <wsdl:message name="GetDeliveryNoteByNoRequest">
+        <wsdl:part name="parameters"  element="ns0:GetDeliveryNoteByNo"/>
+    </wsdl:message>
+    <wsdl:message name="GetDeliveryNoteByNoResponse">
+        <wsdl:part name="parameters"  element="ns0:GetDeliveryNoteByNoResponse"/>
+    </wsdl:message>
+    <wsdl:message name="PostDeliveryNoteDetailScanQtyRequest">
+        <wsdl:part name="parameters"  element="ns0:PostDeliveryNoteDetailScanQty"/>
+    </wsdl:message>
+    <wsdl:message name="PostDeliveryNoteDetailScanQtyResponse">
+        <wsdl:part name="parameters"  element="ns0:PostDeliveryNoteDetailScanQtyResponse"/>
+    </wsdl:message>
+    <wsdl:message name="PostOtherDeliveryNoteDetailActualQtyRequest">
+        <wsdl:part name="parameters"  element="ns0:PostOtherDeliveryNoteDetailActualQty"/>
+    </wsdl:message>
+    <wsdl:message name="PostOtherDeliveryNoteDetailActualQtyResponse">
+        <wsdl:part name="parameters"  element="ns0:PostOtherDeliveryNoteDetailActualQtyResponse"/>
+    </wsdl:message>
+    <wsdl:message name="PostTransferReceiveNoteRequest">
+        <wsdl:part name="parameters"  element="ns0:PostTransferReceiveNote"/>
+    </wsdl:message>
+    <wsdl:message name="PostTransferReceiveNoteResponse">
+        <wsdl:part name="parameters"  element="ns0:PostTransferReceiveNoteResponse"/>
+    </wsdl:message>
+    <wsdl:message name="PostTransferOutNoteRequest">
+        <wsdl:part name="parameters"  element="ns0:PostTransferOutNote"/>
+    </wsdl:message>
+    <wsdl:message name="PostTransferOutNoteResponse">
+        <wsdl:part name="parameters"  element="ns0:PostTransferOutNoteResponse"/>
+    </wsdl:message>
+    <wsdl:message name="PostTransferInNoteRequest">
+        <wsdl:part name="parameters"  element="ns0:PostTransferInNote"/>
+    </wsdl:message>
+    <wsdl:message name="PostTransferInNoteResponse">
+        <wsdl:part name="parameters"  element="ns0:PostTransferInNoteResponse"/>
     </wsdl:message>
 
     <wsdl:portType name="IBarcodeWSPortType">
-        <wsdl:operation name="getProductInfoByCode">
-            <wsdl:input message="ns0:getProductInfoByCodeRequest" wsaw:Action="urn:getProductInfoByCode"/>
-            <wsdl:output message="ns0:getProductInfoByCodeResponse" wsaw:Action="urn:getProductInfoByCodeResponse"/>
+        <wsdl:operation name="GetProductInfoByCode">
+            <wsdl:input message="ns0:GetProductInfoByCodeRequest" wsaw:Action="urn:GetProductInfoByCode"/>
+            <wsdl:output message="ns0:GetProductInfoByCodeResponse" wsaw:Action="urn:GetProductInfoByCodeResponse"/>
+        </wsdl:operation>
+        <wsdl:operation name="GetProductionOrderByNo">
+            <wsdl:input message="ns0:GetProductionOrderByNoRequest" wsaw:Action="urn:GetProductionOrderByNo"/>
+            <wsdl:output message="ns0:GetProductionOrderByNoResponse" wsaw:Action="urn:GetProductionOrderByNoResponse"/>
+        </wsdl:operation>
+        <wsdl:operation name="PostGoodsReceiveNote">
+            <wsdl:input message="ns0:PostGoodsReceiveNoteRequest" wsaw:Action="urn:PostGoodsReceiveNote"/>
+            <wsdl:output message="ns0:PostGoodsReceiveNoteResponse" wsaw:Action="urn:PostGoodsReceiveNoteResponse"/>
+        </wsdl:operation>
+        <wsdl:operation name="GetDeliveryNoteByNo">
+            <wsdl:input message="ns0:GetDeliveryNoteByNoRequest" wsaw:Action="urn:GetDeliveryNoteByNo"/>
+            <wsdl:output message="ns0:GetDeliveryNoteByNoResponse" wsaw:Action="urn:GetDeliveryNoteByNoResponse"/>
+        </wsdl:operation>
+        <wsdl:operation name="PostDeliveryNoteDetailScanQty">
+            <wsdl:input message="ns0:PostDeliveryNoteDetailScanQtyRequest" wsaw:Action="urn:PostDeliveryNoteDetailScanQty"/>
+            <wsdl:output message="ns0:PostDeliveryNoteDetailScanQtyResponse" wsaw:Action="urn:PostDeliveryNoteDetailScanQtyResponse"/>
+        </wsdl:operation>
+        <wsdl:operation name="PostOtherDeliveryNoteDetailActualQty">
+            <wsdl:input message="ns0:PostOtherDeliveryNoteDetailActualQtyRequest" wsaw:Action="urn:PostOtherDeliveryNoteDetailActualQty"/>
+            <wsdl:output message="ns0:PostOtherDeliveryNoteDetailActualQtyResponse" wsaw:Action="urn:PostOtherDeliveryNoteDetailActualQtyResponse"/>
+        </wsdl:operation>
+        <wsdl:operation name="PostTransferReceiveNote">
+            <wsdl:input message="ns0:PostTransferReceiveNoteRequest" wsaw:Action="urn:PostTransferReceiveNote"/>
+            <wsdl:output message="ns0:PostTransferReceiveNoteResponse" wsaw:Action="urn:PostTransferReceiveNoteResponse"/>
+        </wsdl:operation>
+        <wsdl:operation name="PostTransferOutNote">
+            <wsdl:input message="ns0:PostTransferOutNoteRequest" wsaw:Action="urn:PostTransferOutNote"/>
+            <wsdl:output message="ns0:PostTransferOutNoteResponse" wsaw:Action="urn:PostTransferOutNoteResponse"/>
+        </wsdl:operation>
+        <wsdl:operation name="PostTransferInNote">
+            <wsdl:input message="ns0:PostTransferInNoteRequest" wsaw:Action="urn:PostTransferInNote"/>
+            <wsdl:output message="ns0:PostTransferInNoteResponse" wsaw:Action="urn:PostTransferInNoteResponse"/>
         </wsdl:operation>
     </wsdl:portType>
     
     
     <wsdl:binding name="IBarcodeWSSOAP11Binding" type="ns0:IBarcodeWSPortType">
         <soap:binding transport="http://schemas.xmlsoap.org/soap/http" style="document"/>
-        <wsdl:operation name="getProductInfoByCode">
-            <soap:operation soapAction="urn:getProductInfoByCode" style="document"/>
+        <wsdl:operation name="GetProductInfoByCode">
+            <soap:operation soapAction="urn:GetProductInfoByCode" style="document"/>
+            <wsdl:input>
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap:body use="literal"/>
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="GetProductionOrderByNo">
+            <soap:operation soapAction="urn:GetProductionOrderByNo" style="document"/>
+            <wsdl:input>
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap:body use="literal"/>
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="PostGoodsReceiveNote">
+            <soap:operation soapAction="urn:PostGoodsReceiveNote" style="document"/>
+            <wsdl:input>
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap:body use="literal"/>
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="GetDeliveryNoteByNo">
+            <soap:operation soapAction="urn:GetDeliveryNoteByNo" style="document"/>
+            <wsdl:input>
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap:body use="literal"/>
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="PostDeliveryNoteDetailScanQty">
+            <soap:operation soapAction="urn:PostDeliveryNoteDetailScanQty" style="document"/>
+            <wsdl:input>
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap:body use="literal"/>
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="PostOtherDeliveryNoteDetailActualQty">
+            <soap:operation soapAction="urn:PostOtherDeliveryNoteDetailActualQty" style="document"/>
+            <wsdl:input>
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap:body use="literal"/>
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="PostTransferReceiveNote">
+            <soap:operation soapAction="urn:PostTransferReceiveNote" style="document"/>
+            <wsdl:input>
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap:body use="literal"/>
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="PostTransferOutNote">
+            <soap:operation soapAction="urn:PostTransferOutNote" style="document"/>
+            <wsdl:input>
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap:body use="literal"/>
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="PostTransferInNote">
+            <soap:operation soapAction="urn:PostTransferInNote" style="document"/>
             <wsdl:input>
                 <soap:body use="literal"/>
             </wsdl:input>
