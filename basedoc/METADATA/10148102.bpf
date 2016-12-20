@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="gbk"?>
+<component conRouterType="手动" createIndustry="0" createTime="2011-11-11 15:44:21" creator="" description="" displayName="warehouse_contrast" fromSourceBmf="true" gencodestyle="NC传统样式" help="" id="505da79c-2cc3-42ee-b639-b5684cc18a1c" industry="0" industryChanged="false" industryIncrease="false" industryName="基础行业" isSource="false" isbizmodel="true" mainEntity="" modifier="" modifyIndustry="0" modifyTime="2012-06-26 20:43:55" name="warehouse_contrast" namespace="ic" ownModule="ic" preLoad="false" resModuleName="warehouse_contrast" resid="" version="54" versionType="0">
+    <celllist>
+        <opinterface componentID="505da79c-2cc3-42ee-b639-b5684cc18a1c" createIndustry="0" createTime="2011-11-11 15:44:24" creator="" description="" displayName="操作接口" fullClassName="nc.itf.ic.IWarehouseContrastMaintain" height="155" help="" id="d9890025-59f0-4759-a5d8-b45fee4f852a" implClsName="nc.impl.ic.WarehouseContrastMaintainImpl" industryChanged="false" isAuthorization="true" isBusiActivity="false" isBusiOperation="false" isSource="false" modifier="" modifyIndustry="0" modifyTime="2012-06-26 20:43:55" name="OpInterface" remote="true" resid="" singleton="true" transprop="NONE" version="" versionType="0" visibility="public" width="136" x="68" y="52">
+            <operationlist>
+                <operation dataType="63af8c51-43db-41be-947d-920ee957b414" dataTypeStyle="ARRAY" dbtype="" defclassname="" displayName="queryByQueryScheme" forBusinessEntity="N" help="" id="42bf7d7f-c11f-4ed4-9905-f1bb527447e4" isAggVOReturn="false" isBusiActivity="false" methodException="nc.vo.pub.BusinessException" name="queryByQueryScheme" opItfID="d9890025-59f0-4759-a5d8-b45fee4f852a" ownerElementID="d9890025-59f0-4759-a5d8-b45fee4f852a" transKind="REQUIRED" typeDisplayName="仓库档案对照表" typeName="warehouse_contrast" versionType="0" visibility="public">
+                    <paramlist>
+                        <parameter dataType="BS000010000100001056" dataTypeStyle="SINGLE" dbtype="varchar" description="" displayName="queryScheme" isAggVO="false" name="queryScheme" operationID="42bf7d7f-c11f-4ed4-9905-f1bb527447e4" paramTypeForLog="7" paramdefclassname="nc.ui.querytemplate.querytree.IQueryScheme" sequence="0" typeDisplayName="自定义项" typeName="CUSTOM" versionType="0"/>
+                    </paramlist>
+                </operation>
+            </operationlist>
+            <opImpllist>
+                <opItfImpl createTime="2011-11-19 11:27:58" creator="" description="" displayName="实现类" fullClassName="nc.impl.ic.WarehouseContrastMaintainImpl" id="489fb3cc-d62f-45c3-8ffe-54567712d54d" name="Maintain" ownerElementID="d9890025-59f0-4759-a5d8-b45fee4f852a" tag="" type="" versionType="0"/>
+            </opImpllist>
+        </opinterface>
+    </celllist>
+    <connectlist/>
+    <refdepends/>
+    <refdependLoseIDs/>
+    <cellRemoveLog/>
+    <rulers>
+        <ruler isHorizontal="true" unit="0">
+            <guideList/>
+        </ruler>
+        <ruler isHorizontal="false" unit="0">
+            <guideList/>
+        </ruler>
+    </rulers>
+</component>

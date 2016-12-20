@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="gbk"?>
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+<bean id="stbTotal" class="nc.pubapp.pade.systemplatebase.vo.SystempletBaseTotal"><property name="funcNode" value="10148103"/>
+<property name="stbList">
+<list><bean class="nc.pubapp.pade.systemplatebase.vo.SystemplateBase"><property name="dr" value="0"/>
+<property name="funnode" value="10148103"/>
+<property name="moduleid" value="1014"/>
+<property name="nodekey" value="bt"/>
+<property name="pk_systemplate" value="0001AA10000000007HB8"/>
+<property name="templateid" value="0001AA10000000007HAY"/>
+<property name="templatename" value="单据模板"/>
+<property name="tempstyle" value="0"/>
+</bean>
+</list>
+</property>
+</bean>
+
+</beans>

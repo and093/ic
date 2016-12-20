@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="gbk"?>
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+<bean id="menuItem" class="nc.pubapp.pade.funcmodel.vo.MenuItem"><property name="dr" value="0"/>
+<property name="funModelFilePath" value="basedoc/funcmodel/warehouseContrast/funcregis/10148102.menu"/>
+<property name="funcode" value="10148102"/>
+<property name="ismenutype" value="false"/>
+<property name="menuitemcode" value="10148102"/>
+<property name="menuitemname" value="仓库档案对照表"/>
+<property name="pk_menuitem" value="0001AA10000000007HAJ"/>
+<property name="resid" value="D10148102"/>
+<property name="ts" value="2016-12-16 14:25:31"/>
+</bean>
+
+</beans>

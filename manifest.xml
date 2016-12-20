@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Manifest>
+  <BusinessComponet name="basedoc" dispname="basedoc">
+    <public>
+      <src name="src/public"/>
+    </public>
+    <client>
+      <src name="src/client"/>
+    </client>
+    <private>
+      <src name="src/private"/>
+    </private>
+    <test>
+      <src name="src/test"/>
+    </test>
+    <resource>
+      <src name="resources"/>
+    </resource>
+    <funnodes>
+      <funnode name="仓库档案对照表" code="10148102" funnode="basedoc/ace/client/10148102.fnf" service="basedoc/ace/service/10148102.smf"/>
+      <funnode name="人员对照表" code="10148103" funnode="basedoc/ace/client/10148103.fnf" service="basedoc/ace/service/10148103.smf"/>
+      <funnode name="人员对应表" code="10148106" funnode="basedoc/ace/client/10148106.fnf" service="basedoc/ace/service/10148106.smf"/>
+      <funnode name="的发广告" code="10148155" funnode="basedoc/ace/client/10148155.fnf" service="basedoc/ace/service/10148155.smf"/>
+      <funnode name="人员对照对照对照表" code="10148137" funnode="basedoc/ace/client/10148137.fnf" service="basedoc/ace/service/10148137.smf"/>
+      <funnode name="仓库档案对照表" code="10148109" funnode="basedoc/ace/client/10148109.fnf" service="basedoc/ace/service/10148109.smf"/>
+      <funnode name="人员档案对照表" code="10148110" funnode="basedoc/ace/client/10148110.fnf" service="basedoc/ace/service/10148110.smf"/>
+    </funnodes>
+  </BusinessComponet>
+  <BusinessComponet name="ws" dispname="ws">
+    <public>
+      <src name="src/public"/>
+    </public>
+    <client>
+      <src name="src/client"/>
+    </client>
+    <private>
+      <src name="src/private"/>
+    </private>
+    <test>
+      <src name="src/test"/>
+    </test>
+    <resource>
+      <src name="resources"/>
+    </resource>
+    <funnodes/>
+  </BusinessComponet>
+</Manifest>

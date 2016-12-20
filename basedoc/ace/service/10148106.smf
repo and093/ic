@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="gbk"?>
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+	<bean id="general" class="nc.pubapp.pade.code.service.Service">
+			    <property name="servBsPackName" value="nc.bs.ic.personalcontrast"/>
+	    <property name="servImplPackName" value="nc.impl.ic.personalcontrast"/>
+	    <property name="metaData" value="basedoc\METADATA\personalContrast.bmf"/>
+		<property name="metaDataType" value="singleType" />
+		<property name="compName" value="basedoc" />
+		<property name="itfFullClassName" value="nc.itf.ic.IPersonalContrastMaintain"/>
+	    <property name="implFullClassName" value="nc.impl.ic.PersonalContrastMaintainImpl"/>
+	    <property name="itfPackageName" value="nc.itf.ic"/>
+	    <property name="itfClassName" value="IPersonalContrastMaintain"/>
+	</bean>
+
+	<bean id="FilePackNameBean" class="nc.pubapp.pade.code.engine.FilePackNamePara">
+	    <property name="filePackNameList">
+	        <list>
+			    <value>nc.bs.ic.personalcontrast.bp.PersonalContrastBP.java</value>
+			    <value>nc.bs.ic.personalcontrast.ace.rule.DataUniqueCheckRule.java</value>
+			    <value>nc.impl.pub.ace.AcePersonalContrastPubServiceImpl.java</value>
+	        </list>
+    	</property>
+	</bean>
+
+	<bean id="Service" class="nc.pubapp.pade.designer.service.model.ServiceDiagram">
+	</bean>
+
+	<bean id="implClassPara" class="nc.pubapp.pade.code.service.ImplClassPara">
+	</bean>
+
+</beans>

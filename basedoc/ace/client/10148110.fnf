@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="gbk"?>
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+	<bean id="general" class="nc.pubapp.pade.code.funnode.FunNodePara">
+        <property name="moduleName" value="ic" />
+	    <property name="bpfPath" value="test.bpf"/>
+	    <property name="funcode" value="10148110"/>
+	    <property name="clientPackName" value="nc.ui.ic.personalcontrast"/>
+			    <property name="metaData" value="basedoc\METADATA\personalContrast.bmf"/>
+	    <property name="xmlPath" value="basedoc\src\client\nc\ui\ic\personalcontrast\ace\view\PersonalContrast_config.xml"/>
+	    <property name="metaDataType" value="singleType" />
+		<property name="funcregispath" value="basedoc/funcmodel/personalContrast/funcregis/10148110.func" />
+		<property name="quetempath" value="${quetempath}" />
+		<property name="printtempath" value="${printtempath}" />
+		<property name="systembasepath" value="basedoc/systemplatebase/personalContrast/10148110/10148110.stb" />
+		<property name="extendSuffix" value=""/>
+		<property name="uif2ModelFilePath" value="basedoc\ace\uif2model\10148110.umf"/>
+		<property name="busiCompName" value="basedoc"/>
+		<property name="metaDataId" value="461f6d6e-637e-4d1d-a418-65d37b69923e"/>
+	</bean>
+
+	<bean id="templet" class="nc.pubapp.pade.code.funnode.Templet">
+		<property name="tempStyle" value="1" />
+		<property name="nodeKey" value="" />
+		<property name="templetPath" value="basedoc/templet/personalContrast/billtemplet/10148110.btf" />
+	</bean>
+	
+	<bean id="FilePackNameBean" class="nc.pubapp.pade.code.engine.FilePackNamePara">
+		<property name="filePackNameList">
+			 <list>
+				  <value>nc.ui.ic.personalcontrast.action.PersonalContrastAddLineAction.java</value>
+				  <value>nc.ui.ic.personalcontrast.handler.BodyAfterEditHandler.java</value>
+				  <value>nc.ui.ic.personalcontrast.handler.BodyBeforeEditHandler.java</value>
+			 </list>
+		</property>
+	</bean>
+
+</beans>

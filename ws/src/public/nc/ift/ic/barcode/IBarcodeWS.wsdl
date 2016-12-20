@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<wsdl:definitions
+xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/"
+xmlns:wsaw="http://www.w3.org/2006/05/addressing/wsdl"
+xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/"
+xmlns:jaxb="http://java.sun.com/xml/ns/jaxb"
+xmlns:jaxws="http://java.sun.com/xml/ns/jaxws"
+jaxb:version="2.0"
+xmlns:ns0="http://barcode.ic.ift.nc/IBarcodeWS"
+targetNamespace="http://barcode.ic.ift.nc/IBarcodeWS">
+
+<jaxws:bindings>
+	<jaxws:package name="nc.ift.ic.barcode"/>
+</jaxws:bindings>
+
+<wsdl:types>
+   <xsd:schema xmlns:ns="http://barcode.ic.ift.nc/IBarcodeWS"
+			attributeFormDefault="unqualified"
+			elementFormDefault="unqualified"
+			targetNamespace="http://barcode.ic.ift.nc/IBarcodeWS" jaxb:version="2.0">
+	<xsd:annotation>
+    	<xsd:appinfo>
+   			<jaxb:schemaBindings>
+    			<jaxb:package name="nc.ift.ic.barcode"/>
+    		</jaxb:schemaBindings>
+   		</xsd:appinfo>
+   	</xsd:annotation>
+	<xsd:element name="getProductInfoByCode">
+         <xsd:complexType>
+            <xsd:sequence>
+				<xsd:element name="string"  minOccurs="0" nillable="true" type="xsd:string"/>
+             </xsd:sequence>  
+         </xsd:complexType>
+     </xsd:element>
+	<xsd:element name="getProductInfoByCodeResponse">
+         <xsd:complexType>
+            <xsd:sequence>
+				<xsd:element name="return"  minOccurs="0" nillable="true" type="xsd:string"/>
+             </xsd:sequence>  
+         </xsd:complexType>
+     </xsd:element>
+   </xsd:schema>
+</wsdl:types>
+    <wsdl:message name="getProductInfoByCodeRequest">
+        <wsdl:part name="parameters"  element="ns0:getProductInfoByCode"/>
+    </wsdl:message>
+    <wsdl:message name="getProductInfoByCodeResponse">
+        <wsdl:part name="parameters"  element="ns0:getProductInfoByCodeResponse"/>
+    </wsdl:message>
+
+    <wsdl:portType name="IBarcodeWSPortType">
+        <wsdl:operation name="getProductInfoByCode">
+            <wsdl:input message="ns0:getProductInfoByCodeRequest" wsaw:Action="urn:getProductInfoByCode"/>
+            <wsdl:output message="ns0:getProductInfoByCodeResponse" wsaw:Action="urn:getProductInfoByCodeResponse"/>
+        </wsdl:operation>
+    </wsdl:portType>
+    
+    
+    <wsdl:binding name="IBarcodeWSSOAP11Binding" type="ns0:IBarcodeWSPortType">
+        <soap:binding transport="http://schemas.xmlsoap.org/soap/http" style="document"/>
+        <wsdl:operation name="getProductInfoByCode">
+            <soap:operation soapAction="urn:getProductInfoByCode" style="document"/>
+            <wsdl:input>
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap:body use="literal"/>
+            </wsdl:output>
+        </wsdl:operation>
+    </wsdl:binding>
+    <wsdl:service name="IBarcodeWS">
+        <wsdl:port name="IBarcodeWSSOAP11port_http" binding="ns0:IBarcodeWSSOAP11Binding">
+            <soap:address location="http://localhost/uapws/service/IBarcodeWS"/>
+        </wsdl:port>
+    </wsdl:service>
+</wsdl:definitions>

@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<SynSaleOrder>
+	<OrderCustormer>
+		<ReceivName>${code}</ReceivName>
+		<ReceivTel>123456</ReceivTel>
+		<ReceivPhone>123456</ReceivPhone>
+		<ReceivAddress>测试测试</ReceivAddress>
+	</OrderCustormer>
+</SynSaleOrder>

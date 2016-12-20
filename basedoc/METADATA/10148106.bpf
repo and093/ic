@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="gbk"?>
+<component conRouterType="手动" createIndustry="0" createTime="2011-11-11 15:44:21" creator="" description="" displayName="personal_contrast" fromSourceBmf="true" gencodestyle="NC传统样式" help="" id="3da03d20-ddf9-48ab-b442-f7f93d854294" industry="0" industryChanged="false" industryIncrease="false" industryName="基础行业" isSource="false" isbizmodel="true" mainEntity="" modifier="" modifyIndustry="0" modifyTime="2012-06-26 20:43:55" name="personal_contrast" namespace="ic" ownModule="ic" preLoad="false" resModuleName="personal_contrast" resid="" version="54" versionType="0">
+    <celllist>
+        <opinterface componentID="3da03d20-ddf9-48ab-b442-f7f93d854294" createIndustry="0" createTime="2011-11-11 15:44:24" creator="" description="" displayName="操作接口" fullClassName="nc.itf.ic.IPersonalContrastMaintain" height="155" help="" id="89c41dbb-16cd-4c37-b26d-d75a9a48546b" implClsName="nc.impl.ic.PersonalContrastMaintainImpl" industryChanged="false" isAuthorization="true" isBusiActivity="false" isBusiOperation="false" isSource="false" modifier="" modifyIndustry="0" modifyTime="2012-06-26 20:43:55" name="OpInterface" remote="true" resid="" singleton="true" transprop="NONE" version="" versionType="0" visibility="public" width="136" x="68" y="52">
+            <operationlist>
+                <operation dataType="461f6d6e-637e-4d1d-a418-65d37b69923e" dataTypeStyle="ARRAY" dbtype="" defclassname="" displayName="queryByQueryScheme" forBusinessEntity="N" help="" id="61e76000-e421-46fe-8d5f-c84ee7be02c2" isAggVOReturn="false" isBusiActivity="false" methodException="nc.vo.pub.BusinessException" name="queryByQueryScheme" opItfID="89c41dbb-16cd-4c37-b26d-d75a9a48546b" ownerElementID="89c41dbb-16cd-4c37-b26d-d75a9a48546b" transKind="REQUIRED" typeDisplayName="人员对照表" typeName="personal_contrast" versionType="0" visibility="public">
+                    <paramlist>
+                        <parameter dataType="BS000010000100001056" dataTypeStyle="SINGLE" dbtype="varchar" description="" displayName="queryScheme" isAggVO="false" name="queryScheme" operationID="61e76000-e421-46fe-8d5f-c84ee7be02c2" paramTypeForLog="7" paramdefclassname="nc.ui.querytemplate.querytree.IQueryScheme" sequence="0" typeDisplayName="自定义项" typeName="CUSTOM" versionType="0"/>
+                    </paramlist>
+                </operation>
+            </operationlist>
+            <opImpllist>
+                <opItfImpl createTime="2011-11-19 11:27:58" creator="" description="" displayName="实现类" fullClassName="nc.impl.ic.PersonalContrastMaintainImpl" id="1142556e-1e33-4782-a205-29490620c073" name="Maintain" ownerElementID="89c41dbb-16cd-4c37-b26d-d75a9a48546b" tag="" type="" versionType="0"/>
+            </opImpllist>
+        </opinterface>
+    </celllist>
+    <connectlist/>
+    <refdepends/>
+    <refdependLoseIDs/>
+    <cellRemoveLog/>
+    <rulers>
+        <ruler isHorizontal="true" unit="0">
+            <guideList/>
+        </ruler>
+        <ruler isHorizontal="false" unit="0">
+            <guideList/>
+        </ruler>
+    </rulers>
+</component>

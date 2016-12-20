@@ -1,0 +1,161 @@
+<?xml version="1.0" encoding='UTF-8'?>
+<uif2designmodel>
+    <uif2elementHModel>
+        <uif2element className="" elementType="TEMPLATE_ELEMENT" id="4694808812225901661" isLeaf="true" nodeKey="bt" pid="BILL_TYPE_ID" pk_resourceinfo="" showName="10148155" templateId="basedoc/templet/personalContrast/billtemplet/10148155.btf" type="BILL_TYPE_ID">
+        </uif2element>
+        <uif2element className="nc.ui.pubapp.uif2app.model.BatchBillTableModel" elementType="MODEL" id="6428466005672747302" isLeaf="true" pid="MODEL" refMetaEntityID="461f6d6e-637e-4d1d-a418-65d37b69923e" showName="PUBAPP单表模型(BatchBillTableModel)实例对象" type="nc.ui.pubapp.uif2app.model.BatchBillTableModel">
+            <model inAutoAddLineMode="N">
+                <busiObjAdaptFactory mode="MD">
+                </busiObjAdaptFactory>
+            </model>
+            <relatedElementMap>
+            </relatedElementMap>
+        </uif2element>
+        <uif2element addLineActionName="" className="nc.ui.pubapp.uif2app.view.ShowUpableBatchBillTable" copyLineActionName="" delLineActionName="" elementType="VIEW" id="6693808060474717797" insLineActionName="" isLeaf="true" paste2TailActionName="" pasteLineActionName="" pid="VIEW" showName="PUBAPP单表编辑控件(BatchBillTable)实例对象" type="nc.ui.pubapp.uif2app.view.ShowUpableBatchBillTable">
+            <panel bodyAutoAddLine="N" bodyMultiSelectEnable="N" nodekey="bt">
+            </panel>
+            <relatedElementMap>
+                <relatedElement elementId="4694808812225901661" key="refTemplate">
+                </relatedElement>
+                <relatedElement elementId="6428466005672747302" key="dependDataModel">
+                </relatedElement>
+            </relatedElementMap>
+        </uif2element>
+        <uif2element className="nc.ui.pubapp.uif2app.view.OrgPanel" elementType="VIEW" id="9083364234711600169" isLeaf="true" pid="VIEW" showName="组织面板控件实例对象" type="nc.ui.pubapp.uif2app.view.OrgPanel">
+            <panel>
+            </panel>
+            <relatedElementMap>
+                <relatedElement elementId="6428466005672747302" key="dependDataModel">
+                </relatedElement>
+            </relatedElementMap>
+        </uif2element>
+        <uif2element className="" dependModel="6428466005672747302" elementType="ACTION" id="-5784507999263931834" isDependModelStatus="true" isLeaf="false" isTopAction="true" name="newActions" pid="ACTION" showName="newActions 节点级按钮" type="">
+            <actions>
+                <uif2element className="nc.ui.pubapp.uif2app.actions.batch.BatchEditAction" elementType="ACTION" id="-1073235881846748468" isLeaf="true" pid="8103011721421859074" showName="修改" type="nc.ui.pubapp.uif2app.actions.batch.BatchEditAction">
+                    <ncaction Code="Edit" LongDescription="" Name="修改" ShortDescription="修改(Ctrl+E)">
+                        <accelerator keyCode="69" modifiers="130">
+                        </accelerator>
+                    </ncaction>
+                    <relatedElementMap>
+                        <relatedElement elementId="6428466005672747302" key="refModelId">
+                        </relatedElement>
+                    </relatedElementMap>
+                </uif2element>
+                <uif2element className="nc.ui.pubapp.uif2app.actions.batch.BatchRefreshAction" elementType="ACTION" id="-233578167966651653" isLeaf="true" pid="8103011721421859074" showName="刷新" type="nc.ui.pubapp.uif2app.actions.batch.BatchRefreshAction">
+                    <ncaction Code="Refresh" LongDescription="" Name="刷新" ShortDescription="刷新(F5)">
+                        <accelerator keyCode="116" modifiers="0">
+                        </accelerator>
+                    </ncaction>
+                    <relatedElementMap>
+                        <relatedElement elementId="6428466005672747302" key="refModelId">
+                        </relatedElement>
+                    </relatedElementMap>
+                </uif2element>
+                <uif2element className="nc.ui.pubapp.uif2app.actions.batch.BatchAddLineAction" elementType="ACTION" id="4441889958346563177" isLeaf="true" pid="8103011721421859074" showName="新增" type="nc.ui.pubapp.uif2app.actions.batch.BatchAddLineAction">
+                    <ncaction Code="Add" LongDescription="" Name="新增" ShortDescription="新增(Ctrl+I)">
+                        <accelerator keyCode="73" modifiers="130">
+                        </accelerator>
+                    </ncaction>
+                    <relatedElementMap>
+                        <relatedElement elementId="6428466005672747302" key="refModelId">
+                        </relatedElement>
+                    </relatedElementMap>
+                </uif2element>
+                <uif2element className="nc.ui.pubapp.uif2app.actions.batch.BatchDelLineAction" elementType="ACTION" id="538353672992189549" isLeaf="true" pid="8103011721421859074" showName="删除" type="nc.ui.pubapp.uif2app.actions.batch.BatchDelLineAction">
+                    <ncaction Code="Delete" LongDescription="" Name="删除" ShortDescription="删除(Ctrl+D)">
+                        <accelerator keyCode="68" modifiers="130">
+                        </accelerator>
+                    </ncaction>
+                    <relatedElementMap>
+                        <relatedElement elementId="6693808060474717797" key="refViewId">
+                        </relatedElement>
+                        <relatedElement elementId="6428466005672747302" key="refModelId">
+                        </relatedElement>
+                    </relatedElementMap>
+                </uif2element>
+            </actions>
+            <editActions>
+                <uif2element className="nc.ui.pubapp.uif2app.actions.batch.BatchSaveAction" elementType="ACTION" id="-5622453301612644228" isLeaf="true" pid="8587299962534628773" showName="保存" type="nc.ui.pubapp.uif2app.actions.batch.BatchSaveAction">
+                    <ncaction Code="Save" LongDescription="" Name="保存" ShortDescription="保存(Ctrl+S)">
+                        <accelerator keyCode="83" modifiers="130">
+                        </accelerator>
+                    </ncaction>
+                    <relatedElementMap>
+                        <relatedElement elementId="6693808060474717797" key="refViewId">
+                        </relatedElement>
+                        <relatedElement elementId="6428466005672747302" key="refModelId">
+                        </relatedElement>
+                    </relatedElementMap>
+                </uif2element>
+                <uif2element className="nc.ui.pubapp.uif2app.actions.batch.BatchCancelAction" elementType="ACTION" id="1945779331184660362" isLeaf="true" pid="8587299962534628773" showName="取消" type="nc.ui.pubapp.uif2app.actions.batch.BatchCancelAction">
+                    <ncaction Code="Cancel" LongDescription="" Name="取消" ShortDescription="取消(Ctrl+Q)">
+                        <accelerator keyCode="81" modifiers="130">
+                        </accelerator>
+                    </ncaction>
+                    <relatedElementMap>
+                        <relatedElement elementId="6693808060474717797" key="refViewId">
+                        </relatedElement>
+                        <relatedElement elementId="6428466005672747302" key="refModelId">
+                        </relatedElement>
+                    </relatedElementMap>
+                </uif2element>
+                <uif2element className="nc.ui.pubapp.uif2app.actions.batch.BatchAddLineAction" elementType="ACTION" id="-995269349943005753" isLeaf="true" pid="8587299962534628773" showName="新增" type="nc.ui.pubapp.uif2app.actions.batch.BatchAddLineAction">
+                    <ncaction Code="Add" LongDescription="" Name="新增" ShortDescription="新增(Ctrl+I)">
+                        <accelerator keyCode="73" modifiers="130">
+                        </accelerator>
+                    </ncaction>
+                    <relatedElementMap>
+                        <relatedElement elementId="6428466005672747302" key="refModelId">
+                        </relatedElement>
+                    </relatedElementMap>
+                </uif2element>
+                <uif2element className="nc.ui.pubapp.uif2app.actions.batch.BatchDelLineAction" elementType="ACTION" id="-1577345660769407160" isLeaf="true" pid="8587299962534628773" showName="删除" type="nc.ui.pubapp.uif2app.actions.batch.BatchDelLineAction">
+                    <ncaction Code="Delete" LongDescription="" Name="删除" ShortDescription="删除(Ctrl+D)">
+                        <accelerator keyCode="68" modifiers="130">
+                        </accelerator>
+                    </ncaction>
+                    <relatedElementMap>
+                        <relatedElement elementId="6693808060474717797" key="refViewId">
+                        </relatedElement>
+                        <relatedElement elementId="6428466005672747302" key="refModelId">
+                        </relatedElement>
+                    </relatedElementMap>
+                </uif2element>
+            </editActions>
+        </uif2element>
+    </uif2elementHModel>
+    <actionModel>
+        <topActions topActions="-5784507999263931834">
+        </topActions>
+        <shoulderActions>
+        </shoulderActions>
+        <tabActions>
+        </tabActions>
+    </actionModel>
+    <uif2modeldriven useModelIdList="">
+        <uif2element className="" elementType="" id="MODEL_DATAMANAGER" isLeaf="false" pid="" showName="ModelDataManager" type="MODEL_DATAMANAGER">
+        </uif2element>
+        <cellList>
+            <mxCell height="80.0" id="MODEL_DATAMANAGER" style="imageAlign=center;imageVerticalAlign=top;align=center;verticalAlign=bottom;image=/images/uapde/outlook_generatevo.gif;shape=SHAPE_UIF2LABEL;imageWidth=50;imageHeight=50" type="nc.ui.uapde.uif2assemble.modeldrivendesignmx.UIF2ModelDataMrgMxCell" width="100.0" x="50.0" y="80.0">
+            </mxCell>
+        </cellList>
+        <edgeList>
+        </edgeList>
+        <dmDrivenMap>
+        </dmDrivenMap>
+        <m2mListenMap>
+        </m2mListenMap>
+    </uif2modeldriven>
+    <tangramLayoutDataRoot>
+        <VSDataNode className="" dividerLocation="74.0" elementType="SPLIT_ELEMENT" id="8146457328146316539" isLeaf="true" name="" pid="SPLIT_ELEMENT" showMode="SplitPane" showName="横向分割控件" type="nc.ui.uif2.tangramlayout.node.VSNode">
+            <up>
+                <CDataNode className="" elementType="SPLIT_ELEMENT" id="4318819763603095410" isLeaf="false" name="" pid="" refActionIds="" refViewNodeId="9083364234711600169" showName="" type="nc.ui.uif2.tangramlayout.node.CNode">
+                </CDataNode>
+            </up>
+            <down>
+                <CDataNode className="" elementType="SPLIT_ELEMENT" id="205822541561427667" isLeaf="false" name="" pid="" refActionIds="" refViewNodeId="6693808060474717797" showName="" type="nc.ui.uif2.tangramlayout.node.CNode">
+                </CDataNode>
+            </down>
+        </VSDataNode>
+    </tangramLayoutDataRoot>
+</uif2designmodel>

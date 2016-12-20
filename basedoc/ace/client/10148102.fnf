@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="gbk"?>
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+	<bean id="general" class="nc.pubapp.pade.code.funnode.FunNodePara">
+        <property name="moduleName" value="ic" />
+	    <property name="bpfPath" value="test.bpf"/>
+	    <property name="funcode" value="10148102"/>
+	    <property name="clientPackName" value="nc.ui.ic.warehousecontrast"/>
+			    <property name="metaData" value="basedoc\METADATA\warehouseContrast.bmf"/>
+	    <property name="xmlPath" value="basedoc\src\client\nc\ui\ic\warehousecontrast\ace\view\WarehouseContrast_config.xml"/>
+	    <property name="metaDataType" value="singleType" />
+		<property name="funcregispath" value="basedoc/funcmodel/warehouseContrast/funcregis/10148102.func" />
+		<property name="quetempath" value="${quetempath}" />
+		<property name="printtempath" value="${printtempath}" />
+		<property name="systembasepath" value="basedoc/systemplatebase/warehouseContrast/10148102/10148102.stb" />
+		<property name="extendSuffix" value=""/>
+		<property name="uif2ModelFilePath" value="basedoc\ace\uif2model\10148102.umf"/>
+		<property name="busiCompName" value="basedoc"/>
+		<property name="metaDataId" value="63af8c51-43db-41be-947d-920ee957b414"/>
+	</bean>
+
+	<bean id="templet" class="nc.pubapp.pade.code.funnode.Templet">
+		<property name="tempStyle" value="1" />
+		<property name="nodeKey" value="" />
+		<property name="templetPath" value="basedoc/templet/warehouseContrast/billtemplet/10148102.btf" />
+	</bean>
+	
+	<bean id="FilePackNameBean" class="nc.pubapp.pade.code.engine.FilePackNamePara">
+		<property name="filePackNameList">
+			 <list>
+				  <value>nc.ui.ic.warehousecontrast.action.WarehouseContrastAddLineAction.java</value>
+				  <value>nc.ui.ic.warehousecontrast.handler.BodyAfterEditHandler.java</value>
+				  <value>nc.ui.ic.warehousecontrast.handler.BodyBeforeEditHandler.java</value>
+			 </list>
+		</property>
+	</bean>
+
+</beans>

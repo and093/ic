@@ -1,0 +1,15 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<module>
+	<public>
+		<component tx="CMT" supportAlias="false" singleton="true" name="barcodeWS" active="true" remote="true">
+			<interface>nc.ift.ic.barcode.IBarcodeWS</interface>
+			<implementation>nc.impl.ic.barcode.BarcodeWSImpl</implementation>
+			<extension class="nc.uap.ws.deploy.OxbWSExtensionProcessor">
+				<wsdl>/nc/ift/ic/barcode/IBarcodeWS.wsdl</wsdl>
+				<address>/barcodews</address>
+			</extension>
+		</component>
+	</public>
+	<private>
+	</private>
+</module>
