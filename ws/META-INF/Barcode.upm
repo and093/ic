@@ -9,6 +9,33 @@
 				<address>/barcodews</address>
 			</extension>
 		</component>
+		
+		
+		<component tx="NONE" supportAlias="true" singleton="true" active="true" remote="true">
+			<interface>nc.ift.ic.barcode.IMaterialInfo</interface>
+			<implementation>nc.impl.ic.barcode.MaterialInfoImpl</implementation>
+		</component>
+		
+		<component tx="CMT" supportAlias="true" singleton="true" active="true" remote="true">
+			<interface>nc.ift.ic.barcode.IOutboundOrder</interface>
+			<implementation>nc.impl.ic.barcode.OutboundOrderImpl</implementation>
+		</component>
+		
+		<component tx="CMT" supportAlias="true" singleton="true" active="true" remote="true">
+			<interface>nc.ift.ic.barcode.IProductOrder</interface>
+			<implementation>nc.impl.ic.barcode.ProductOrderImpl</implementation>
+		</component>
+		
+		<component tx="CMT" supportAlias="true" singleton="true" active="true" remote="true">
+			<interface>nc.ift.ic.barcode.ITOInOrder</interface>
+			<implementation>nc.impl.ic.barcode.TOInOrderImpl</implementation>
+		</component>
+		
+		<component tx="CMT" supportAlias="true" singleton="true" active="true" remote="true">
+			<interface>nc.ift.ic.barcode.ITransferOrder</interface>
+			<implementation>nc.impl.ic.barcode.TransferOrderImpl</implementation>
+		</component>
+		
 	</public>
 
 </module>
