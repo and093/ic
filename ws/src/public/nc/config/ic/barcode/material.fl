@@ -1,9 +1,10 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<SynSaleOrder>
-	<OrderCustormer>
-		<ReceivName>${code}</ReceivName>
-		<ReceivTel>123456</ReceivTel>
-		<ReceivPhone>123456</ReceivPhone>
-		<ReceivAddress>测试测试</ReceivAddress>
-	</OrderCustormer>
-</SynSaleOrder>
+<ProductInfo>
+	<EX_CODE>${EX_CODE}</EX_CODE>
+	<EX_MSG>${EX_MSG!}</EX_MSG>
+	<ProductCategoryName>${marclassname!}</ProductCategoryName>
+	<ProductNo>${code!}</ProductNo>
+	<ProductName>${name!}</ProductName>
+	<ProductUM>${measname!}</ProductUM>
+	<PackSize>${materialspec!}</PackSize>
+</ProductInfo>
