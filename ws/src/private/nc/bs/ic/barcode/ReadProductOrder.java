@@ -71,7 +71,7 @@ public class ReadProductOrder {
 			
 			para.put("detail", bodylist);
 			
-			return FreeMarkerUtil.process(para,"nc/config/ic/barcode/material.fl");
+			return FreeMarkerUtil.process(para,"nc/config/ic/barcode/ReadProductOrder.fl");
 			
 		} else {
 			CommonUtil.putFailResult(para, "单号" + orderNo + "找不到对应的出库单");
@@ -132,7 +132,7 @@ return null;
 				
 				para.put("detail", bodylist);
 				
-				return FreeMarkerUtil.process(para,"nc/config/ic/barcode/material.fl");
+				return FreeMarkerUtil.process(para,"nc/config/ic/barcode/ReadProductOrder.fl");
 				
 			} else {
 				CommonUtil.putFailResult(para, "单号" + orderNo + "找不到对应的出库单");
@@ -192,7 +192,7 @@ return null;
 				
 				para.put("detail", bodylist);
 				
-				return FreeMarkerUtil.process(para,"nc/config/ic/barcode/material.fl");
+				return FreeMarkerUtil.process(para,"nc/config/ic/barcode/ReadProductOrder.fl");
 				
 			} else {
 				CommonUtil.putFailResult(para, "单号" + orderNo + "找不到对应的出库单");

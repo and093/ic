@@ -35,7 +35,7 @@ public class OutboundOrderImpl implements IOutboundOrder {
 		} else if("4Y".equals(transationType)) {
 			readproductorder.RaadTransOutOrder(orderNo);
 		} else {
-	}//
+	}
 		return null;
 	}
 
