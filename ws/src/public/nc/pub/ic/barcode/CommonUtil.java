@@ -20,6 +20,7 @@ public class CommonUtil {
 	
 	public static void putSuccessResult(HashMap<String, Object> para){
 		para.put("EX_CODE", CommonUtil.EX_CODE_SUCCESS);
+		para.put("EX_CODE", "");
 	}
 	
 	public static void putFailResult(HashMap<String, Object> para, String msg){

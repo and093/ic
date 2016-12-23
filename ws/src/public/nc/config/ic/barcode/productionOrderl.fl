@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<ProductionOrder>
+	<EX_CODE>${EX_CODE}</EX_CODE>
+	<EX_MSG>${EX_MSG!}</EX_MSG>
+	<Items>
+		<Item>
+			<PlanProductionDate>${marclassname!}</PlanProductionDate>
+			<ProductionOrderType>${code!}</ProductionOrderType>
+			<OrderStatus>${name!}</OrderStatus>
+			<WorkshopCode>${measname!}</WorkshopCode>
+			<WorkshopName>${materialspec!}</WorkshopName>
+			<ProductionLineCode>${materialspec!}</ProductionLineCode>
+			<ProductionLineName>${materialspec!}</ProductionLineName>
+			<ProductCategoryName>${materialspec!}</ProductCategoryName>
+			<ProductCode>${materialspec!}</ProductCode>
+			<ProductNo>${materialspec!}</ProductNo>
+			<ProductName>${materialspec!}</ProductName>
+			<ProductUM>${materialspec!}</ProductUM>
+			<PackSize>${materialspec!}</PackSize>
+			<PlanPackQty>${materialspec!}</PlanPackQty>
+			<PalletPackSize>${materialspec!}</PalletPackSize>
+			<IsNeedToCheckProduct>${materialspec!}</IsNeedToCheckProduct>
+		<Item>
+	</Items>
+</ProductionOrder>
