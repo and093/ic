@@ -62,7 +62,7 @@ public class WsQueryBS {
 		return null;
 	}
 	/**
-	 * 根据pk获得编号和名称
+	 * 根据pk获得仓库对照表的编号和名称
 	 * @param cwarehouseid
 	 * @return
 	 * @throws DAOException 
