@@ -25,7 +25,7 @@
 			<interface>nc.ift.ic.barcode.IProductOrder</interface>
 			<implementation>nc.impl.ic.barcode.ProductOrderImpl</implementation>
 		</component>
-		
+		 
 		<component tx="CMT" supportAlias="true" singleton="true" active="true" remote="true">
 			<interface>nc.ift.ic.barcode.ITOInOrder</interface>
 			<implementation>nc.impl.ic.barcode.TOInOrderImpl</implementation>
