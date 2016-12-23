@@ -2,6 +2,8 @@ package nc.pub.ic.barcode;
 
 import java.util.HashMap;
 
+import nc.vo.pub.lang.UFDouble;
+
 /**
  * 定义所有的常量
  * @author thinkpad
@@ -23,5 +25,13 @@ public class CommonUtil {
 	public static void putFailResult(HashMap<String, Object> para, String msg){
 		para.put("EX_CODE", CommonUtil.EX_CODE_FAIL);
 		para.put("EX_MSG", msg);
+	}
+	
+	
+	public static UFDouble getUFDouble(Object v){
+		if(v == null || "~".equals(v.toString())){
+			return UFDouble.ZERO_DBL;
+		}
+		return new UFDouble(v.toString());
 	}
 }
