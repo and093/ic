@@ -29,14 +29,13 @@ public class OutboundOrderImpl implements IOutboundOrder {
 	public String getOutboundOrder(String transationType, String orderNo) {
 		ReadProductOrder readproductorder =new ReadProductOrder();
 		if("4C".equals(transationType)){
-			readproductorder.RaadSaleOrder(orderNo);
-		} else if("4A".equals(transationType)) {
-			readproductorder.RaadGeneralOutOrder(orderNo);
-		} else if("4Y".equals(transationType)) {
-			readproductorder.RaadTransOutOrder(orderNo);
-		} else {
-	}
-		return null;
+			return readproductorder.RaadSaleOrder(orderNo);
+		}if("4A".equals(transationType)) {
+			return readproductorder.RaadGeneralOutOrder(orderNo);
+		}if("4Y".equals(transationType)) {
+			return readproductorder.RaadTransOutOrder(orderNo);
+		} 
+		return readproductorder.Error(orderNo);
 	}
 
 	/**
