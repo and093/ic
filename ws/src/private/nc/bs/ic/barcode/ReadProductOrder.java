@@ -24,7 +24,7 @@ import nc.vo.pub.AggregatedValueObject;
 
 public class ReadProductOrder {
 	/**
-	 * 销售出库单读取v
+	 * 销售出库单读取
 	 * 
 	 * @param orderNo
 	 * @return
