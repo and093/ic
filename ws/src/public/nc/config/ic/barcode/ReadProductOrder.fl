@@ -7,7 +7,7 @@
 	<Date>${Date!}</Date>
 	<Remark>${Remark!}</Remark>
 	<Details>
-	<#list gvos as gvo> 
+	<#list bodys as gvo> 
 		<OrderDetail>
 			<LineNo>${LineNo!}</LineNo>
 			<ProductCode>${ProductCode!}</ProductCode>
