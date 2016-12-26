@@ -70,7 +70,7 @@ public class OutboundOrderImpl implements IOutboundOrder {
 			CommonUtil.putFailResult(para, "没有与交易类型" + TransationType
 					+ "对应的出库业务");
 			return FreeMarkerUtil.process(para,
-					"nc/config/ic/barcode/OutBoundOrder.fl");
+					"nc/config/ic/barcode/WriteOutBoundOrder.fl");
 		}
 	}
 	
@@ -147,7 +147,7 @@ public class OutboundOrderImpl implements IOutboundOrder {
 			e.printStackTrace();
 		}
 		return FreeMarkerUtil.process(para,
-				"nc/config/ic/barcode/OutBoundOrder.fl");
+				"nc/config/ic/barcode/WriteOutBoundOrder.fl");
 	}
 
 	private String writeGeneralOut(String OrderNo, String LineNo,
@@ -204,7 +204,7 @@ public class OutboundOrderImpl implements IOutboundOrder {
 			e.printStackTrace();
 		}
 		return FreeMarkerUtil.process(para,
-				"nc/config/ic/barcode/OutBoundOrder.fl");
+				"nc/config/ic/barcode/WriteOutBoundOrder.fl");
 	}
 	
 	private String writeSaleOrderBound(String OrderNo, String LineNo,
@@ -260,7 +260,7 @@ public class OutboundOrderImpl implements IOutboundOrder {
 			CommonUtil.putFailResult(para, "写入数据库失败" + e.getMessage());
 			e.printStackTrace();
 		}
-		return FreeMarkerUtil.process(para, "nc/config/ic/barcode/OutBoundOrder.fl");
+		return FreeMarkerUtil.process(para, "nc/config/ic/barcode/WriteOutBoundOrder.fl");
 	}
 
 	@Override
