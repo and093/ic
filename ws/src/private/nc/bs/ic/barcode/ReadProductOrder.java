@@ -46,8 +46,8 @@ public class ReadProductOrder {
 						.queryLocationInfoByPk(pk_stordoc);
 				if (stordocMap != null && stordocMap.size() != 0) {
 					para.put("SenderLocationCode",
-							stordocMap.get("SenderLocationCode"));
-					para.put("Senderlocationname",
+							stordocMap.get("senderlocationcode"));
+					para.put("SenderLocationName",
 							stordocMap.get("senderlocationname"));
 					para.put("Date", hvo.getDbilldate().toString());
 					para.put("Remark", hvo.getVnote());
@@ -73,6 +73,7 @@ public class ReadProductOrder {
 					}
 
 					para.put("detail", bodylist);
+					CommonUtil.putSuccessResult(para);
 				} else {
 					CommonUtil.putFailResult(para, "单号" + orderNo
 							+ "在仓库对照表没有相应的数据");
@@ -88,7 +89,7 @@ public class ReadProductOrder {
 			CommonUtil.putFailResult(para, "仓库对照表没有相应的数据");
 		}
 		return FreeMarkerUtil.process(para,
-				"nc/config/ic/barcode/ReadProductOrder.fl");
+				"nc/config/ic/barcode/ReadOutBoundOrder.fl");
 	}
 
 	/**
@@ -114,8 +115,8 @@ public class ReadProductOrder {
 						.queryLocationInfoByPk(pk_stordoc);
 				if (stordocMap != null && stordocMap.size() != 0) {
 					para.put("SenderLocationCode",
-							stordocMap.get("SenderLocationCode"));
-					para.put("Senderlocationname",
+							stordocMap.get("senderlocationcode"));
+					para.put("SenderLocationName",
 							stordocMap.get("senderlocationname"));
 				para.put("Date", hvo.getDbilldate().toString());
 				para.put("Remark", hvo.getVnote());
@@ -141,6 +142,7 @@ public class ReadProductOrder {
 					bodylist.add(bodypara);
 				}
 				para.put("detail", bodylist);
+				CommonUtil.putSuccessResult(para);
 				}else {
 					CommonUtil.putFailResult(para, "单号" + orderNo
 							+ "在仓库对照表没有相应的数据");
@@ -156,7 +158,7 @@ public class ReadProductOrder {
 			CommonUtil.putFailResult(para, "仓库对照表没有相应的数据");
 		}
 		return FreeMarkerUtil.process(para,
-				"nc/config/ic/barcode/ReadProductOrder.fl");
+				"nc/config/ic/barcode/ReadOutBoundOrder.fl");
 	}
 
 	/**
@@ -176,14 +178,13 @@ public class ReadProductOrder {
 				GeneralOutVO agg = (GeneralOutVO) list.get(0);
 				GeneralOutHeadVO hvo = agg.getHead();
 				GeneralOutBodyVO[] bodys = agg.getBodys();
-				// 将nc的仓库pk通过查询对照表转换为条码的仓库编码和名称
 				String pk_stordoc = hvo.getCwarehouseid();
 				HashMap<String, Object> stordocMap = WsQueryBS
 						.queryLocationInfoByPk(pk_stordoc);
 				if (stordocMap != null && stordocMap.size() != 0) {
 					para.put("SenderLocationCode",
-							stordocMap.get("SenderLocationCode"));
-					para.put("Senderlocationname",
+							stordocMap.get("senderlocationcode"));
+					para.put("SenderLocationName",
 							stordocMap.get("senderlocationname"));
 				para.put("Date", hvo.getDbilldate().toString());
 				para.put("Remark", hvo.getVnote());
@@ -209,6 +210,7 @@ public class ReadProductOrder {
 					bodylist.add(bodypara);
 				}
 				para.put("detail", bodylist);
+				CommonUtil.putSuccessResult(para);
 				}else {
 					CommonUtil.putFailResult(para, "单号" + orderNo
 							+ "在仓库对照表没有相应的数据");
@@ -224,7 +226,7 @@ public class ReadProductOrder {
 			CommonUtil.putFailResult(para, "仓库对照表没有相应的数据");
 		}
 		return FreeMarkerUtil.process(para,
-				"nc/config/ic/barcode/ReadProductOrder.fl");
+				"nc/config/ic/barcode/ReadOutBoundOrder.fl");
 	}
 
 	/**
@@ -237,7 +239,7 @@ public class ReadProductOrder {
 		HashMap<String, Object> para = new HashMap<String, Object>();
 		CommonUtil.putFailResult(para, "单号" + orderNo + "找不到对应的出库类型");
 		return FreeMarkerUtil.process(para,
-				"nc/config/ic/barcode/ReadProductOrder.fl");
+				"nc/config/ic/barcode/ReadOutBoundOrder.fl");
 	}
 
 }
