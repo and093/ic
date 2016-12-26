@@ -37,7 +37,7 @@ public class ReadProductOrder {
 			List<AggregatedValueObject> list = (List<AggregatedValueObject>) MDPersistenceService
 					.lookupPersistenceQueryService().queryBillOfVOByCond(
 							SaleOutHeadVO.class, where, true, false);
-			if (list != null && list.size() == 0) {
+			if (list != null && list.size() != 0) {
 				SaleOutVO agg = (SaleOutVO) list.get(0);
 				SaleOutHeadVO hvo = agg.getHead();
 				SaleOutBodyVO[] bodys = agg.getBodys();
@@ -45,30 +45,39 @@ public class ReadProductOrder {
 				String pk_stordoc = hvo.getCwarehouseid();
 				HashMap<String, Object> stordocMap = WsQueryBS
 						.queryLocationInfoByPk(pk_stordoc);
-				para.put("detail", stordocMap);
-				para.put("Date", hvo.getDbilldate().toString());
-				para.put("Remark", hvo.getVnote());
-				ArrayList<HashMap<String, Object>> bodylist = new ArrayList<HashMap<String, Object>>();
-				for (SaleOutBodyVO body : bodys) {
-					HashMap<String, Object> bodypara = new HashMap<String, Object>();
-					bodypara.put("BatchNo", body.getVbatchcode());
-					bodypara.put("LineNo", body.getCrowno());
-					bodypara.put("PlanPackQty", body.getNshouldassistnum());
-					bodypara.put("ActualPackQty", body.getNassistnum());
-					bodypara.put("ScanQty",
-							CommonUtil.getUFDouble(body.getVbdef20()));
-					// 转换主辅单位
-					bodypara.put("ProductUMName",
-							WsQueryBS.queryUnitName(body.getCunitid()));
-					bodypara.put("ActualPackQty",
-							WsQueryBS.queryUnitName(body.getCastunitid()));
-					String pk_material = body.getCmaterialoid();
-					HashMap<String, Object> materailMap = WsQueryBS
-							.queryMaterialInfoByPk(pk_material);
-					bodypara.putAll(materailMap);
-					bodylist.add(bodypara);
+				if (stordocMap != null && stordocMap.size() != 0) {
+					para.put("SenderLocationCode",
+							stordocMap.get("SenderLocationCode"));
+					para.put("Senderlocationname",
+							stordocMap.get("senderlocationname"));
+					para.put("Date", hvo.getDbilldate().toString());
+					para.put("Remark", hvo.getVnote());
+					ArrayList<HashMap<String, Object>> bodylist = new ArrayList<HashMap<String, Object>>();
+					for (SaleOutBodyVO body : bodys) {
+						HashMap<String, Object> bodypara = new HashMap<String, Object>();
+						bodypara.put("BatchNo", body.getVbatchcode());
+						bodypara.put("LineNo", body.getCrowno());
+						bodypara.put("PlanPackQty", body.getNshouldassistnum());
+						bodypara.put("ActualPackQty", body.getNassistnum());
+						bodypara.put("ScanQty",
+								CommonUtil.getUFDouble(body.getVbdef20()));
+						// 转换主辅单位
+						bodypara.put("ProductUMName",
+								WsQueryBS.queryUnitName(body.getCunitid()));
+						bodypara.put("ActualPackQty",
+								WsQueryBS.queryUnitName(body.getCastunitid()));
+						String pk_material = body.getCmaterialoid();
+						HashMap<String, Object> materailMap = WsQueryBS
+								.queryMaterialInfoByPk(pk_material);
+						bodypara.putAll(materailMap);
+						bodylist.add(bodypara);
+					}
+
+					para.put("detail", bodylist);
+				} else {
+					CommonUtil.putFailResult(para, "单号" + orderNo
+							+ "在仓库对照表没有相应的数据");
 				}
-				para.put("detail", bodylist);
 			} else {
 				CommonUtil.putFailResult(para, "单号" + orderNo + "找不到对应的出库单");
 			}
@@ -79,7 +88,8 @@ public class ReadProductOrder {
 			e.printStackTrace();
 			CommonUtil.putFailResult(para, "仓库对照表没有相应的数据");
 		}
-		return FreeMarkerUtil.process(para,"nc/config/ic/barcode/ReadProductOrder.fl");
+		return FreeMarkerUtil.process(para,
+				"nc/config/ic/barcode/ReadProductOrder.fl");
 	}
 
 	/**
@@ -94,8 +104,8 @@ public class ReadProductOrder {
 		try {
 			List<AggregatedValueObject> list = (List<AggregatedValueObject>) MDPersistenceService
 					.lookupPersistenceQueryService().queryBillOfVOByCond(
-							SaleOutHeadVO.class, where, true, false);
-			if (list != null && list.size() == 0) {
+							TransOutHeadVO.class, where, true, false);
+			if (list != null && list.size() != 0) {
 				TransOutVO agg = (TransOutVO) list.get(0);
 				TransOutHeadVO hvo = agg.getHead();
 				TransOutBodyVO[] bodys = agg.getBodys();
@@ -103,11 +113,13 @@ public class ReadProductOrder {
 				String pk_stordoc = hvo.getCwarehouseid();
 				HashMap<String, Object> stordocMap = WsQueryBS
 						.queryLocationInfoByPk(pk_stordoc);
-				para.put("detail", stordocMap);
-
+				if (stordocMap != null && stordocMap.size() != 0) {
+					para.put("SenderLocationCode",
+							stordocMap.get("SenderLocationCode"));
+					para.put("Senderlocationname",
+							stordocMap.get("senderlocationname"));
 				para.put("Date", hvo.getDbilldate().toString());
 				para.put("Remark", hvo.getVnote());
-
 				ArrayList<HashMap<String, Object>> bodylist = new ArrayList<HashMap<String, Object>>();
 				for (TransOutBodyVO body : bodys) {
 					HashMap<String, Object> bodypara = new HashMap<String, Object>();
@@ -130,7 +142,11 @@ public class ReadProductOrder {
 					bodylist.add(bodypara);
 				}
 				para.put("detail", bodylist);
-				} else {
+				}else {
+					CommonUtil.putFailResult(para, "单号" + orderNo
+							+ "在仓库对照表没有相应的数据");
+				}
+			} else {
 				CommonUtil.putFailResult(para, "单号" + orderNo + "找不到对应的出库单");
 			}
 		} catch (MetaDataException e) {
@@ -156,8 +172,8 @@ public class ReadProductOrder {
 		try {
 			List<AggregatedValueObject> list = (List<AggregatedValueObject>) MDPersistenceService
 					.lookupPersistenceQueryService().queryBillOfVOByCond(
-							SaleOutHeadVO.class, where, true, false);
-			if (list != null && list.size() == 0) {
+							GeneralOutHeadVO.class, where, true, false);
+			if (list != null && list.size() != 0) {
 				GeneralOutVO agg = (GeneralOutVO) list.get(0);
 				GeneralOutHeadVO hvo = agg.getHead();
 				GeneralOutBodyVO[] bodys = agg.getBodys();
@@ -165,7 +181,11 @@ public class ReadProductOrder {
 				String pk_stordoc = hvo.getCwarehouseid();
 				HashMap<String, Object> stordocMap = WsQueryBS
 						.queryLocationInfoByPk(pk_stordoc);
-				para.put("detail", stordocMap);
+				if (stordocMap != null && stordocMap.size() != 0) {
+					para.put("SenderLocationCode",
+							stordocMap.get("SenderLocationCode"));
+					para.put("Senderlocationname",
+							stordocMap.get("senderlocationname"));
 				para.put("Date", hvo.getDbilldate().toString());
 				para.put("Remark", hvo.getVnote());
 				ArrayList<HashMap<String, Object>> bodylist = new ArrayList<HashMap<String, Object>>();
@@ -190,6 +210,10 @@ public class ReadProductOrder {
 					bodylist.add(bodypara);
 				}
 				para.put("detail", bodylist);
+				}else {
+					CommonUtil.putFailResult(para, "单号" + orderNo
+							+ "在仓库对照表没有相应的数据");
+				}
 			} else {
 				CommonUtil.putFailResult(para, "单号" + orderNo + "找不到对应的出库单");
 			}

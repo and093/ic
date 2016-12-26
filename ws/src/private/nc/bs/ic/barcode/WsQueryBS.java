@@ -22,8 +22,8 @@ public class WsQueryBS {
 	 * @return
 	 * @throws DAOException
 	 */
-	public static HashMap<String, Object> queryMaterialInfoByPk(String pk_material)
-			throws DAOException {
+	public static HashMap<String, Object> queryMaterialInfoByPk(
+			String pk_material) throws DAOException {
 		// 通过条码的物料短码，查询物料信息
 		BaseDAO dao = new BaseDAO();
 		HashMap<String, Object> para = new HashMap<String, Object>();
@@ -31,7 +31,7 @@ public class WsQueryBS {
 		sql.append(" select c.name ProductCategoryName, ")
 				.append("        a.code ProductNo, ")
 				.append("        a.name ProductName, ")
-//				.append("        b.name ProductUM, ")
+				// .append("        b.name ProductUM, ")
 				.append("        a.def16 PackSize,   ")
 				.append("        a.def8 ProductCode   ")
 				.append("  from bd_material a, bd_measdoc b, bd_marbasclass c ")
@@ -45,40 +45,44 @@ public class WsQueryBS {
 		}
 		return para;
 	}
-	
+
 	/**
 	 * 根据单位id得到单位名称
+	 * 
 	 * @param unitid
 	 * @return
-	 * @throws DAOException 
+	 * @throws DAOException
 	 */
-	public static String queryUnitName(String unitid) throws DAOException{
+	public static String queryUnitName(String unitid) throws DAOException {
 		BaseDAO dao = new BaseDAO();
-		Object rst =dao.executeQuery("select name from bd_measdoc where pk_measdoc = '"+unitid+"'",
-				new ColumnProcessor());
-		if(rst != null){
-			return (String)rst;
+		Object rst = dao.executeQuery(
+				"select name from bd_measdoc where pk_measdoc = '" + unitid
+						+ "'", new ColumnProcessor());
+		if (rst != null) {
+			return (String) rst;
 		}
 		return null;
 	}
+
 	/**
 	 * 根据pk获得仓库对照表的编号和名称
+	 * 
 	 * @param cwarehouseid
 	 * @return
-	 * @throws DAOException 
+	 * @throws DAOException
 	 */
-	public static HashMap<String, Object> queryLocationInfoByPk(String pk_stordoc) throws DAOException {
+	public static HashMap<String, Object> queryLocationInfoByPk(
+			String pk_stordoc) throws DAOException {
 		BaseDAO dao = new BaseDAO();
 		HashMap<String, Object> para = new HashMap<String, Object>();
-		Object rst =dao.executeQuery("select wc_name SenderLocationName ,wc_code SenderLocationCode from ic_warehouse_contrast where pk_stordoc = '"+pk_stordoc+"'",
-				new ColumnProcessor());
+		Object rst = dao
+				.executeQuery(
+						"select wc_name SenderLocationName ,wc_code SenderLocationCode from ic_warehouse_contrast where pk_stordoc = '"
+								+ pk_stordoc + "'", new MapProcessor());
 		if (rst != null) {
 			para.putAll((HashMap) rst);
 		}
 		return para;
 	}
 
-	
-	
-	}
-
+}

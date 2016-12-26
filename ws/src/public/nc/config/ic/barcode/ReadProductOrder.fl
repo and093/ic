@@ -1,27 +1,26 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <ReadOutBoundOrder>
-	<EX_CODE>${EX_CODE}</EX_CODE>
+	<EX_CODE>${EX_CODE!}</EX_CODE>
 	<EX_MSG>${EX_MSG!}</EX_MSG>
 	<SenderLocationCode>${SenderLocationCode!}</SenderLocationCode>
-	<SenderLocationName>${SenderLocationName!}</SenderLocationName>
+	<SenderLocationName>${Senderlocationname!}</SenderLocationName>
 	<Date>${Date!}</Date>
 	<Remark>${Remark!}</Remark>
 	<Details>
-	<#list bodys as body> 
+	<#list gvos as gvo> 
 		<OrderDetail>
 			<LineNo>${LineNo!}</LineNo>
 			<ProductCode>${ProductCode!}</ProductCode>
-			<ProductNo>${ProductNo!}</OrderFprice>
+			<ProductNo>${ProductNo!}</ProductNo>
 			<ProductName>${ProductName!}</ProductName>
 			<BatchNo>${BatchNo!}</BatchNo>
 			<ProductUMName>${ProductUMName!}</ProductUMName>
-			<PackUMName>${PackUMName!}</PackUMName>
 			<PackSize>${PackSize!}</PackSize>
 			<PlanPackQty>${PlanPackQty!}</PlanPackQty>
 			<ActualPackQty>${ActualPackQty!}</ActualPackQty>
 			<ScanQty>${ScanQty!}</ScanQty>
+			
 		</OrderDetail>
-	</#list>	
-	</Details>
+	</#list>
 </ReadOutBoundOrder>
 
