@@ -1,0 +1,269 @@
+<?xml version="1.0" encoding="gbk"?>
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+<bean id="billtemplet" class="nc.pubapp.pade.templet.vo.BillTemplet"><property name="bodyVO">
+<list><bean class="nc.pubapp.pade.templet.vo.BillTempletBody"><property name="cardflag" value="true"/>
+<property name="datatype" value="-1"/>
+<property name="editflag" value="true"/>
+<property name="foreground" value="-1"/>
+<property name="hyperlinkflag" value="false"/>
+<property name="inputlength" value="-1"/>
+<property name="itemkey" value="pk_dpc"/>
+<property name="leafflag" value="false"/>
+<property name="list" value="false"/>
+<property name="listHyperlinkflag" value="false"/>
+<property name="listflag" value="true"/>
+<property name="listshowflag" value="false"/>
+<property name="lockflag" value="false"/>
+<property name="metadatapath" value="pk_dpc"/>
+<property name="metadataproperty" value="ic.dpc.pk_dpc"/>
+<property name="newlineflag" value="false"/>
+<property name="nullflag" value="false"/>
+<property name="pk_billtemplet" value="0001A61000000000824K"/>
+<property name="pk_billtemplet_b" value="0001A61000000000824L"/>
+<property name="pos" value="1"/>
+<property name="reviseflag" value="false"/>
+<property name="showflag" value="false"/>
+<property name="showorder" value="1"/>
+<property name="table_code" value="dpc"/>
+<property name="table_name" value="部门对照表"/>
+<property name="totalflag" value="false"/>
+<property name="userdefflag" value="false"/>
+<property name="usereditflag" value="true"/>
+<property name="userflag" value="true"/>
+<property name="userreviseflag" value="false"/>
+<property name="usershowflag" value="true"/>
+<property name="width" value="100"/>
+</bean>
+<bean class="nc.pubapp.pade.templet.vo.BillTempletBody"><property name="cardflag" value="true"/>
+<property name="datatype" value="-1"/>
+<property name="editflag" value="true"/>
+<property name="foreground" value="-1"/>
+<property name="hyperlinkflag" value="false"/>
+<property name="inputlength" value="-1"/>
+<property name="itemkey" value="pk_org"/>
+<property name="leafflag" value="false"/>
+<property name="list" value="false"/>
+<property name="listHyperlinkflag" value="false"/>
+<property name="listflag" value="true"/>
+<property name="listshowflag" value="true"/>
+<property name="lockflag" value="false"/>
+<property name="metadatapath" value="pk_org"/>
+<property name="metadataproperty" value="ic.dpc.pk_org"/>
+<property name="newlineflag" value="false"/>
+<property name="nullflag" value="false"/>
+<property name="pk_billtemplet" value="0001A61000000000824K"/>
+<property name="pk_billtemplet_b" value="0001A61000000000824M"/>
+<property name="pos" value="1"/>
+<property name="reviseflag" value="false"/>
+<property name="showflag" value="true"/>
+<property name="showorder" value="2"/>
+<property name="table_code" value="dpc"/>
+<property name="table_name" value="部门对照表"/>
+<property name="totalflag" value="false"/>
+<property name="userdefflag" value="false"/>
+<property name="usereditflag" value="true"/>
+<property name="userflag" value="true"/>
+<property name="userreviseflag" value="false"/>
+<property name="usershowflag" value="true"/>
+<property name="width" value="100"/>
+</bean>
+<bean class="nc.pubapp.pade.templet.vo.BillTempletBody"><property name="cardflag" value="true"/>
+<property name="datatype" value="-1"/>
+<property name="editflag" value="true"/>
+<property name="foreground" value="-1"/>
+<property name="hyperlinkflag" value="false"/>
+<property name="inputlength" value="-1"/>
+<property name="itemkey" value="pk_group"/>
+<property name="leafflag" value="false"/>
+<property name="list" value="false"/>
+<property name="listHyperlinkflag" value="false"/>
+<property name="listflag" value="true"/>
+<property name="listshowflag" value="true"/>
+<property name="lockflag" value="false"/>
+<property name="metadatapath" value="pk_group"/>
+<property name="metadataproperty" value="ic.dpc.pk_group"/>
+<property name="newlineflag" value="false"/>
+<property name="nullflag" value="false"/>
+<property name="pk_billtemplet" value="0001A61000000000824K"/>
+<property name="pk_billtemplet_b" value="0001A61000000000824N"/>
+<property name="pos" value="1"/>
+<property name="reviseflag" value="false"/>
+<property name="showflag" value="true"/>
+<property name="showorder" value="3"/>
+<property name="table_code" value="dpc"/>
+<property name="table_name" value="部门对照表"/>
+<property name="totalflag" value="false"/>
+<property name="userdefflag" value="false"/>
+<property name="usereditflag" value="true"/>
+<property name="userflag" value="true"/>
+<property name="userreviseflag" value="false"/>
+<property name="usershowflag" value="true"/>
+<property name="width" value="100"/>
+</bean>
+<bean class="nc.pubapp.pade.templet.vo.BillTempletBody"><property name="cardflag" value="true"/>
+<property name="datatype" value="-1"/>
+<property name="editflag" value="true"/>
+<property name="foreground" value="-1"/>
+<property name="hyperlinkflag" value="false"/>
+<property name="inputlength" value="-1"/>
+<property name="itemkey" value="pk_dept"/>
+<property name="leafflag" value="false"/>
+<property name="list" value="false"/>
+<property name="listHyperlinkflag" value="false"/>
+<property name="listflag" value="true"/>
+<property name="listshowflag" value="true"/>
+<property name="lockflag" value="false"/>
+<property name="metadatapath" value="pk_dept"/>
+<property name="metadataproperty" value="ic.dpc.pk_dept"/>
+<property name="newlineflag" value="false"/>
+<property name="nullflag" value="false"/>
+<property name="pk_billtemplet" value="0001A61000000000824K"/>
+<property name="pk_billtemplet_b" value="0001A61000000000824O"/>
+<property name="pos" value="1"/>
+<property name="reviseflag" value="false"/>
+<property name="showflag" value="true"/>
+<property name="showorder" value="4"/>
+<property name="table_code" value="dpc"/>
+<property name="table_name" value="部门对照表"/>
+<property name="totalflag" value="false"/>
+<property name="userdefflag" value="false"/>
+<property name="usereditflag" value="true"/>
+<property name="userflag" value="true"/>
+<property name="userreviseflag" value="false"/>
+<property name="usershowflag" value="true"/>
+<property name="width" value="100"/>
+</bean>
+<bean class="nc.pubapp.pade.templet.vo.BillTempletBody"><property name="cardflag" value="true"/>
+<property name="datatype" value="-1"/>
+<property name="editflag" value="true"/>
+<property name="foreground" value="-1"/>
+<property name="hyperlinkflag" value="false"/>
+<property name="inputlength" value="-1"/>
+<property name="itemkey" value="bc_name"/>
+<property name="leafflag" value="false"/>
+<property name="list" value="false"/>
+<property name="listHyperlinkflag" value="false"/>
+<property name="listflag" value="true"/>
+<property name="listshowflag" value="true"/>
+<property name="lockflag" value="false"/>
+<property name="metadatapath" value="bc_name"/>
+<property name="metadataproperty" value="ic.dpc.bc_name"/>
+<property name="newlineflag" value="false"/>
+<property name="nullflag" value="false"/>
+<property name="pk_billtemplet" value="0001A61000000000824K"/>
+<property name="pk_billtemplet_b" value="0001A61000000000824P"/>
+<property name="pos" value="1"/>
+<property name="reviseflag" value="false"/>
+<property name="showflag" value="true"/>
+<property name="showorder" value="5"/>
+<property name="table_code" value="dpc"/>
+<property name="table_name" value="部门对照表"/>
+<property name="totalflag" value="false"/>
+<property name="userdefflag" value="false"/>
+<property name="usereditflag" value="true"/>
+<property name="userflag" value="true"/>
+<property name="userreviseflag" value="false"/>
+<property name="usershowflag" value="true"/>
+<property name="width" value="100"/>
+</bean>
+<bean class="nc.pubapp.pade.templet.vo.BillTempletBody"><property name="cardflag" value="true"/>
+<property name="datatype" value="-1"/>
+<property name="editflag" value="true"/>
+<property name="foreground" value="-1"/>
+<property name="hyperlinkflag" value="false"/>
+<property name="inputlength" value="-1"/>
+<property name="itemkey" value="bc_code"/>
+<property name="leafflag" value="false"/>
+<property name="list" value="false"/>
+<property name="listHyperlinkflag" value="false"/>
+<property name="listflag" value="true"/>
+<property name="listshowflag" value="true"/>
+<property name="lockflag" value="false"/>
+<property name="metadatapath" value="bc_code"/>
+<property name="metadataproperty" value="ic.dpc.bc_code"/>
+<property name="newlineflag" value="false"/>
+<property name="nullflag" value="false"/>
+<property name="pk_billtemplet" value="0001A61000000000824K"/>
+<property name="pk_billtemplet_b" value="0001A61000000000824Q"/>
+<property name="pos" value="1"/>
+<property name="reviseflag" value="false"/>
+<property name="showflag" value="true"/>
+<property name="showorder" value="6"/>
+<property name="table_code" value="dpc"/>
+<property name="table_name" value="部门对照表"/>
+<property name="totalflag" value="false"/>
+<property name="userdefflag" value="false"/>
+<property name="usereditflag" value="true"/>
+<property name="userflag" value="true"/>
+<property name="userreviseflag" value="false"/>
+<property name="usershowflag" value="true"/>
+<property name="width" value="100"/>
+</bean>
+<bean class="nc.pubapp.pade.templet.vo.BillTempletBody"><property name="cardflag" value="true"/>
+<property name="datatype" value="-1"/>
+<property name="editflag" value="true"/>
+<property name="foreground" value="-1"/>
+<property name="hyperlinkflag" value="false"/>
+<property name="inputlength" value="-1"/>
+<property name="itemkey" value="ts"/>
+<property name="leafflag" value="false"/>
+<property name="list" value="false"/>
+<property name="listHyperlinkflag" value="false"/>
+<property name="listflag" value="true"/>
+<property name="listshowflag" value="false"/>
+<property name="lockflag" value="false"/>
+<property name="metadatapath" value="ts"/>
+<property name="metadataproperty" value="ic.dpc.ts"/>
+<property name="newlineflag" value="false"/>
+<property name="nullflag" value="false"/>
+<property name="pk_billtemplet" value="0001A61000000000824K"/>
+<property name="pk_billtemplet_b" value="0001A61000000000824R"/>
+<property name="pos" value="1"/>
+<property name="reviseflag" value="false"/>
+<property name="showflag" value="false"/>
+<property name="showorder" value="7"/>
+<property name="table_code" value="dpc"/>
+<property name="table_name" value="部门对照表"/>
+<property name="totalflag" value="false"/>
+<property name="userdefflag" value="false"/>
+<property name="usereditflag" value="true"/>
+<property name="userflag" value="true"/>
+<property name="userreviseflag" value="false"/>
+<property name="usershowflag" value="true"/>
+<property name="width" value="100"/>
+</bean>
+</list>
+</property>
+<property name="headVO"><bean class="nc.pubapp.pade.templet.vo.BillTempletHead"><property name="buseflag" value="false"/>
+<property name="layer" value="0"/>
+<property name="metadataclass" value="ic.dpc"/>
+<property name="modulecode" value="1014"/>
+<property name="nodecode" value="10148112"/>
+<property name="pkBillTypeCode" value="10148112"/>
+<property name="pkBilltempletHead" value="0001A61000000000824K"/>
+<property name="pkcorp" value="@@@@"/>
+<property name="shareflag" value="false"/>
+<property name="strBillTempletCaption" value="部门对照表"/>
+<property name="strBillTempletName" value="SYSTEM"/>
+<property name="structvo"><bean class="nc.pubapp.pade.templet.vo.BillStruct"><property name="billTabVOs">
+<list><bean class="nc.pubapp.pade.templet.vo.BillTab"><property name="metadataclass" value="ic.dpc"/>
+<property name="metadatapath" value="dpc"/>
+<property name="pk_billtemplet" value="0001A61000000000824K"/>
+<property name="pk_billtemplet_t" value="0001A61000000000824S"/>
+<property name="pos" value="1"/>
+<property name="tabcode" value="dpc"/>
+<property name="tabindex" value="0"/>
+<property name="tabname" value="部门对照表"/>
+</bean>
+</list>
+</property>
+</bean>
+</property>
+
+<property name="ts" value="2016-12-26 13:55:56"/>
+</bean>
+</property>
+
+</bean>
+
+</beans>

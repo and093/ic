@@ -24,6 +24,7 @@
       <funnode name="人员对照对照对照表" code="10148137" funnode="basedoc/ace/client/10148137.fnf" service="basedoc/ace/service/10148137.smf"/>
       <funnode name="仓库档案对照表" code="10148109" funnode="basedoc/ace/client/10148109.fnf" service="basedoc/ace/service/10148109.smf"/>
       <funnode name="人员档案对照表" code="10148110" funnode="basedoc/ace/client/10148110.fnf" service="basedoc/ace/service/10148110.smf"/>
+      <funnode name="部门对照表" code="10148112" funnode="basedoc/ace/client/10148112.fnf" service="basedoc/ace/service/10148112.smf"/>
     </funnodes>
   </BusinessComponet>
   <BusinessComponet name="ws" dispname="ws">

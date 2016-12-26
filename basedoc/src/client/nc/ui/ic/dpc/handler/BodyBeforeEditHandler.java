@@ -1,4 +1,4 @@
-package nc.ui.ic.personalcontrast.handler;
+package nc.ui.ic.dpc.handler;
 
 import nc.ui.pub.beans.UIRefPane;
 import nc.ui.pubapp.uif2app.event.IAppEventHandler;
@@ -10,14 +10,13 @@ public class BodyBeforeEditHandler implements
 	@Override
 	public void handleAppEvent(CardBodyBeforeEditEvent e) {
 		String key = e.getKey();
-		if ("pk_psndon".equals(key)) {
+		if ("pk_dept".equals(key)) {
 			Object org = e.getBillCardPanel().getBillModel()
 					.getValueAt(e.getRow(), "pk_org_ID");
 			UIRefPane refpane = (UIRefPane) e.getBillCardPanel()
-					.getBodyItem("pk_psndon").getComponent();
+					.getBodyItem("pk_dept").getComponent();
 			if (org != null) {
 				refpane.getRefModel().setPk_org((String) org);
-				refpane.setMultiOrgSelected(true);
 			} else {
 				refpane.getRefModel().setPk_org(null);
 			}
@@ -25,4 +24,5 @@ public class BodyBeforeEditHandler implements
 
 		e.setReturnValue(Boolean.TRUE);
 	}
+
 }
