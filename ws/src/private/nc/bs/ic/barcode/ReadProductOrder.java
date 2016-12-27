@@ -31,6 +31,7 @@ public class ReadProductOrder {
 	 */
 	public String RaadSaleOrder(String orderNo) {
 		HashMap<String, Object> para = new HashMap<String, Object>();
+		para.put("detail", "null");
 		String where = "nvl(dr,0) = 0 and vbillcode = '" + orderNo + "'";
 		try {
 			List<AggregatedValueObject> list = (List<AggregatedValueObject>) MDPersistenceService
@@ -52,34 +53,12 @@ public class ReadProductOrder {
 					para.put("Date", hvo.getDbilldate().toString());
 					para.put("Remark", hvo.getVnote());
 					ArrayList<HashMap<String, Object>> bodylist = new ArrayList<HashMap<String, Object>>();
-					for (SaleOutBodyVO body : bodys) {
-						HashMap<String, Object> bodypara = new HashMap<String, Object>();
-						bodypara.put("BatchNo", body.getVbatchcode());
-						bodypara.put("LineNo", body.getCrowno());
-						bodypara.put("PlanPackQty", body.getNshouldassistnum());
-						bodypara.put("ActualPackQty", body.getNassistnum());
-						bodypara.put("ScanQty",
-								CommonUtil.getUFDouble(body.getVbdef20()));
-						// 转换主辅单位
-						bodypara.put("ProductUMName",
-								WsQueryBS.queryUnitName(body.getCunitid()));
-						bodypara.put("ActualPackQty",
-								WsQueryBS.queryUnitName(body.getCastunitid()));
-						String pk_material = body.getCmaterialoid();
-						HashMap<String, Object> materailMap = WsQueryBS
-								.queryMaterialInfoByPk(pk_material);
-						bodypara.putAll(materailMap);
-						bodylist.add(bodypara);
-					}
-
-					para.put("detail", bodylist);
-					CommonUtil.putSuccessResult(para);
 				} else {
 					CommonUtil.putFailResult(para, "单号" + orderNo
 							+ "在仓库对照表没有相应的数据");
 				}
 			} else {
-				CommonUtil.putFailResult(para, "单号" + orderNo + "找不到对应的出库单");
+				CommonUtil.putFailResult(para, "单号" + orderNo + "找不到对应的销售出库单");
 			}
 		} catch (MetaDataException e) {
 			e.printStackTrace();
@@ -100,6 +79,7 @@ public class ReadProductOrder {
 	 */
 	public String RaadTransOutOrder(String orderNo) {
 		HashMap<String, Object> para = new HashMap<String, Object>();
+		para.put("detail", "null");
 		String where = "nvl(dr,0) = 0 and vbillcode = '" + orderNo + "'";
 		try {
 			List<AggregatedValueObject> list = (List<AggregatedValueObject>) MDPersistenceService
@@ -118,45 +98,45 @@ public class ReadProductOrder {
 							stordocMap.get("senderlocationcode"));
 					para.put("SenderLocationName",
 							stordocMap.get("senderlocationname"));
-				para.put("Date", hvo.getDbilldate().toString());
-				para.put("Remark", hvo.getVnote());
-				ArrayList<HashMap<String, Object>> bodylist = new ArrayList<HashMap<String, Object>>();
-				for (TransOutBodyVO body : bodys) {
-					HashMap<String, Object> bodypara = new HashMap<String, Object>();
-					bodypara.put("BatchNo", body.getVbatchcode());
-					bodypara.put("LineNo", body.getCrowno());
-					bodypara.put("PlanPackQty", body.getNshouldassistnum());
-					bodypara.put("ActualPackQty", body.getNassistnum());
-					bodypara.put("ScanQty",
-							CommonUtil.getUFDouble(body.getVbdef20()));
-					// 转换主辅单位
-					bodypara.put("ProductUMName",
-							WsQueryBS.queryUnitName(body.getCunitid()));
-					bodypara.put("ActualPackQty",
-							WsQueryBS.queryUnitName(body.getCastunitid()));
+					para.put("Date", hvo.getDbilldate().toString());
+					para.put("Remark", hvo.getVnote());
+					ArrayList<HashMap<String, Object>> bodylist = new ArrayList<HashMap<String, Object>>();
+					for (TransOutBodyVO body : bodys) {
+						HashMap<String, Object> bodypara = new HashMap<String, Object>();
+						bodypara.put("BatchNo", body.getVbatchcode());
+						bodypara.put("LineNo", body.getCrowno());
+						bodypara.put("PlanPackQty", body.getNshouldassistnum());
+						bodypara.put("ActualPackQty", body.getNassistnum());
+						bodypara.put("ScanQty",
+								CommonUtil.getUFDouble(body.getVbdef20()));
+						// 转换主辅单位
+						bodypara.put("ProductUMName",
+								WsQueryBS.queryUnitName(body.getCunitid()));
+						bodypara.put("ActualPackQty",
+								WsQueryBS.queryUnitName(body.getCastunitid()));
 
-					String pk_material = body.getCmaterialoid();
-					HashMap<String, Object> materailMap = WsQueryBS
-							.queryMaterialInfoByPk(pk_material);
-					bodypara.putAll(materailMap);
-					bodylist.add(bodypara);
-				}
-				para.put("detail", bodylist);
-				CommonUtil.putSuccessResult(para);
-				}else {
+						String pk_material = body.getCmaterialoid();
+						HashMap<String, Object> materailMap = WsQueryBS
+								.queryMaterialInfoByPk(pk_material);
+						bodypara.putAll(materailMap);
+						bodylist.add(bodypara);
+					}
+					para.put("detail", bodylist);
+				} else {
 					CommonUtil.putFailResult(para, "单号" + orderNo
 							+ "在仓库对照表没有相应的数据");
 				}
 			} else {
-				CommonUtil.putFailResult(para, "单号" + orderNo + "找不到对应的出库单");
+				CommonUtil.putFailResult(para, "单号" + orderNo + "找不到对应的调拨出库单");
 			}
 		} catch (MetaDataException e) {
 			e.printStackTrace();
 			CommonUtil.putFailResult(para, "查询数据库失败：" + e.getMessage());
 		} catch (DAOException e) {
 			e.printStackTrace();
-			CommonUtil.putFailResult(para, "仓库对照表没有相应的数据");
+			CommonUtil.putFailResult(para, "查询数据库失败：" + e.getMessage() );
 		}
+		CommonUtil.putSuccessResult(para);
 		return FreeMarkerUtil.process(para,
 				"nc/config/ic/barcode/ReadOutBoundOrder.fl");
 	}
@@ -169,6 +149,7 @@ public class ReadProductOrder {
 	 */
 	public String RaadGeneralOutOrder(String orderNo) {
 		HashMap<String, Object> para = new HashMap<String, Object>();
+		para.put("detail", "null");
 		String where = "nvl(dr,0) = 0 and vbillcode = '" + orderNo + "'";
 		try {
 			List<AggregatedValueObject> list = (List<AggregatedValueObject>) MDPersistenceService
@@ -186,45 +167,46 @@ public class ReadProductOrder {
 							stordocMap.get("senderlocationcode"));
 					para.put("SenderLocationName",
 							stordocMap.get("senderlocationname"));
-				para.put("Date", hvo.getDbilldate().toString());
-				para.put("Remark", hvo.getVnote());
-				ArrayList<HashMap<String, Object>> bodylist = new ArrayList<HashMap<String, Object>>();
-				for (GeneralOutBodyVO body : bodys) {
-					HashMap<String, Object> bodypara = new HashMap<String, Object>();
-					bodypara.put("BatchNo", body.getVbatchcode());
-					bodypara.put("LineNo", body.getCrowno());
-					bodypara.put("PlanPackQty", body.getNshouldassistnum());
-					bodypara.put("ActualPackQty", body.getNassistnum());
-					bodypara.put("ScanQty",
-							CommonUtil.getUFDouble(body.getVbdef20()));
-					// 转换主辅单位
-					bodypara.put("ProductUMName",
-							WsQueryBS.queryUnitName(body.getCunitid()));
-					bodypara.put("ActualPackQty",
-							WsQueryBS.queryUnitName(body.getCastunitid()));
+					para.put("Date", hvo.getDbilldate().toString());
+					para.put("Remark", hvo.getVnote());
+					ArrayList<HashMap<String, Object>> bodylist = new ArrayList<HashMap<String, Object>>();
+					for (GeneralOutBodyVO body : bodys) {
+						HashMap<String, Object> bodypara = new HashMap<String, Object>();
+						bodypara.put("BatchNo", body.getVbatchcode());
+						bodypara.put("LineNo", body.getCrowno());
+						bodypara.put("PlanPackQty", body.getNshouldassistnum());
+						bodypara.put("ActualPackQty", body.getNassistnum());
+						bodypara.put("ScanQty",
+								CommonUtil.getUFDouble(body.getVbdef20()));
+						// 转换主辅单位
+						bodypara.put("ProductUMName",
+								WsQueryBS.queryUnitName(body.getCunitid()));
+						bodypara.put("ActualPackQty",
+								WsQueryBS.queryUnitName(body.getCastunitid()));
 
-					String pk_material = body.getCmaterialoid();
-					HashMap<String, Object> materailMap = WsQueryBS
-							.queryMaterialInfoByPk(pk_material);
-					bodypara.putAll(materailMap);
-					bodylist.add(bodypara);
-				}
-				para.put("detail", bodylist);
-				CommonUtil.putSuccessResult(para);
-				}else {
+						String pk_material = body.getCmaterialoid();
+						HashMap<String, Object> materailMap = WsQueryBS
+								.queryMaterialInfoByPk(pk_material);
+						bodypara.putAll(materailMap);
+						bodylist.add(bodypara);
+					}
+					para.put("detail", bodylist);
+					CommonUtil.putSuccessResult(para);
+				} else {
 					CommonUtil.putFailResult(para, "单号" + orderNo
 							+ "在仓库对照表没有相应的数据");
 				}
 			} else {
-				CommonUtil.putFailResult(para, "单号" + orderNo + "找不到对应的出库单");
+				CommonUtil.putFailResult(para, "单号" + orderNo + "找不到对应的其他出库单");
 			}
 		} catch (MetaDataException e) {
 			e.printStackTrace();
 			CommonUtil.putFailResult(para, "查询数据库失败：" + e.getMessage());
 		} catch (DAOException e) {
 			e.printStackTrace();
-			CommonUtil.putFailResult(para, "仓库对照表没有相应的数据");
+			CommonUtil.putFailResult(para, "查询数据库失败：" + e.getMessage());
 		}
+		
 		return FreeMarkerUtil.process(para,
 				"nc/config/ic/barcode/ReadOutBoundOrder.fl");
 	}
