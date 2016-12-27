@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<ReadOutBoundOrder>
+	<EX_CODE>${EX_CODE!}</EX_CODE>
+	<EX_MSG>${EX_MSG!}</EX_MSG>
+	<#if EX_CODE = 0>
+	<SenderLocationCode>${SenderLocationCode!}</SenderLocationCode>
+	<SenderLocationName>${SenderLocationName!}</SenderLocationName>
+	<Date>${Date!}</Date>
+	<Remark>${Remark!}</Remark>
+	<#if detail != "null">
+	<Details>
+	<#list detail as det> 
+		<OrderDetail>
+			<LineNo>${det.LineNo!}</LineNo>
+			<ProductCode>${det.ProductCode!}</ProductCode>
+			<ProductNo>${det.ProductNo!}</ProductNo>
+			<ProductName>${det.ProductName!}</ProductName>
+			<BatchNo>${det.BatchNo!}</BatchNo>
+			<ProductUMName>${det.ProductUMName!}</ProductUMName>
+			<PackSize>${det.PackSize!}</PackSize>
+			<PlanPackQty>${det.PlanPackQty!}</PlanPackQty>
+			<ActualPackQty>${det.ActualPackQty!}</ActualPackQty>
+			<ScanQty>${det.ScanQty!}</ScanQty>
+		</OrderDetail>
+	</#list>	
+	</Details>
+	</#if>
+	</#if>
+</ReadOutBoundOrder>
