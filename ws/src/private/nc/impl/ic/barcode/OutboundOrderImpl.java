@@ -1,23 +1,15 @@
 package nc.impl.ic.barcode;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
 import nc.bs.dao.DAOException;
-import nc.bs.ic.barcode.ReadProductOrder;
-import nc.bs.ic.barcode.WsQueryBS;
-import nc.bs.ic.pub.util.ICBillVOQuery;
-import nc.bs.scmpub.pf.PfParameterUtil;
-
-import java.util.List;
-
 import nc.bs.dao.BaseDAO;
-import nc.bs.dao.DAOException;
 import nc.bs.framework.common.InvocationInfoProxy;
 import nc.bs.framework.common.NCLocator;
+import nc.bs.ic.barcode.ReadOutBoundOrder;
 import nc.ift.ic.barcode.IOutboundOrder;
-import nc.itf.ic.m4i.IGeneralOutMaintain;
+
 import nc.itf.uap.pf.IPFBusiAction;
 import nc.md.model.MetaDataException;
 import nc.md.persist.framework.MDPersistenceService;
@@ -43,17 +35,17 @@ import net.sf.json.xml.XMLSerializer;
 public class OutboundOrderImpl implements IOutboundOrder {
 
 	public String getOutboundOrder(String transationType, String orderNo) {
-		ReadProductOrder readproductorder = new ReadProductOrder();
+		ReadOutBoundOrder  readoutboundorder = new ReadOutBoundOrder();
 		if ("4C".equals(transationType)) {
-			return readproductorder.RaadSaleOrder(orderNo);
+			return readoutboundorder.RaadSaleOrder(orderNo);
 		}
 		if ("4A".equals(transationType)) {
-			return readproductorder.RaadGeneralOutOrder(orderNo);
+			return readoutboundorder.RaadGeneralOutOrder(orderNo);
 		}
 		if ("4Y".equals(transationType)) {
-			return readproductorder.RaadTransOutOrder(orderNo);
+			return readoutboundorder.RaadTransOutOrder(orderNo);
 		}
-		return readproductorder.Error(orderNo);
+		return readoutboundorder.Error(orderNo);
 	}
 
 	/**
@@ -140,7 +132,6 @@ public class OutboundOrderImpl implements IOutboundOrder {
 				} else {
 					CommonUtil.putFailResult(para, "该单据为非自由状态，不可修改");
 				} // end if 单据状态
-
 				// 查找到对应单据并且有数据修改
 				if (flag == true) {
 					System.out.print("save");
@@ -228,7 +219,6 @@ public class OutboundOrderImpl implements IOutboundOrder {
 		try {
 			// false-未找到单号对应行号的数据
 			boolean flag = false;
-
 			List<SaleOutVO> list = (List<SaleOutVO>) MDPersistenceService
 					.lookupPersistenceQueryService().queryBillOfVOByCond(
 							SaleOutVO.class, sqlWhere, true, false);

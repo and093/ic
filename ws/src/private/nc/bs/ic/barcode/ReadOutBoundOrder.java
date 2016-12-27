@@ -5,7 +5,6 @@ import java.util.HashMap;
 import java.util.List;
 
 import nc.bs.dao.DAOException;
-import nc.bs.ic.barcode.ReadProductOrder;
 import nc.bs.ic.barcode.WsQueryBS;
 import nc.md.model.MetaDataException;
 import nc.md.persist.framework.MDPersistenceService;
@@ -22,7 +21,7 @@ import nc.vo.ic.m4y.entity.TransOutHeadVO;
 import nc.vo.ic.m4y.entity.TransOutVO;
 import nc.vo.pub.AggregatedValueObject;
 
-public class ReadProductOrder {
+public class ReadOutBoundOrder {
 	/**
 	 * 销售出库单读取
 	 * 
@@ -53,6 +52,28 @@ public class ReadProductOrder {
 					para.put("Date", hvo.getDbilldate().toString());
 					para.put("Remark", hvo.getVnote());
 					ArrayList<HashMap<String, Object>> bodylist = new ArrayList<HashMap<String, Object>>();
+					for (SaleOutBodyVO body : bodys) {
+						HashMap<String, Object> bodypara = new HashMap<String, Object>();
+						bodypara.put("BatchNo", body.getVbatchcode());
+						bodypara.put("LineNo", body.getCrowno());
+						bodypara.put("PlanPackQty", body.getNshouldassistnum());
+						bodypara.put("ActualPackQty", body.getNassistnum());
+						bodypara.put("ScanQty",
+								CommonUtil.getUFDouble(body.getVbdef20()));
+						// 转换主辅单位
+						bodypara.put("ProductUMName",
+								WsQueryBS.queryUnitName(body.getCunitid()));
+						bodypara.put("ActualPackQty",
+								WsQueryBS.queryUnitName(body.getCastunitid()));
+
+						String pk_material = body.getCmaterialoid();
+						HashMap<String, Object> materailMap = WsQueryBS
+								.queryMaterialInfoByPk(pk_material);
+						bodypara.putAll(materailMap);
+						bodylist.add(bodypara);
+					}
+					para.put("detail", bodylist);
+					CommonUtil.putSuccessResult(para);
 				} else {
 					CommonUtil.putFailResult(para, "单号" + orderNo
 							+ "在仓库对照表没有相应的数据");
@@ -122,6 +143,7 @@ public class ReadProductOrder {
 						bodylist.add(bodypara);
 					}
 					para.put("detail", bodylist);
+					CommonUtil.putSuccessResult(para);
 				} else {
 					CommonUtil.putFailResult(para, "单号" + orderNo
 							+ "在仓库对照表没有相应的数据");
@@ -136,7 +158,6 @@ public class ReadProductOrder {
 			e.printStackTrace();
 			CommonUtil.putFailResult(para, "查询数据库失败：" + e.getMessage() );
 		}
-		CommonUtil.putSuccessResult(para);
 		return FreeMarkerUtil.process(para,
 				"nc/config/ic/barcode/ReadOutBoundOrder.fl");
 	}
