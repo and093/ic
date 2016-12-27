@@ -102,7 +102,7 @@ public class WsQueryBS {
 		HashMap<String, Object> para = new HashMap<String, Object>();
 		Object rst = dao
 				.executeQuery(
-						"select wc_name WorkshopName ,wc_code WorkshopCode from 部门对照表  where pk_deptid = '"
+						"select bc_name WorkshopName ,bc_code WorkshopCode from ic_dpc where pk_deptid = '"
 								+ pk_deptid + "'", new MapProcessor());
 		if (rst != null) {
 			para.putAll((HashMap) rst);
@@ -144,7 +144,7 @@ public class WsQueryBS {
 		HashMap<String, Object> para = new HashMap<String, Object>();
 		Object rst = dao
 				.executeQuery(
-						"select code, name from ic_saleout_h a, bd_customer b where a.ccustomerid = b.pk_customer and a.ccustomerid = '"
+						"select code, name from  bd_customer where pk_customer = '"
 								+ ccustomerid + "'", new MapProcessor());
 
 		if (rst != null) {
