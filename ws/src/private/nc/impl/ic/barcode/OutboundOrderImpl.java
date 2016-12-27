@@ -7,11 +7,18 @@ import java.util.List;
 import nc.bs.dao.DAOException;
 import nc.bs.ic.barcode.ReadProductOrder;
 import nc.bs.ic.barcode.WsQueryBS;
+import nc.bs.ic.pub.util.ICBillVOQuery;
+import nc.bs.scmpub.pf.PfParameterUtil;
+
 import java.util.List;
 
 import nc.bs.dao.BaseDAO;
 import nc.bs.dao.DAOException;
+import nc.bs.framework.common.InvocationInfoProxy;
+import nc.bs.framework.common.NCLocator;
 import nc.ift.ic.barcode.IOutboundOrder;
+import nc.itf.ic.m4i.IGeneralOutMaintain;
+import nc.itf.uap.pf.IPFBusiAction;
 import nc.md.model.MetaDataException;
 import nc.md.persist.framework.MDPersistenceService;
 import nc.pub.ic.barcode.CommonUtil;
@@ -26,6 +33,9 @@ import nc.vo.ic.m4y.entity.TransOutBodyVO;
 import nc.vo.ic.m4y.entity.TransOutHeadVO;
 import nc.vo.ic.m4y.entity.TransOutVO;
 import nc.vo.pub.AggregatedValueObject;
+import nc.vo.pub.BusinessException;
+import nc.vo.pub.VOStatus;
+import nc.vo.pub.lang.UFDouble;
 import net.sf.json.JSON;
 import net.sf.json.JSONObject;
 import net.sf.json.xml.XMLSerializer;
@@ -33,14 +43,16 @@ import net.sf.json.xml.XMLSerializer;
 public class OutboundOrderImpl implements IOutboundOrder {
 
 	public String getOutboundOrder(String transationType, String orderNo) {
-		ReadProductOrder readproductorder =new ReadProductOrder();
-		if("4C".equals(transationType)){
+		ReadProductOrder readproductorder = new ReadProductOrder();
+		if ("4C".equals(transationType)) {
 			return readproductorder.RaadSaleOrder(orderNo);
-		}if("4A".equals(transationType)) {
+		}
+		if ("4A".equals(transationType)) {
 			return readproductorder.RaadGeneralOutOrder(orderNo);
-		}if("4Y".equals(transationType)) {
+		}
+		if ("4Y".equals(transationType)) {
 			return readproductorder.RaadTransOutOrder(orderNo);
-		} 
+		}
 		return readproductorder.Error(orderNo);
 	}
 
@@ -73,7 +85,7 @@ public class OutboundOrderImpl implements IOutboundOrder {
 					"nc/config/ic/barcode/WriteOutBoundOrder.fl");
 		}
 	}
-	
+
 	public String writeTransOut(String OrderNo, String LineNo, int UpdateType,
 			int ScanQty) {
 
@@ -92,7 +104,7 @@ public class OutboundOrderImpl implements IOutboundOrder {
 							TransOutVO.class, sqlWhere, true, false);
 
 			// 未查询到单号为 OrderNo 的出库单
-			if (list.size() == 0) {
+			if (list.size() == 0 || list == null) {
 				CommonUtil.putFailResult(para, "调拨出库单号" + OrderNo + "找不到对应的单据");
 			} else {
 				TransOutHeadVO headVO = list.get(0).getHead();
@@ -121,7 +133,7 @@ public class OutboundOrderImpl implements IOutboundOrder {
 						}
 					}
 					// 没有找到对应行号的其他出库单子表
-					if (!flag && (UpdateType==1 || UpdateType == 2)) {
+					if (!flag && (UpdateType == 1 || UpdateType == 2)) {
 						CommonUtil.putFailResult(para, "调拨出库单号 " + OrderNo
 								+ " 找不到对应行号为：" + LineNo + "的子表");
 					}
@@ -164,7 +176,7 @@ public class OutboundOrderImpl implements IOutboundOrder {
 					.lookupPersistenceQueryService().queryBillOfVOByCond(
 							GeneralOutVO.class, sqlWhere, true, false);
 			// 未查询到单号为 OrderNo 的出库单
-			if (list.size() == 0) {
+			if (list.size() == 0 || list == null) {
 				CommonUtil.putFailResult(para, "其他出库单号" + OrderNo + "找不到对应的单据");
 			} else {
 				GeneralOutHeadVO headVO = list.get(0).getHead();
@@ -188,7 +200,7 @@ public class OutboundOrderImpl implements IOutboundOrder {
 						}
 					}
 					// 没有找到对应行号的其他出库单子表
-					if (!flag && (UpdateType==1 || UpdateType == 2)) {
+					if (!flag && (UpdateType == 1 || UpdateType == 2)) {
 						CommonUtil.putFailResult(para, "其他出库单号 " + OrderNo
 								+ " 找不到对应行号为：" + LineNo + "的子表");
 					}
@@ -206,7 +218,7 @@ public class OutboundOrderImpl implements IOutboundOrder {
 		return FreeMarkerUtil.process(para,
 				"nc/config/ic/barcode/WriteOutBoundOrder.fl");
 	}
-	
+
 	private String writeSaleOrderBound(String OrderNo, String LineNo,
 			int UpdateType, int ScanQty) {
 		BaseDAO dao = new BaseDAO();
@@ -221,7 +233,7 @@ public class OutboundOrderImpl implements IOutboundOrder {
 					.lookupPersistenceQueryService().queryBillOfVOByCond(
 							SaleOutVO.class, sqlWhere, true, false);
 			// 未查询到单号为 OrderNo 的销售出库单
-			if (list.size() == 0) {
+			if (list.size() == 0 || list == null) {
 				CommonUtil.putFailResult(para, "销售出库单号" + OrderNo
 						+ "找不到对应的销售出库单");
 			} else {
@@ -231,14 +243,16 @@ public class OutboundOrderImpl implements IOutboundOrder {
 					for (SaleOutBodyVO body : list.get(0).getBodys()) {
 						if (LineNo.equals(body.getCrowno())) {
 							if (UpdateType == 1) {
-								int num = Integer.parseInt(body.getVbdef20())+ScanQty;
-								body.setVbdef20(new String(num+""));
+								int num = Integer.parseInt(body.getVbdef20())
+										+ ScanQty;
+								body.setVbdef20(new String(num + ""));
 								CommonUtil.putSuccessResult(para);
 							} else if (UpdateType == 2) {
-								body.setVbdef20(new String(ScanQty+""));
+								body.setVbdef20(new String(ScanQty + ""));
 								CommonUtil.putSuccessResult(para);
 							} else {
 								CommonUtil.putFailResult(para, "更新类型有误！");
+								break; // 此次应该直接跳出循环，不执行接下来的 update 操作
 							}
 							flag = true;
 							dao.updateVO(body);
@@ -260,14 +274,123 @@ public class OutboundOrderImpl implements IOutboundOrder {
 			CommonUtil.putFailResult(para, "写入数据库失败" + e.getMessage());
 			e.printStackTrace();
 		}
-		return FreeMarkerUtil.process(para, "nc/config/ic/barcode/WriteOutBoundOrder.fl");
+		return FreeMarkerUtil.process(para,
+				"nc/config/ic/barcode/WriteOutBoundOrder.fl");
 	}
 
 	@Override
 	public String saveOuntboundOutNum_requireNew(String xml) {
-		// TODO Auto-generated method stub
-		return null;
+
+		HashMap<String, Object> para = new HashMap<String, Object>();
+
+		XMLSerializer xmls = new XMLSerializer();
+		JSON json = xmls.read(xml);
+		JSONObject obj = JSONObject.fromObject(json);
+
+		String OrderNo = obj.getString("OrderNo");
+		String LineNo = obj.getString("LineNo");
+		int UpdateType = obj.getInt("UpdateType");
+		double ScanQty = obj.getDouble("ScanQty");
+
+		String sqlWhere = "nvl(dr,0) = 0 and vbillcode='" + OrderNo + "'";
+		boolean flag = false;
+
+		try {
+			List<GeneralOutVO> list = (List<GeneralOutVO>) MDPersistenceService
+					.lookupPersistenceQueryService().queryBillOfVOByCond(
+							GeneralOutVO.class, sqlWhere, true, false);
+
+			if (list.size() == 0 || list == null) {
+				CommonUtil.putFailResult(para, "其它出库单号" + OrderNo + "找不到对应的单据");
+				return FreeMarkerUtil.process(para,
+						"nc/config/ic/barcode/WriteOutBoundOrder.fl");
+			} else {
+				GeneralOutHeadVO head = list.get(0).getHead();
+				// 获取单据状态 2-自由态，可修改状态，其他状态不允许修改
+				if (head.getFbillflag() == 2) {
+					for (GeneralOutBodyVO body : list.get(0).getBodys()) {
+						if (LineNo.equals(body.getCrowno())) {
+							// nassistnum 实发数量 nnum 实发主数量 实发数量*换算率=实发主数量
+							// vchangerate 换算率
+
+							String[] vchangeate = body.getVchangerate().split(
+									"/");
+							int vc1 = Integer.parseInt(vchangeate[0].substring(
+									0, vchangeate[0].indexOf(".")));
+							int vc2 = Integer.parseInt(vchangeate[1].substring(
+									0, vchangeate[1].indexOf(".")));
+							if (vc2 == 0) {
+								CommonUtil.putFailResult(para, "换算率除数不能为0！");
+								break;
+							}
+							// 更新类型 1-追加 2-覆写
+							if (UpdateType == 1) {
+								body.setNassistnum(new UFDouble(ScanQty
+										+ body.getNassistnum().doubleValue()));
+								body.setNnum(new UFDouble(ScanQty * vc1 / vc2
+										+ body.getNnum().doubleValue()));
+								body.setStatus(VOStatus.UPDATED);
+								flag = true;
+								CommonUtil.putSuccessResult(para);
+							} else if (UpdateType == 2) {
+								body.setNassistnum(new UFDouble(ScanQty));
+								body.setNnum(new UFDouble(ScanQty * vc1 / vc2));
+								body.setStatus(VOStatus.UPDATED);
+								flag = true;
+								CommonUtil.putSuccessResult(para);
+							} else {
+								CommonUtil.putFailResult(para, "单据更新类型有误！");
+								break;
+							} // end if updateType 更新类型
+						}// end if LineNo 行号
+					}// end for
+				} else {
+					CommonUtil.putFailResult(para, "该单据为非自由状态，不可修改");
+				}
+				// flag==true 表示找到对应行号单据，并进行更新
+				if (flag == true) {
+					
+					 IPFBusiAction pf = NCLocator.getInstance().lookup(
+					 IPFBusiAction.class);
+					 InvocationInfoProxy.getInstance().setUserId(
+					 head.getBillmaker());
+					 InvocationInfoProxy.getInstance().setGroupId(
+					 head.getPk_group());
+					 InvocationInfoProxy.getInstance().setBizDateTime(
+					 System.currentTimeMillis()); pf.processAction("WRITE",
+					 "4I", null, list.get(0), null, null);
+					 
+						/*
+						 * PfParameterUtil util = new PfParameterUtil(
+								getPfParameterVO(), outVOs);
+
+						GeneralOutVO[] originBills = (GeneralOutVO[]) util
+								.getOrginBills();
+						if (originBills == null) {
+							originBills = (GeneralOutVO[]) new ICBillVOQuery()
+									.fetchVOWithLoc(outVOs);
+						}
+						GeneralOutVO[] clientFullBills = (GeneralOutVO[]) util
+								.getClientFullInfoBill();
+						 NCLocator.getInstance()
+								.lookup(IGeneralOutMaintain.class)).update(
+								clientFullBills, originBills);*/
+					CommonUtil.putSuccessResult(para);
+				} else {
+					CommonUtil.putFailResult(para, "其他出库单号 " + OrderNo
+							+ " 找不到对应行号为：" + LineNo + "的子表");
+				}
+			}
+
+		} catch (MetaDataException e) {
+			CommonUtil.putFailResult(para, "查询数据库失败！" + e.getMessage());
+			e.printStackTrace();
+		} catch (BusinessException e) {
+			CommonUtil.putFailResult(para, "写入数据库失败！" + e.getMessage());
+			e.printStackTrace();
+		}
+		return FreeMarkerUtil.process(para,
+				"nc/config/ic/barcode/WriteOutBoundOrder.fl");
 	}
 
 }
-
