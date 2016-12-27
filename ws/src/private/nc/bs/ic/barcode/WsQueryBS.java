@@ -22,8 +22,9 @@ public class WsQueryBS {
 	 * @return
 	 * @throws DAOException
 	 */
-	
-	public static HashMap<String, Object> queryMaterialInfoByPk(String pk_material) throws DAOException {
+
+	public static HashMap<String, Object> queryMaterialInfoByPk(
+			String pk_material) throws DAOException {
 		// 通过条码的物料短码，查询物料信息
 		BaseDAO dao = new BaseDAO();
 		HashMap<String, Object> para = new HashMap<String, Object>();
@@ -60,7 +61,7 @@ public class WsQueryBS {
 		Object rst = dao.executeQuery(
 				"select name from bd_measdoc where pk_measdoc = '" + unitid
 						+ "'", new ColumnProcessor());
-			if (rst != null) {
+		if (rst != null) {
 			return (String) rst;
 		}
 		return null;
@@ -81,7 +82,7 @@ public class WsQueryBS {
 				.executeQuery(
 						"select wc_name SenderLocationName ,wc_code SenderLocationCode from ic_warehouse_contrast where pk_stordoc = '"
 								+ pk_stordoc + "'", new MapProcessor());
-		
+
 		if (rst != null) {
 			para.putAll((HashMap) rst);
 		}
@@ -90,38 +91,67 @@ public class WsQueryBS {
 
 	/**
 	 * 根据部门pk，查找对照表定义的条码车间编码和车间名称
+	 * 
 	 * @param pk_deptid
 	 * @return
 	 * @throws DAOException
 	 */
-	public static HashMap<String, Object> queryWorkShop(String pk_deptid) throws DAOException {
+	public static HashMap<String, Object> queryWorkShop(String pk_deptid)
+			throws DAOException {
 		BaseDAO dao = new BaseDAO();
 		HashMap<String, Object> para = new HashMap<String, Object>();
-		Object rst = dao.executeQuery(
-				"select wc_name WorkshopName ,wc_code WorkshopCode from 部门对照表  where pk_deptid = '"
-						+ pk_deptid + "'", new MapProcessor());
+		Object rst = dao
+				.executeQuery(
+						"select wc_name WorkshopName ,wc_code WorkshopCode from 部门对照表  where pk_deptid = '"
+								+ pk_deptid + "'", new MapProcessor());
 		if (rst != null) {
 			para.putAll((HashMap) rst);
 		}
 		return para;
 	}
-	
+
 	/**
 	 * 查询生产线编码和名称
+	 * 
 	 * @param pk_deptid
 	 * @return
 	 * @throws DAOException
 	 */
-	public static HashMap<String, Object> queryWorkLine(String pk_deptid) throws DAOException {
+	public static HashMap<String, Object> queryWorkLine(String pk_deptid)
+			throws DAOException {
 		BaseDAO dao = new BaseDAO();
 		HashMap<String, Object> para = new HashMap<String, Object>();
-		Object rst = dao.executeQuery(
-				"select vwkcode ProductionLineCode ,vwkname ProductionLineName from bd_wk where cwkid = '"
-						+ pk_deptid + "'", new MapProcessor());
+		Object rst = dao
+				.executeQuery(
+						"select vwkcode ProductionLineCode ,vwkname ProductionLineName from bd_wk where cwkid = '"
+								+ pk_deptid + "'", new MapProcessor());
 		if (rst != null) {
 			para.putAll((HashMap) rst);
 		}
 		return para;
 	}
-}
 
+	/**
+	 * 根据订单查找客户档案名称与编码
+	 * 
+	 * @param cwarehouseid
+	 * @return
+	 * @throws DAOException
+	 */
+	public static HashMap<String, Object> queryCustomer(String ccustomerid)
+			throws DAOException {
+		BaseDAO dao = new BaseDAO();
+		HashMap<String, Object> para = new HashMap<String, Object>();
+		Object rst = dao
+				.executeQuery(
+						"select code, name from ic_saleout_h a, bd_customer b where a.ccustomerid = b.pk_customer and a.ccustomerid = '"
+								+ ccustomerid + "'", new MapProcessor());
+
+		if (rst != null) {
+			para.putAll((HashMap) rst);
+		}
+		return para;
+	}
+
+	
+}

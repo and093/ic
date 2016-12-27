@@ -3,14 +3,15 @@
 	<EX_CODE>${EX_CODE!}</EX_CODE>
 	<EX_MSG>${EX_MSG!}</EX_MSG>
 	<#if EX_CODE = 0>
+	<ReceiveLocationCode>${ReceiveLocationCode!}</ReceiveLocationCode>
+	<ReceiveLocationName>${ReceiveLocationName!}</ReceiveLocationName>
 	<SenderLocationCode>${SenderLocationCode!}</SenderLocationCode>
 	<SenderLocationName>${SenderLocationName!}</SenderLocationName>
 	<Date>${Date!}</Date>
 	<Remark>${Remark!}</Remark>
 	<#if detail != "null">
-	<Details>
 	<#list detail as det> 
-		<OrderDetail>
+		<ReadOutBoundOrderDetail>
 			<LineNo>${det.LineNo!}</LineNo>
 			<ProductCode>${det.ProductCode!}</ProductCode>
 			<ProductNo>${det.ProductNo!}</ProductNo>
@@ -21,9 +22,8 @@
 			<PlanPackQty>${det.PlanPackQty!}</PlanPackQty>
 			<ActualPackQty>${det.ActualPackQty!}</ActualPackQty>
 			<ScanQty>${det.ScanQty!}</ScanQty>
-		</OrderDetail>
+		<ReadOutBoundOrderDetail>
 	</#list>	
-	</Details>
 	</#if>
 	</#if>
 </ReadOutBoundOrder>
