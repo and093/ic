@@ -339,7 +339,6 @@ public class OutboundOrderImpl implements IOutboundOrder {
 				}
 				// flag==true 表示找到对应行号单据，并进行更新
 				if (flag == true) {
-					
 					 IPFBusiAction pf = NCLocator.getInstance().lookup(
 					 IPFBusiAction.class);
 					 InvocationInfoProxy.getInstance().setUserId(
@@ -349,22 +348,6 @@ public class OutboundOrderImpl implements IOutboundOrder {
 					 InvocationInfoProxy.getInstance().setBizDateTime(
 					 System.currentTimeMillis()); pf.processAction("WRITE",
 					 "4I", null, list.get(0), null, null);
-					 
-						/*
-						 * PfParameterUtil util = new PfParameterUtil(
-								getPfParameterVO(), outVOs);
-
-						GeneralOutVO[] originBills = (GeneralOutVO[]) util
-								.getOrginBills();
-						if (originBills == null) {
-							originBills = (GeneralOutVO[]) new ICBillVOQuery()
-									.fetchVOWithLoc(outVOs);
-						}
-						GeneralOutVO[] clientFullBills = (GeneralOutVO[]) util
-								.getClientFullInfoBill();
-						 NCLocator.getInstance()
-								.lookup(IGeneralOutMaintain.class)).update(
-								clientFullBills, originBills);*/
 					CommonUtil.putSuccessResult(para);
 				} else {
 					CommonUtil.putFailResult(para, "其他出库单号 " + OrderNo
