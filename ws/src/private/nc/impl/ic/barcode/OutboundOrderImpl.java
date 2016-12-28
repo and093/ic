@@ -110,7 +110,7 @@ public class OutboundOrderImpl implements IOutboundOrder {
 						if (LineNo.equals(body.getCrowno())) {
 
 							if (UpdateType == 1) {
-								int num = Integer.parseInt(body.getVbdef20())
+								int num = Integer.parseInt(body.getVbdef20()==null?"0":body.getVbdef20())
 										+ ScanQty;
 								body.setVbdef20(new String(num + ""));
 								flag = true;
@@ -176,8 +176,8 @@ public class OutboundOrderImpl implements IOutboundOrder {
 					for (GeneralOutBodyVO body : list.get(0).getBodys()) {
 						if (LineNo.equals(body.getCrowno())) {
 							if (UpdateType == 1) {
-								int num = Integer.parseInt(body.getVbdef20())
-										+ ScanQty;
+								int num = Integer.parseInt(body.getVbdef20()==null?"0":body.getVbdef20())
+										+ ScanQty;  
 								body.setVbdef20(new String(num + ""));
 								CommonUtil.putSuccessResult(para);
 							} else if (UpdateType == 2) {
@@ -233,7 +233,7 @@ public class OutboundOrderImpl implements IOutboundOrder {
 					for (SaleOutBodyVO body : list.get(0).getBodys()) {
 						if (LineNo.equals(body.getCrowno())) {
 							if (UpdateType == 1) {
-								int num = Integer.parseInt(body.getVbdef20())
+								int num = Integer.parseInt(body.getVbdef20()==null?"0":body.getVbdef20())
 										+ ScanQty;
 								body.setVbdef20(new String(num + ""));
 								CommonUtil.putSuccessResult(para);
@@ -346,8 +346,8 @@ public class OutboundOrderImpl implements IOutboundOrder {
 					 InvocationInfoProxy.getInstance().setGroupId(
 					 head.getPk_group());
 					 InvocationInfoProxy.getInstance().setBizDateTime(
-					 System.currentTimeMillis()); pf.processAction("WRITE",
-					 "4I", null, list.get(0), null, null);
+					 System.currentTimeMillis()); 
+					 pf.processAction("WRITE","4I", null, list.get(0), null, null);
 					CommonUtil.putSuccessResult(para);
 				} else {
 					CommonUtil.putFailResult(para, "其他出库单号 " + OrderNo
