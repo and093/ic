@@ -92,7 +92,7 @@ public class ReadOutBoundOrder {
 			CommonUtil.putFailResult(para, "查询数据库失败：" + e.getMessage());
 		} catch (DAOException e) {
 			e.printStackTrace();
-			CommonUtil.putFailResult(para, "仓库对照表没有相应的数据");
+			CommonUtil.putFailResult(para, "查询数据库失败：" + e.getMessage());
 		}
 		return FreeMarkerUtil.process(para,
 				"nc/config/ic/barcode/ReadOutBoundOrder.fl");
