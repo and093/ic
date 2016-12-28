@@ -13,14 +13,14 @@
 			<WorkshopName>${detail.WorkshopName!}</WorkshopName>
 			<ProductionLineCode>${detail.ProductionLineCode!}</ProductionLineCode>
 			<ProductionLineName>${detail.ProductionLineName!}</ProductionLineName>
-			<ProductCategoryName>${detail.ProductCategoryName!}</ProductCategoryName>
-			<ProductCode>${detail.ProductCode!}</ProductCode>
-			<ProductNo>${detail.ProductNo!}</ProductNo>
-			<ProductName>${detail.ProductName!}</ProductName>
+			<ProductCategoryName>${detail.productcategoryname!}</ProductCategoryName>
+			<ProductCode>${detail.productcode!}</ProductCode>
+			<ProductNo>${detail.productno!}</ProductNo>
+			<ProductName>${detail.productname!}</ProductName>
 			<ProductUM>${detail.ProductUM!}</ProductUM>
-			<PackSize>${detail.PackSize!}</PackSize>
+			<PackSize>${detail.packsize!}</PackSize>
 			<PlanPackQty>${detail.PlanPackQty!}</PlanPackQty>
-			<PalletPackSize>${detail.PalletPackSize!}</PalletPackSize>
+			<PalletPackSize>${detail.palletpacksize!}</PalletPackSize>
 			<IsNeedToCheckProduct>${detail.IsNeedToCheckProduct!}</IsNeedToCheckProduct>
 		</OrderDetail>
 	</#list>	

@@ -41,7 +41,7 @@ public class WsQueryBS {
 				.append(" where a.pk_measdoc = b.pk_measdoc ")
 				.append(" and a.pk_marbasclass = c.pk_marbasclass ")
 				.append(" and nvl(a.dr,0) = 0 ")
-				.append(" and a.pk_measdoc = '" + pk_material + "' ");
+				.append(" and a.pk_material = '" + pk_material + "' ");
 		Object rst = dao.executeQuery(sql.toString(), new MapProcessor());
 		if (rst != null) {
 			para.putAll((HashMap) rst);
@@ -102,7 +102,7 @@ public class WsQueryBS {
 		HashMap<String, Object> para = new HashMap<String, Object>();
 		Object rst = dao
 				.executeQuery(
-						"select bc_name WorkshopName ,bc_code WorkshopCode from ic_dpc where pk_deptid = '"
+						"select bc_name WorkshopName ,bc_code WorkshopCode from ic_dpc where pk_dept = '"
 								+ pk_deptid + "'", new MapProcessor());
 		if (rst != null) {
 			para.putAll((HashMap) rst);
