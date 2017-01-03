@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<PostGoodsReceiveNote>
+	<EX_CODE>${EX_CODE}</EX_CODE>
+	<EX_MSG>${EX_MSG!}</EX_MSG>
+	<OrderNo>${OrderNo!}</OrderNo>
+</PostGoodsReceiveNote>	

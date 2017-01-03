@@ -4,6 +4,7 @@ import java.util.HashMap;
 
 import nc.bs.dao.BaseDAO;
 import nc.bs.dao.DAOException;
+import nc.jdbc.framework.SQLParameter;
 import nc.jdbc.framework.processor.ColumnProcessor;
 import nc.jdbc.framework.processor.MapProcessor;
 
@@ -109,6 +110,28 @@ public class WsQueryBS {
 		}
 		return para;
 	}
+	
+	/**
+	 * 根据条码系统传过来的车间编码SenderLocationCode，查找nc部门主键
+	 * @param pk_deptid
+	 * @return
+	 * @throws DAOException
+	 */
+	public static HashMap<String, Object> queryDeptidByCode(String code, String pk_org) throws DAOException {
+		BaseDAO dao = new BaseDAO();
+		HashMap<String, Object> para = new HashMap<String, Object>();
+		SQLParameter sqlpa = new SQLParameter();
+		sqlpa.addParam(pk_org);
+		sqlpa.addParam(code);
+		Object rst = dao
+				.executeQuery(
+						"select b.pk_dept, b.pk_vid from ic_dpc a, org_dept b" +
+						" where nvl(a.dr,0) = 0 and a.pk_dept = b.pk_dept and a.pk_org = ? and a.bc_code = ?", sqlpa, new MapProcessor());
+		if (rst != null) {
+			para.putAll((HashMap) rst);
+		}
+		return para;
+	}
 
 	/**
 	 * 查询生产线编码和名称
@@ -164,6 +187,24 @@ public class WsQueryBS {
 		try {
 			Object rst = dao.executeQuery("select pk_material from bd_material where def8='"+ProductCode+"'",  new ColumnProcessor());
 			return (String)rst;  // 查询成功 返回物料pk
+		} catch (DAOException e) {
+			e.printStackTrace();
+		}
+		return null;
+	}
+	
+	/**
+	 * 根据名称或者编码，得到用户id
+	 * @param sender
+	 * @return
+	 */
+	public static String getUserid(String sender){
+		BaseDAO dao = new BaseDAO();
+		try {
+			Object rst = dao.executeQuery("select cuserid from sm_user where nvl(dr,0) = 0 and user_name = '"+sender+"'",  new ColumnProcessor());
+			if(rst != null){
+				return (String)rst;
+			}
 		} catch (DAOException e) {
 			e.printStackTrace();
 		}
