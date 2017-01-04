@@ -40,7 +40,7 @@ public class ReadOutBoundOrder {
 				SaleOutVO agg = (SaleOutVO) list.get(0);
 				SaleOutHeadVO hvo = agg.getHead();
 				SaleOutBodyVO[] bodys = agg.getBodys();
-				// 将nc的仓库pk通过查询对照表转换为条码的仓库编码和名称
+				// 将nc的仓库pk通过查询对照表转换为条码的仓库编码和名称，
 				String pk_stordoc = hvo.getCwarehouseid();
 				HashMap<String, Object> stordocMap = WsQueryBS
 						.queryLocationInfoByPk(pk_stordoc);

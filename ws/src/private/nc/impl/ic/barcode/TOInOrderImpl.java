@@ -7,10 +7,12 @@ import java.util.List;
 import nc.bs.ic.barcode.WsQueryBS;
 import nc.md.model.MetaDataException;
 import nc.md.persist.framework.MDPersistenceService;
+import nc.bs.framework.common.InvocationInfoProxy;
 import nc.bs.framework.common.NCLocator;
 import nc.bs.pf.pub.PfDataCache;
 import nc.ift.ic.barcode.ITOInOrder;
-import nc.itf.ic.m4e.ITransInMaintain;
+
+import nc.itf.uap.pf.IPFBusiAction;
 import nc.pub.ic.barcode.CommonUtil;
 import nc.pub.ic.barcode.FreeMarkerUtil;
 import nc.vo.ic.m4e.entity.TransInBodyVO;
@@ -42,7 +44,7 @@ public class TOInOrderImpl implements ITOInOrder {
 		JSONObject obj = JSONObject.fromObject(json);
 		HashMap<String, Object> para = new HashMap<String, Object>();
 		try {
-			//取xml表头数据
+			// 取xml表头数据
 			// String ReceiverLocationCode =
 			// obj.getString("ReceiverLocationCode");// 入库仓库
 			String SenderLocationCode = obj.getString("SenderLocationCode");// 出库仓库
@@ -50,59 +52,80 @@ public class TOInOrderImpl implements ITOInOrder {
 			String Receiver = obj.getString("Receiver");// 收货人
 			String Date = obj.getString("Date");// 单据日期
 			String SourceOrderNo = obj.getString("SourceOrderNo");
-			//取xml表体数据
+			// 取xml表体数据
 			JSONArray item = obj.getJSONArray("item");
-		
+
 			String where = "nvl(dr,0) = 0 and vbillcode = '" + SourceOrderNo
 					+ "'";
+			String error = "";
 			List<AggregatedValueObject> list = (List<AggregatedValueObject>) MDPersistenceService
 					.lookupPersistenceQueryService().queryBillOfVOByCond(
 							TransOutHeadVO.class, where, true, false);
 			if (list != null && list.size() != 0) {
-				List<TransInVO> transInVOlist = new ArrayList<TransInVO>();
-				TransInVO transInVO = new TransInVO();
-				TransOutVO agg = (TransOutVO) list.get(0);
-				TransOutHeadVO ohvo = agg.getHead();
-				// 生成调拨入库表头数据
-				TransInHeadVO hvo = InsertTransOutHeadVO(ohvo,
-						SenderLocationCode, Date, Receiver);
-				TransOutBodyVO[] obodys = agg.getBodys();
-				//判断物料表中是否有相应的数据
-				for (int i = 0; i <obodys.length ; i++) {
-					if (WsQueryBS.queryPK_materialByProductCode(item.getJSONObject(i).getString("ProductCode")) == null) {
-						CommonUtil.putFailResult(para, "物料短号" + item.getJSONObject(i).getString("ProductCode")
-								+ "在物料表中没有数据");
+				// 判断物料表中是否有相应的数据
+				for (int i = 0; i < item.size(); i++) {
+					if (WsQueryBS.queryPK_materialByProductCode(item
+							.getJSONObject(i).getString("ProductCode")) == null) {
+						if (item.getJSONObject(i).getString("ProductCode")
+								.equals("[]")) {
+							error = error + "获取的第" + (i + 1) + "条物料短号为空值,  ";
+							continue;
+						}
+						error = error
+								+ "物料短号"
+								+ item.getJSONObject(i)
+										.getString("ProductCode")
+								+ "在物料表中没有数据,  ";
 					}
 				}
-				// 生成调拨入库表体数据
-				List<Object[]> bvo = getTransBodyVOTransout(ohvo, obodys,
-						SenderLocationCode, item);
-				/*
-				 * if(hvo == null ){ CommonUtil.putFailResult(para, "单号" +
-				 * SourceOrderNo + "调拨入库表头数据没有生成"); }
-				 */
-				if (bvo == null || bvo.size() <= 0) {
-					CommonUtil.putFailResult(para, "单号" + SourceOrderNo
-							+ "调拨入库表体数据没有生成");
-				}
-				transInVO.setParentVO(hvo);
-				transInVO.setChildren(TransInBodyVO.class,
-						(ISuperVO[]) list.toArray());
-				transInVOlist.add(transInVO);
-				if (transInVOlist != null && transInVOlist.size() > 0) {
-					ITransInMaintain maintain = NCLocator.getInstance().lookup(
-							ITransInMaintain.class);
-					maintain.insert(transInVOlist.toArray(new TransInVO[0]));
-					para.put("OrderNo", hvo.getVbillcode());
-					CommonUtil.putSuccessResult(para);
-				} else {
-					CommonUtil.putFailResult(para, "单号" + SourceOrderNo
-							+ "生成的调拨入库表数据为空");
-				}
+				if (error.equals("")) {
+					List<TransInVO> transInVOlist = new ArrayList<TransInVO>();
+					TransInVO transInVO = new TransInVO();
+					TransOutVO agg = (TransOutVO) list.get(0);
+					TransOutHeadVO ohvo = agg.getHead();
+					// 生成调拨入库表头数据
+					TransInHeadVO hvo = InsertTransOutHeadVO(ohvo,
+							SenderLocationCode, Date, Receiver);
+					TransOutBodyVO[] obodys = agg.getBodys();
+					// 生成调拨入库表体数据
+					List<TransInBodyVO> bvo = getTransBodyVOTransout(ohvo,
+							obodys, SenderLocationCode, item);
+					if (hvo != null) {
+						transInVO.setParentVO(hvo);
+						if (bvo != null && bvo.size() > 0) {
+							// transInVO.setChildren(TransInBodyVO.class,(ISuperVO[])
+							// list.toArray());
+							transInVO.setChildrenVO(bvo
+									.toArray(new TransInBodyVO[0]));
 
+							IPFBusiAction pf = NCLocator.getInstance().lookup(
+									IPFBusiAction.class);
+							InvocationInfoProxy.getInstance().setUserId(
+									transInVO.getHead().getBillmaker());
+							InvocationInfoProxy.getInstance().setGroupId(
+									transInVO.getHead().getPk_group());
+							InvocationInfoProxy.getInstance().setBizDateTime(
+									System.currentTimeMillis());
+							pf.processAction("WRITE", "4Y", null, transInVO,
+									null, null);
+							para.put("OrderNo", hvo.getVbillcode());
+							CommonUtil.putSuccessResult(para);
+						} else {
+							CommonUtil.putFailResult(para, "单号" + SourceOrderNo
+									+ "调拨入库表体数据没有生成");
+
+						}
+					} else {
+						CommonUtil.putFailResult(para, "单号" + SourceOrderNo
+								+ "调拨入库表头数据没有生成");
+					}
+				} else {
+					CommonUtil.putFailResult(para, error);
+
+				}
 			} else {
-				CommonUtil.putFailResult(para, "单号" + SourceOrderNo
-						+ "在出库单数据库中没有数据");
+				CommonUtil.putFailResult(para, "在调拨出库单数据库中不存在单号"
+						+ SourceOrderNo);
 			}
 
 		} catch (MetaDataException e) {
@@ -113,7 +136,7 @@ public class TOInOrderImpl implements ITOInOrder {
 			CommonUtil.putFailResult(para, "生成调拨入库单失败：" + e.getMessage());
 		}
 		return FreeMarkerUtil.process(para,
-				"nc/config/ic/barcode/RroductTransInOrder.fl");
+				"nc/config/ic/barcode/TransferInOrder.fl");
 	}
 
 	// 赋值调拨入库表头数据
@@ -122,8 +145,10 @@ public class TOInOrderImpl implements ITOInOrder {
 		TransInHeadVO hvo = new TransInHeadVO();
 		hvo.setPk_group(ohvo.getPk_group());// 集团
 		hvo.setVtrantypecode("4E-01");// 单据类型
+
 		BilltypeVO billTypeVO = PfDataCache.getBillTypeInfo("4E-01");
-		hvo.setCtrantypeid(billTypeVO.getPk_billtypeid());// 单据类型pk
+		// hvo.setCtrantypeid(billTypeVO.getPk_billtypeid());// 单据类型pk
+		hvo.setCtrantypeid("0001A510000000002QF8");// 单据类型pk
 		hvo.setCcustomerid(ohvo.getCcustomerid());// 收货客户
 		hvo.setCdptid(null);// 部门???
 		hvo.setCdptvid(null);// 部门信息???
@@ -149,19 +174,13 @@ public class TOInOrderImpl implements ITOInOrder {
 	}
 
 	// 赋值给调拨入库表体数据
-	private static List<Object[]> getTransBodyVOTransout(TransOutHeadVO ohvo,
+	private static List<TransInBodyVO> getTransBodyVOTransout(TransOutHeadVO ohvo,
 			TransOutBodyVO[] obodys, String SenderLocationCode, JSONArray item) {
-		List<Object[]> list = new ArrayList<Object[]>();
-
-		// boolean isallout = true; // 是否全部出库
-		/*
-		 * for (TransOutBodyVO vo : obodys) { TransOutBodyVO[] bvos =
-		 * vo.getBodys();
-		 */
+		List<TransInBodyVO> list = new ArrayList<TransInBodyVO>();
 		for (int i = 0; i < obodys.length; i++) {
 			TransOutBodyVO dbvo = obodys[i];
 			TransInBodyVO bvo = new TransInBodyVO();
-			String key1 = dbvo.getCmaterialoid() + dbvo.getVfree1()
+			/*String key1 = dbvo.getCmaterialoid() + dbvo.getVfree1()
 					+ dbvo.getVfree2() + dbvo.getVfree3() + dbvo.getVfree4()
 					+ dbvo.getVfree5() + dbvo.getVfree6() + dbvo.getVfree7()
 					+ dbvo.getVfree8() + dbvo.getVfree9() + dbvo.getVfree10();
@@ -169,25 +188,7 @@ public class TOInOrderImpl implements ITOInOrder {
 					+ dbvo.getVfree3() + dbvo.getVfree4() + dbvo.getVfree5()
 					+ dbvo.getVfree6() + dbvo.getVfree7() + dbvo.getVfree8()
 					+ dbvo.getVfree9() + dbvo.getVfree10();
-			// 匹配可入库数量和入库仓库
-			/*
-			 * UFDouble[] ff = mp.get(dbvo.getCgeneralbid()); String whouse =
-			 * whousemap.get(dbvo.getCgeneralbid());
-			 */
-
-			/*
-			 * if (whouse == null) { continue; }
-			 */
-			/*
-			 * UFDouble kfcount = new UFDouble(0);// 可入库数量 UFDouble outnum = new
-			 * UFDouble(0);// 累计入库数量 UFDouble onum = new UFDouble(0);// 累计出库数量
-			 *//*
-				 * if (ff != null) { kfcount = ff[0]; // 可入库数量 outnum = ff[1];
-				 * // 累计入库数量 onum = ff[2]; // 累计出库数量 }
-				 */
-			/*
-			 * if (kfcount.doubleValue() != 0) { isallout = false; }
-			 */
+*/
 			bvo.setCmaterialoid(dbvo.getCmaterialoid());
 			bvo.setCmaterialvid(dbvo.getCmaterialvid());
 			bvo.setVfree1(dbvo.getVfree1());
@@ -200,17 +201,20 @@ public class TOInOrderImpl implements ITOInOrder {
 			bvo.setVfree8(dbvo.getVfree8());
 			bvo.setVfree9(dbvo.getVfree9());
 			bvo.setVfree10(dbvo.getVfree10());
-			bvo.setNnum(new UFDouble(item.getJSONObject(i).getInt("ScanQty")
-					* getVchangerate(dbvo.getVchangerate())));// 主数量
+			bvo.setNshouldassistnum(new UFDouble(item.getJSONObject(i).getInt("ScanQty"))); //应收数量
 			bvo.setNshouldnum(new UFDouble(item.getJSONObject(i).getInt(
 					"ScanQty")
 					* getVchangerate(dbvo.getVchangerate())));// 应收主数量
+			bvo.setNassistnum(new UFDouble(item.getJSONObject(i).getInt(
+					"ScanQty")));          //shishou shuliang
+			bvo.setNnum(new UFDouble(item.getJSONObject(i).getInt("ScanQty")
+					* getVchangerate(dbvo.getVchangerate())));// shishou主数量
 			bvo.setCrowno(((i + 1) * 10) + "");// 行号
 			bvo.setPk_group(ohvo.getPk_group());// 集团
 			bvo.setPk_org(dbvo.getPk_org());// 库存组织
 			bvo.setPk_org_v(dbvo.getPk_org_v());// 库存组织版本
-			bvo.setCunitid(dbvo.getCunitid());// 主单位
-			bvo.setCastunitid(dbvo.getCastunitid());// 辅单位
+			bvo.setCunitid("位");// 主单位
+			bvo.setCastunitid("个");// 辅单位
 			bvo.setVchangerate(dbvo.getVchangerate());// 换算率
 			bvo.setCproductorid(dbvo.getCproductorid());// 生产厂商
 			bvo.setCprojectid(dbvo.getCprojectid());// 项目
@@ -255,8 +259,8 @@ public class TOInOrderImpl implements ITOInOrder {
 			bvo.setDplanoutdate(dbvo.getDplanoutdate());
 			bvo.setDplanarrivedate(dbvo.getDplanarrivedate());
 			bvo.setStatus(VOStatus.NEW);
-			Object[] objs = new Object[] { bvo, key1, key2 };
-			list.add(objs);
+			/*TransOutBodyVO objs = new TransOutBodyVO { bvo, key1, key2 };*/
+			list.add(bvo);
 
 		}
 		return list;
