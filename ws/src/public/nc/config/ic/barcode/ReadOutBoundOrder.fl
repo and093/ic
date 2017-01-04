@@ -3,8 +3,8 @@
 	<EX_CODE>${EX_CODE!}</EX_CODE>
 	<EX_MSG>${EX_MSG!}</EX_MSG>
 	<#if EX_CODE = 0>
-	<ReceiveLocationCode>${ReceiveLocationCode!}</ReceiveLocationCode>
-	<ReceiveLocationName>${ReceiveLocationName!}</ReceiveLocationName>
+	<ReceiverLocationCode>${ReceiverLocationCode!}</ReceiverLocationCode>
+	<ReceiverLocationName>${ReceiverLocationName!}</ReceiverLocationName>
 	<SenderLocationCode>${SenderLocationCode!}</SenderLocationCode>
 	<SenderLocationName>${SenderLocationName!}</SenderLocationName>
 	<Date>${Date!}</Date>
