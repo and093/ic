@@ -40,7 +40,7 @@ public class ReadOutBoundOrder {
 				SaleOutVO agg = (SaleOutVO) list.get(0);
 				SaleOutHeadVO hvo = agg.getHead();
 				SaleOutBodyVO[] bodys = agg.getBodys();
-				// 将nc的仓库pk通过查询对照表转换为条码的仓库编码和名称
+				// 将nc的仓库pk通过查询对照表转换为条码的仓库编码和名称，
 				String pk_stordoc = hvo.getCwarehouseid();
 				HashMap<String, Object> stordocMap = WsQueryBS
 						.queryLocationInfoByPk(pk_stordoc);
@@ -60,6 +60,11 @@ public class ReadOutBoundOrder {
 					ArrayList<HashMap<String, Object>> bodylist = new ArrayList<HashMap<String, Object>>();
 					for (SaleOutBodyVO body : bodys) {
 						HashMap<String, Object> bodypara = new HashMap<String, Object>();
+						HashMap<String, Object> pk =  WsQueryBS.queryMaterialInfoByPk(body.getCmaterialvid());
+						bodypara.put("ProductCode",pk.get("productcode"));
+						bodypara.put("ProductNo",pk.get("productno"));
+						bodypara.put("ProductName",pk.get("productname"));
+						bodypara.put("PackSize",pk.get("packsize"));
 						bodypara.put("BatchNo", body.getVbatchcode());
 						bodypara.put("LineNo", body.getCrowno());
 						bodypara.put("PlanPackQty", body.getNshouldassistnum());
@@ -125,13 +130,18 @@ public class ReadOutBoundOrder {
 							stordocMap.get("senderlocationcode"));
 					para.put("SenderLocationName",
 							stordocMap.get("senderlocationname"));
-					para.put("ReceiveLocationCode","");
-					para.put("ReceiveLocationName","");
+					para.put("ReceiveLocationCode", "");
+					para.put("ReceiveLocationName", "");
 					para.put("Date", hvo.getDbilldate().toString());
 					para.put("Remark", hvo.getVnote());
 					ArrayList<HashMap<String, Object>> bodylist = new ArrayList<HashMap<String, Object>>();
 					for (TransOutBodyVO body : bodys) {
 						HashMap<String, Object> bodypara = new HashMap<String, Object>();
+						HashMap<String, Object> pk =  WsQueryBS.queryMaterialInfoByPk(body.getCmaterialvid());
+						bodypara.put("ProductCode",pk.get("productcode"));
+						bodypara.put("ProductNo",pk.get("productno"));
+						bodypara.put("ProductName",pk.get("productname"));
+						bodypara.put("PackSize",pk.get("packsize"));
 						bodypara.put("BatchNo", body.getVbatchcode());
 						bodypara.put("LineNo", body.getCrowno());
 						bodypara.put("PlanPackQty", body.getNshouldassistnum());
@@ -164,7 +174,7 @@ public class ReadOutBoundOrder {
 			CommonUtil.putFailResult(para, "查询数据库失败：" + e.getMessage());
 		} catch (DAOException e) {
 			e.printStackTrace();
-			CommonUtil.putFailResult(para, "查询数据库失败：" + e.getMessage() );
+			CommonUtil.putFailResult(para, "查询数据库失败：" + e.getMessage());
 		}
 		return FreeMarkerUtil.process(para,
 				"nc/config/ic/barcode/ReadOutBoundOrder.fl");
@@ -196,13 +206,18 @@ public class ReadOutBoundOrder {
 							stordocMap.get("senderlocationcode"));
 					para.put("SenderLocationName",
 							stordocMap.get("senderlocationname"));
-					para.put("ReceiveLocationCode","");
-					para.put("ReceiveLocationName","");
+					para.put("ReceiveLocationCode", "");
+					para.put("ReceiveLocationName", "");
 					para.put("Date", hvo.getDbilldate().toString());
 					para.put("Remark", hvo.getVnote());
 					ArrayList<HashMap<String, Object>> bodylist = new ArrayList<HashMap<String, Object>>();
 					for (GeneralOutBodyVO body : bodys) {
 						HashMap<String, Object> bodypara = new HashMap<String, Object>();
+						HashMap<String, Object> pk =  WsQueryBS.queryMaterialInfoByPk(body.getCmaterialvid());
+						bodypara.put("ProductCode",pk.get("productcode"));
+						bodypara.put("ProductNo",pk.get("productno"));
+						bodypara.put("ProductName",pk.get("productname"));
+						bodypara.put("PackSize",pk.get("packsize"));
 						bodypara.put("BatchNo", body.getVbatchcode());
 						bodypara.put("LineNo", body.getCrowno());
 						bodypara.put("PlanPackQty", body.getNshouldassistnum());
@@ -237,7 +252,7 @@ public class ReadOutBoundOrder {
 			e.printStackTrace();
 			CommonUtil.putFailResult(para, "查询数据库失败：" + e.getMessage());
 		}
-		
+
 		return FreeMarkerUtil.process(para,
 				"nc/config/ic/barcode/ReadOutBoundOrder.fl");
 	}
