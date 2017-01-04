@@ -22,7 +22,7 @@
 			<PlanPackQty>${det.PlanPackQty!}</PlanPackQty>
 			<ActualPackQty>${det.ActualPackQty!}</ActualPackQty>
 			<ScanQty>${det.ScanQty!}</ScanQty>
-		<ReadOutBoundOrderDetail>
+		</ReadOutBoundOrderDetail>
 	</#list>	
 	</#if>
 	</#if>
