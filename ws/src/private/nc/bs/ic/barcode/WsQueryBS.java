@@ -233,22 +233,4 @@ public class WsQueryBS {
 		return null;
 	}
 	
-	/**
-	 * 根据生产报告表头pk查找对应的产成品入库单表头pk
-	 * @param pk_wr
-	 * @return
-	 */
-	public String queryFinprodinpkByWrpk(String pk_wr){
-		BaseDAO dao = new BaseDAO();
-		try {
-			Object rst = dao.executeQuery("select cuserid from sm_user where nvl(dr,0) = 0 and user_name = '"+pk_wr+"'",  new ColumnProcessor());
-			if(rst != null){
-				return (String)rst;
-			}
-		} catch (DAOException e) {
-			e.printStackTrace();
-		}
-		return null;
-	}
-	
 }

@@ -5,6 +5,7 @@ import java.util.Collection;
 import java.util.HashMap;
 
 import nc.bs.dao.BaseDAO;
+import nc.bs.dao.DAOException;
 import nc.bs.framework.common.InvocationInfoProxy;
 import nc.bs.framework.common.NCLocator;
 import nc.bs.ic.barcode.WsQueryBS;
@@ -13,6 +14,7 @@ import nc.ift.ic.barcode.IProductOrder;
 import nc.itf.mmpac.wr.IWrBusinessService;
 import nc.itf.mmpac.wr.pwr.IPwrMaintainService;
 import nc.itf.uap.pf.IPfExchangeService;
+import nc.jdbc.framework.processor.ColumnProcessor;
 import nc.pub.ic.barcode.CommonUtil;
 import nc.pub.ic.barcode.FreeMarkerUtil;
 import nc.vo.am.common.util.CloneUtil;
@@ -189,20 +191,13 @@ public class ProductOrderImpl implements IProductOrder {
 				
 				//对应的产成品入库单填写实收数量
 				for(AggWrVO agg : rstagg){
-					WrItemVO[] items = (WrItemVO[])agg.getChildren(WrItemVO.class);
-					for(WrItemVO item : items){
-						WrQualityVO[] qvos = item.getQualityvos();
-						for(WrQualityVO qvo : qvos){
-							qvo.setNginastnum(item.getNbwrastnum());
-							qvo.setNginnum(item.getNbwrnum());
-							qvo.setNgtoinastnum(item.getNbwrastnum());
-							qvo.setNgtoinnum(item.getNbwrnum());
-							qvo.setCgdepositorgid(stormap.get("pk_org"));
-							qvo.setCgwarehouseid(stormap.get("pk_stordoc"));
-						}
-					}
+					WrVO wrheadvo = agg.getParentVO();
+					
+					//String cgeneralhid = queryFinprodinpkByWrpk(wrheadvo.getPk_wr());
+					
+					String vbillcode = queryFinprodinpkByWrpk(wrheadvo.getPk_wr());
+					para.put("OrderNo", vbillcode);
 				}
-				
 				
 				CommonUtil.putSuccessResult(para);
 			}
@@ -217,5 +212,28 @@ public class ProductOrderImpl implements IProductOrder {
 		String numerator = vbchangerate.split("/")[0]; 
 		String denominator = vbchangerate.split("/")[1];
 		return new UFDouble(numerator).div(new UFDouble(denominator)).multiply(scanQty);
+	}
+	
+	/**
+	 * 根据生产报告表头pk查找对应的产成品入库单表头pk
+	 * @param pk_wr
+	 * @return
+	 */
+	public  String queryFinprodinpkByWrpk(String pk_wr){
+		BaseDAO dao = new BaseDAO();
+		try {
+			StringBuffer sql = new StringBuffer();
+			sql.append(" select h.vbillcode from ic_finprodin_b b, ic_finprodin_h h ")
+			.append("  where nvl(h.dr,0) = 0 and nvl(b.dr,0) = 0  ")
+			.append("  and b.cgeneralhid = h.cgeneralhid  ")
+			.append("  and b.csourcebillhid = '"+pk_wr+"' ");
+			Object rst = dao.executeQuery(sql.toString(),  new ColumnProcessor());
+			if(rst != null){
+				return (String)rst;
+			}
+		} catch (DAOException e) {
+			e.printStackTrace();
+		}
+		return null;
 	}
 }
