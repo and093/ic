@@ -10,6 +10,7 @@ import nc.bs.framework.common.NCLocator;
 import nc.bs.ic.barcode.WsQueryBS;
 import nc.bs.pf.pub.PfDataCache;
 import nc.ift.ic.barcode.IProductOrder;
+import nc.itf.mmpac.wr.IWrBusinessService;
 import nc.itf.mmpac.wr.pwr.IPwrMaintainService;
 import nc.itf.uap.pf.IPfExchangeService;
 import nc.pub.ic.barcode.CommonUtil;
@@ -20,6 +21,7 @@ import nc.vo.mmpac.pmo.pac0002.entity.PMOHeadVO;
 import nc.vo.mmpac.pmo.pac0002.entity.PMOItemVO;
 import nc.vo.mmpac.wr.entity.AggWrVO;
 import nc.vo.mmpac.wr.entity.WrItemVO;
+import nc.vo.mmpac.wr.entity.WrQualityVO;
 import nc.vo.mmpac.wr.entity.WrVO;
 import nc.vo.pub.BusinessException;
 import nc.vo.pub.lang.UFDate;
@@ -98,24 +100,27 @@ public class ProductOrderImpl implements IProductOrder {
 			if(col == null || col.size() == 0){
 				CommonUtil.putFailResult(para, sourceOrderNo + "查询不到对应的生产订单数据");
 			} else {
-				PMOItemVO item = col.iterator().next();
-				if(item.getFitemstatus() != 1 && item.getFitemstatus() != 2){
-					//throw new BusinessException("生产订单行状态不是投放或者完工,不能入库");
+				PMOItemVO pmoitem = col.iterator().next();
+				if(pmoitem.getFitemstatus() != 1 && pmoitem.getFitemstatus() != 2){
+					throw new BusinessException("生产订单行状态不是投放或者完工,不能入库");
 				}
-				PMOHeadVO head = (PMOHeadVO)dao.retrieveByPK(PMOHeadVO.class, item.getCpmohid());
-				//IPMOQueryService query = NCLocator.getInstance().lookup(IPMOQueryService.class);
-				//PMOAggVO agg = query..queryByPk(item.getCpmohid());
-				PMOAggVO agg = new PMOAggVO();
-				agg.setParentVO(head);
-				agg.setChildrenVO(new PMOItemVO[]{item});
+				PMOHeadVO pmohead = (PMOHeadVO)dao.retrieveByPK(PMOHeadVO.class, pmoitem.getCpmohid());
+				PMOAggVO pmoagg = new PMOAggVO();
+				pmoagg.setParentVO(pmohead);
+				pmoagg.setChildrenVO(new PMOItemVO[]{pmoitem});
 				
-				InvocationInfoProxy.getInstance().setGroupId(head.getPk_group());
+				InvocationInfoProxy.getInstance().setGroupId(pmohead.getPk_group());
 				IPfExchangeService exchangeService = NCLocator.getInstance().lookup(IPfExchangeService.class);
-				AggWrVO wragg = (AggWrVO)exchangeService.runChangeData("55A2", "55A4", agg, null);
+				AggWrVO wragg = (AggWrVO)exchangeService.runChangeData("55A2", "55A4", pmoagg, null);
 				
-				HashMap<String, Object> deptmap = WsQueryBS.queryDeptidByCode(senderLocationCode, head.getPk_org());
+				HashMap<String, Object> deptmap = WsQueryBS.queryDeptidByCode(senderLocationCode, pmohead.getPk_org());
 				String pk_dept = (String)deptmap.get("pk_dept");
 				String pk_vid = (String)deptmap.get("pk_vid");
+				
+				HashMap<String, String> stormap = WsQueryBS.queryStordocByCode(receiverLocationCode);
+				if(stormap == null || stormap.size() == 0){
+					throw new BusinessException("收货方" + receiverLocationCode + "在仓库对照找不到对应的仓库档案");
+				}
 				
 				WrVO headvo = wragg.getParentVO();
 				headvo.setCdeptid(pk_dept);
@@ -123,6 +128,7 @@ public class ProductOrderImpl implements IProductOrder {
 				headvo.setDbilldate(new UFDate(date));
 				headvo.setVtrantypecode("55A4-01");
 				headvo.setVtrantypeid(PfDataCache.getBillType("55A4-01").getPk_billtypeid());
+				headvo.setFbillstatus(1);  //自由态
 				WrItemVO[] writems = (WrItemVO[])wragg.getChildren(WrItemVO.class);
 				WrItemVO old = writems[0];
 				writems = new WrItemVO[arrays.size()];
@@ -141,21 +147,64 @@ public class ProductOrderImpl implements IProductOrder {
 					newItem.setTbstarttime(new UFDateTime(date + " 00:00:00"));
 					newItem.setTbendtime(new UFDateTime(date + " 23:59:59"));
 					
-//					//质量等级孙表
-//					WrQualityVO qvo = new WrQualityVO();
-//					qvo.setBghaveamend(UFBoolean.FALSE);
-//					
-//					newItem.setQualityvos(new WrQualityVO[]{qvo});
 					writems[i] = newItem;
 				}
-				wragg.setChildren(WrItemVO.class, writems);
+				//按物料+批次号汇总表体行
+				HashMap<String, WrItemVO> sumMap = new HashMap<String, WrItemVO>();
+				for(WrItemVO writem : writems){
+					String key = writem.getCbmaterialid() + writem.getVbinbatchcode();
+					WrItemVO olditem = sumMap.get(key);
+					if(olditem != null){
+						olditem.setNbwrastnum(olditem.getNbwrastnum().add(writem.getNbwrastnum()));
+						olditem.setNbwrnum(olditem.getNbwrnum().add(writem.getNbwrnum()));
+					} else {
+						sumMap.put(key, writem);
+					}
+				}
+				
+				wragg.setChildren(WrItemVO.class, sumMap.values().toArray(new WrItemVO[0]));
 				//生产报告保存并签字
 				IPwrMaintainService service = NCLocator.getInstance().lookup(IPwrMaintainService.class);
 				AggWrVO[] rstagg = service.insert(new AggWrVO[] {wragg});
 				rstagg = service.audit(rstagg);
+				//设置仓库
+				for(AggWrVO agg : rstagg){
+					WrItemVO[] items = (WrItemVO[])agg.getChildren(WrItemVO.class);
+					for(WrItemVO item : items){
+						WrQualityVO[] qvos = item.getQualityvos();
+						for(WrQualityVO qvo : qvos){
+							qvo.setNginastnum(item.getNbwrastnum());
+							qvo.setNginnum(item.getNbwrnum());
+							qvo.setNgtoinastnum(item.getNbwrastnum());
+							qvo.setNgtoinnum(item.getNbwrnum());
+							qvo.setCgdepositorgid(stormap.get("pk_org"));
+							qvo.setCgwarehouseid(stormap.get("pk_stordoc"));
+						}
+					}
+				}
+				
 				//生产报告生成产成品入库
-//				IWrBusinessService businessService = NCLocator.getInstance().lookup(IWrBusinessService.class);
-//				rstagg = businessService.prodIn(rstagg);
+				IWrBusinessService businessService = NCLocator.getInstance().lookup(IWrBusinessService.class);
+				rstagg = businessService.prodIn(rstagg);
+				
+				//对应的产成品入库单填写实收数量
+				for(AggWrVO agg : rstagg){
+					WrItemVO[] items = (WrItemVO[])agg.getChildren(WrItemVO.class);
+					for(WrItemVO item : items){
+						WrQualityVO[] qvos = item.getQualityvos();
+						for(WrQualityVO qvo : qvos){
+							qvo.setNginastnum(item.getNbwrastnum());
+							qvo.setNginnum(item.getNbwrnum());
+							qvo.setNgtoinastnum(item.getNbwrastnum());
+							qvo.setNgtoinnum(item.getNbwrnum());
+							qvo.setCgdepositorgid(stormap.get("pk_org"));
+							qvo.setCgwarehouseid(stormap.get("pk_stordoc"));
+						}
+					}
+				}
+				
+				
+				CommonUtil.putSuccessResult(para);
 			}
 		} catch (BusinessException e) {
 			e.printStackTrace();

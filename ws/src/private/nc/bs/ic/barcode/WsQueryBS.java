@@ -81,9 +81,30 @@ public class WsQueryBS {
 		HashMap<String, Object> para = new HashMap<String, Object>();
 		Object rst = dao
 				.executeQuery(
-						"select wc_name SenderLocationName ,wc_code SenderLocationCode from ic_warehouse_contrast where pk_stordoc = '"
+						"select wc_name SenderLocationName ,wc_code SenderLocationCode from ic_warehouse_contrast where nvl(dr,0) = 0 and pk_stordoc = '"
 								+ pk_stordoc + "'", new MapProcessor());
 
+		if (rst != null) {
+			para.putAll((HashMap) rst);
+		}
+		return para;
+	}
+	
+	/**
+	 * 根据条码系统的仓库编码，查找nc仓库pk
+	 * 
+	 * @param pk_deptid
+	 * @return
+	 * @throws DAOException
+	 */
+	public static HashMap<String, String> queryStordocByCode(String code)
+			throws DAOException {
+		BaseDAO dao = new BaseDAO();
+		HashMap<String, String> para = new HashMap<String, String>();
+		Object rst = dao
+				.executeQuery(
+						"select pk_org, pk_stordoc from ic_warehouse_contrast where nvl(dr,0) = 0 and wc_code = '"
+								+ code + "'", new MapProcessor());
 		if (rst != null) {
 			para.putAll((HashMap) rst);
 		}
@@ -103,13 +124,14 @@ public class WsQueryBS {
 		HashMap<String, Object> para = new HashMap<String, Object>();
 		Object rst = dao
 				.executeQuery(
-						"select bc_name WorkshopName ,bc_code WorkshopCode from ic_dpc where pk_dept = '"
+						"select bc_name WorkshopName ,bc_code WorkshopCode from ic_dpc where nvl(dr,0) = 0 and pk_dept = '"
 								+ pk_deptid + "'", new MapProcessor());
 		if (rst != null) {
 			para.putAll((HashMap) rst);
 		}
 		return para;
 	}
+	
 	
 	/**
 	 * 根据条码系统传过来的车间编码SenderLocationCode，查找nc部门主键
@@ -210,4 +232,23 @@ public class WsQueryBS {
 		}
 		return null;
 	}
+	
+	/**
+	 * 根据生产报告表头pk查找对应的产成品入库单表头pk
+	 * @param pk_wr
+	 * @return
+	 */
+	public String queryFinprodinpkByWrpk(String pk_wr){
+		BaseDAO dao = new BaseDAO();
+		try {
+			Object rst = dao.executeQuery("select cuserid from sm_user where nvl(dr,0) = 0 and user_name = '"+pk_wr+"'",  new ColumnProcessor());
+			if(rst != null){
+				return (String)rst;
+			}
+		} catch (DAOException e) {
+			e.printStackTrace();
+		}
+		return null;
+	}
+	
 }
