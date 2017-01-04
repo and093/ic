@@ -4,12 +4,15 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
+import nc.bs.dao.BaseDAO;
+import nc.bs.dao.DAOException;
 import nc.bs.framework.common.InvocationInfoProxy;
 import nc.bs.framework.common.NCLocator;
 import nc.bs.ic.barcode.WsQueryBS;
 import nc.bs.pf.pub.PfDataCache;
 import nc.ift.ic.barcode.ITransferOrder;
 import nc.itf.uap.pf.IPFBusiAction;
+import nc.jdbc.framework.processor.ColumnProcessor;
 import nc.md.model.MetaDataException;
 import nc.md.persist.framework.MDPersistenceService;
 import nc.pub.ic.barcode.CommonUtil;
@@ -20,6 +23,8 @@ import nc.vo.ic.m4a.entity.GeneralInVO;
 import nc.vo.ic.m4i.entity.GeneralOutBodyVO;
 import nc.vo.ic.m4i.entity.GeneralOutHeadVO;
 import nc.vo.ic.m4i.entity.GeneralOutVO;
+import nc.vo.ic.m4k.entity.WhsTransBillBodyVO;
+import nc.vo.ic.m4k.entity.WhsTransBillVO;
 import nc.vo.pub.BusinessException;
 import nc.vo.pub.CircularlyAccessibleValueObject;
 import nc.vo.pub.ISuperVO;
@@ -49,6 +54,8 @@ public class TransferOrderImpl implements ITransferOrder {
 
 		HashMap<String, Object> para = new HashMap<String, Object>();
 
+		List<GeneralInVO> list_gi = new ArrayList<GeneralInVO>();
+
 		XMLSerializer xmls = new XMLSerializer();
 		JSON json = xmls.read(xml);
 		JSONObject obj = JSONObject.fromObject(json);
@@ -61,9 +68,19 @@ public class TransferOrderImpl implements ITransferOrder {
 
 		// 根据OrderNo 查询NC 转库出库单
 		GeneralOutVO gvo = getGeneralOutVO(OrderNo);
+
 		if (gvo == null) {
 			CommonUtil.putFailResult(para, "转库出库单号" + OrderNo + "查询失败");
 		} else {
+
+			// 检查转库出库单对应的 转库单 的累计出库主数量 是否为空，不为空则 表示该出库单已生成过转库入库单 不允许再次生成
+
+			if (IsTurntoGenerIn(gvo)) {
+				CommonUtil.putFailResult(para, "该转库出库单已经生成过转库入库单，不能再次生成！");
+				return FreeMarkerUtil.process(para,
+						"nc/config/ic/barcode/TransferInOrder.fl");
+			}
+
 			// 获取转库出库单表头
 			GeneralOutHeadVO goHeadVO = gvo.getHead();
 			if (goHeadVO != null) {
@@ -73,12 +90,10 @@ public class TransferOrderImpl implements ITransferOrder {
 				CommonUtil.putFailResult(para, "转库出库单号" + OrderNo
 						+ "对应的表头单据为空！");
 			}
-			List<GeneralInBodyVO> list = setGeneralInBodyVO(gvo,item,para);
+			List<GeneralInBodyVO> list = getGeneralInBodyVO(gvo, item, para);
 			// 通过转库出库单获取表体
 			if (list != null && list.size() != 0) {
-				gvi.setChildren(GeneralInBodyVO.class,
-						(ISuperVO[]) list.toArray());
-
+				gvi.setChildrenVO(list.toArray(new GeneralInBodyVO[0]));
 				IPFBusiAction pf = NCLocator.getInstance().lookup(
 						IPFBusiAction.class);
 				InvocationInfoProxy.getInstance().setUserId(
@@ -88,19 +103,58 @@ public class TransferOrderImpl implements ITransferOrder {
 				InvocationInfoProxy.getInstance().setBizDateTime(
 						System.currentTimeMillis());
 				try {
-					pf.processAction("WRITE", "4A", null, gvi, null, null);
-					CommonUtil.putSuccessResult(para);
+					GeneralInVO[] gvis = (GeneralInVO[]) pf.processAction(
+							"WRITE", "4A", null, gvi, null, null);
+					if (gvis.length != 0) {
+						para.put("OrderNo", gvis[0].getHead().getVbillcode());
+						CommonUtil.putSuccessResult(para);
+					}
 				} catch (BusinessException e) {
 					CommonUtil.putFailResult(para, e.getMessage());
 					e.printStackTrace();
 				}
 			} else {
-				CommonUtil.putFailResult(para, "转库出库单号" + OrderNo
-						+ "对应的表体单据为空！");
+				CommonUtil.putFailResult(para, "物料短号不能全部与转库出库单表体匹配  或者  "
+						+ "转库出库单号" + OrderNo + "对应的表体单据为空");
 			}
 		}
 		return FreeMarkerUtil.process(para,
 				"nc/config/ic/barcode/TransferInOrder.fl");
+	}
+
+	/**
+	 * 判断转库出库单是否已经生成过转库入库单
+	 * 
+	 * @param gvo
+	 *            转库出库单aggvo
+	 * @return true 已生成 false 未生成
+	 */
+	private boolean IsTurntoGenerIn(GeneralOutVO gvo) {
+
+		boolean flag = false;
+
+		for (GeneralOutBodyVO body : gvo.getBodys()) {
+			String id = body.getCsourcebillbid(); // 转库出库单来源表体id 即
+			String sqlWhere = "nvl(dr,0) = 0 and csourcebillbid='" + id + "'";
+			try {
+				Object ntransinnum = new BaseDAO().executeQuery(
+						"select ntransinnum from ic_whstrans_b where cspecialbid='"
+								+ id + "' and dr = 0", new ColumnProcessor());
+				Object nnum = new BaseDAO().executeQuery(
+						"select nnum from ic_whstrans_b where cspecialbid='"
+								+ id + "' and dr = 0", new ColumnProcessor());
+				if (ntransinnum != null) {
+					double ntnum = Double.parseDouble(ntransinnum.toString()); // 累计入库主数量
+					if (ntnum == Double.parseDouble(nnum.toString())) {
+						flag = true;
+						break;
+					}
+				}
+			} catch (DAOException e) {
+				e.printStackTrace();
+			}
+		}
+		return flag;
 	}
 
 	/**
@@ -110,101 +164,130 @@ public class TransferOrderImpl implements ITransferOrder {
 	 *            转库出库单 aggVO
 	 * @return
 	 */
-	private List<GeneralInBodyVO> setGeneralInBodyVO(GeneralOutVO gvo,
-			JSONArray item,HashMap<String, Object> para) {
-		
+	private List<GeneralInBodyVO> getGeneralInBodyVO(GeneralOutVO gvo,
+			JSONArray item, HashMap<String, Object> para) {
+
 		int count = 0;
 		String errorCode = new String();
-		
+
 		GeneralOutBodyVO[] goBodys = gvo.getBodys();
 		GeneralOutHeadVO gohead = gvo.getHead();
 		List<GeneralInBodyVO> list = new ArrayList<GeneralInBodyVO>();
 		int index = 0;
 		for (; index < goBodys.length; index++) {
-			
-			String pk_material = WsQueryBS.queryPK_materialByProductCode(item
-					.getJSONObject(index).getString("ProductCode"));  //根据物料短号获取物料pk
-			
-			if(pk_material == null) {
-				CommonUtil.putFailResult(para, "料号"+item.getJSONObject(index).getString("ProductCode")+"找不到对应的物料");
-				return null;  //获取物料pk失败
+
+			String pk_material = null;
+			try {
+				pk_material = WsQueryBS.queryPK_materialByProductCode(item
+						.getJSONObject(index).getString("ProductCode"));
+			} catch (DAOException e) {
+				CommonUtil.putFailResult(para, "查询数据库失败" + e.getMessage());
+				e.printStackTrace();
+			} // 根据物料短号获取物料pk
+
+			if (pk_material == null) {
+				CommonUtil.putFailResult(para, "料号"
+						+ item.getJSONObject(index).getString("ProductCode")
+						+ "找不到对应的物料");
+				return null; // 获取物料pk失败
 			}
-			
+
 			boolean flag = false;
 			for (GeneralOutBodyVO go : goBodys) {
-				if(pk_material.equals(go.getCmaterialoid())){
+				if (pk_material.equals(go.getCmaterialoid())) {
 					flag = true;
 					GeneralInBodyVO gi = new GeneralInBodyVO();
 					gi.setPk_group(gohead.getPk_group()); // 集团
-	
-					gi.setCrowno(go.getCrowno()); // 行号
+
+					gi.setCrowno(go.getCrowno() == null ? (index + 1) * 10 + ""
+							: go.getCrowno()); // 行号
 					gi.setCmaterialoid(go.getCmaterialoid()); // 物料
 					gi.setCmaterialvid(go.getCmaterialvid()); // 物料编码
-					gi.setVbdef8(item.getJSONObject(index).getString("ProductCode")); // 物料短号
+					// gi.setVbdef8(item.getJSONObject(index).getString(
+					// "ProductCode")); // 物料短号
 					gi.setCunitid(go.getCunitid()); // 主单位
 					gi.setCastunitid(go.getCastunitid()); // 单位
 					gi.setVchangerate(go.getVchangerate()); // 换算率
 					gi.setNshouldassistnum(go.getNshouldassistnum()); // 应收数量
 					gi.setNshouldnum(new UFDouble(go.getNshouldassistnum()
-							.doubleValue() * getVchangerate(go.getVchangerate()))); // 应收主数量
-																					// =
-																					// 应收数量*换算率
-					gi.setNassistnum(new UFDouble(item.getJSONObject(index).getInt(
-							"ScanQty"))); // 实收数量
-					gi.setNnum(gi.getNshouldnum()); // 实收主数量 与 应收主数量一直
+							.doubleValue()
+							* getVchangerate(go.getVchangerate()))); // 应收主数量
+																		// =
+																		// 应收数量*换算率
+					gi.setNassistnum(new UFDouble(item.getJSONObject(index)
+							.getInt("ScanQty"))); // 实收数量
+					gi.setNnum(gi.getNshouldnum()); // 实收主数量 与 应收主数量一致
 					gi.setCbodywarehouseid(go.getCbodywarehouseid()); // 库存仓库
-	
 					gi.setNcostprice(go.getNcostprice()); // 单价
 					gi.setNcostmny(go.getNcostmny()); // 金额
 					gi.setDbizdate(new UFDate()); // 入库日期
-					gi.setVbatchcode(go.getVbatchcode()); // 批次号
+
+					gi.setCbodytranstypecode("4A-02"); // 出入库类型pk
+
+					if (getWholemanaflag(pk_material, go.getPk_org())) {
+						gi.setVbatchcode(item.getJSONObject(index).getString(
+								"BatchCode"));
+						// 批次号
+					}
 					gi.setDproducedate(go.getDproducedate()); // 生产日期
 					gi.setVvendbatchcode(go.getVvendbatchcode()); // 供应商批次号
-	
+
 					gi.setCprojectid(go.getCprojectid()); // 项目
 					gi.setCasscustid(go.getCasscustid()); // 客户
-	
+
 					// 来源信息
-					gi.setCsourcebillhid(go.getCgeneralhid());
-					gi.setCsourcebillbid(go.getCgeneralbid());
-					gi.setVsourcebillcode(gohead.getVbillcode());
-					gi.setVsourcerowno(go.getCrowno());
-					gi.setCsourcetype("4A");
-					gi.setCsourcetranstype(gohead.getCtrantypeid());
-	
-					// 其他来源
-					gi.setCsrc2billhid(go.getCsrc2billhid());
-					gi.setCsrc2billbid(go.getCsrc2billbid());
-					gi.setVsrc2billcode(go.getVsrc2billcode());
-					gi.setVsrc2billrowno(go.getVsrc2billrowno());
-					// gi.setCsrc2billtype(go.get) 其他来源单据类型编码
-					gi.setCsrc2transtype(go.getCsrc2transtype());
-	
-					// 源头信息
-					gi.setVfirstbillcode(go.getVfirstbillcode());
-					gi.setVfirstrowno(go.getVfirstrowno());
-					gi.setCfirstbillbid(go.getCfirstbillbid());
-					gi.setCfirstbillhid(go.getCfirstbillhid());
-					gi.setCfirsttranstype(go.getCfirsttranstype());
-					gi.setCfirsttype(go.getCfirsttype());
-	
+					gi.setVsourcerowno(go.getVsourcerowno());
+					gi.setVsourcebillcode(go.getVsourcebillcode()); // 来源单据号
+					gi.setCsourcebillhid(go.getCsourcebillhid()); // 来源单据主键
+					gi.setCsourcebillbid(go.getCsourcebillbid()); // 来源单据表体主键
+					gi.setCsourcetranstype(go.getCsourcetranstype()); // 来源单据出入库类型
+					gi.setCsourcetype(go.getCsourcetype());
+
 					gi.setNweight(go.getNweight());
 					gi.setNvolume(go.getNvolume());
 					gi.setStatus(VOStatus.NEW);
-	
+
 					list.add(gi);
 					count++;
-				} //end if pk_material.equals(go.getCmaterialoid())
-			} //end for go
-			if(!flag){
-				errorCode += item.getJSONObject(index).getString("ProductCode")+" ";
+				} // end if pk_material.equals(go.getCmaterialoid())
+			} // end for go
+			if (!flag) {
+				errorCode += item.getJSONObject(index).getString("ProductCode")
+						+ " ";
 			}
 		}
-		if(count != goBodys.length){
-			CommonUtil.putFailResult(para, "以下物料短号找不到对应物料："+errorCode);
+		// 有些物料短号匹配到的物料pk 在其他出库单的子表中不存在，即：条码系统传入参数有误！
+		if (count != item.size()) {
+			CommonUtil.putFailResult(para, "以下物料短号" + errorCode
+					+ "对应的物料pk匹配不到出库单子表对应物料信息！");
 			return null;
 		}
 		return list;
+	}
+
+	/**
+	 * 根据物料pk 和 库存组织 判断该物料是否启用批次号
+	 * 
+	 * @param pk_material
+	 * @param pk_org
+	 * @return true 启用
+	 */
+	private boolean getWholemanaflag(String pk_material, String pk_org) {
+
+		try {
+			Object wholemanaflag = new BaseDAO()
+					.executeQuery(
+							"select wholemanaflag from bd_materialstock where pk_material='"
+									+ pk_material
+									+ "' and pk_org='0001A510000000003BRC' and nvl(dr,0)=0",
+							new ColumnProcessor());
+			if (wholemanaflag != null) {
+				return "Y".equals(wholemanaflag.toString()) ? true : false;
+			}
+		} catch (DAOException e) {
+			e.printStackTrace();
+		}
+		return false;
 	}
 
 	/**
@@ -235,9 +318,7 @@ public class TransferOrderImpl implements ITransferOrder {
 
 		giHeadVO.setPk_group(goHeadVO.getPk_group());
 		giHeadVO.setVtrantypecode("4A-02");
-		BilltypeVO billTypeVO = PfDataCache.getBillTypeInfo("4A-02");
-		giHeadVO.setCtrantypeid(billTypeVO.getPk_billtypeid()); // 单据类型pk
-																// (出入库类型)
+		giHeadVO.setCtrantypeid("0001A510000000002QE6"); // 单据类型pk (出入库类型)
 		giHeadVO.setCdptid(null); // 部门
 		giHeadVO.setCdptvid(null); // 部门信息
 
@@ -260,6 +341,7 @@ public class TransferOrderImpl implements ITransferOrder {
 		// 设置出库仓库
 		giHeadVO.setCothercalbodyoid(goHeadVO.getCothercalbodyoid()); // 库存组织
 		giHeadVO.setCothercalbodyvid(goHeadVO.getCothercalbodyvid()); // 出库库存组织版本
+		giHeadVO.setStatus(VOStatus.NEW);
 		return giHeadVO;
 	}
 

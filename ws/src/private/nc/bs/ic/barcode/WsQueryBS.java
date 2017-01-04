@@ -142,10 +142,9 @@ public class WsQueryBS {
 			throws DAOException {
 		BaseDAO dao = new BaseDAO();
 		HashMap<String, Object> para = new HashMap<String, Object>();
-		Object rst = dao
-				.executeQuery(
-						"select code, name from  bd_customer where pk_customer = '"
-								+ ccustomerid + "'", new MapProcessor());
+		Object rst = dao.executeQuery(
+				"select code, name from  bd_customer where pk_customer = '"
+						+ ccustomerid + "'", new MapProcessor());
 
 		if (rst != null) {
 			para.putAll((HashMap) rst);
@@ -155,18 +154,17 @@ public class WsQueryBS {
 
 	/**
 	 * 根据物料短号获取物料pk
-	 * @param ProductCode 物料短号
+	 * 
+	 * @param ProductCode
+	 *            物料短号
 	 * @return 返回物料pk string
+	 * @throws DAOException 
 	 */
-	public static String queryPK_materialByProductCode(String ProductCode){
-		
+	public static String queryPK_materialByProductCode(String ProductCode) throws DAOException {
+
 		BaseDAO dao = new BaseDAO();
-		try {
-			Object rst = dao.executeQuery("select pk_material from bd_material where def8='"+ProductCode+"'",  new ColumnProcessor());
-			return (String)rst;  // 查询成功 返回物料pk
-		} catch (DAOException e) {
-			e.printStackTrace();
-		}
-		return null;
+		Object rst = dao.executeQuery(
+				"select pk_material from bd_material where def8='"+ProductCode+"'",new ColumnProcessor());
+		return (String) rst; // 查询成功 返回物料pk
 	}
 }
