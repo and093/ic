@@ -11,6 +11,7 @@ import nc.bs.framework.common.NCLocator;
 import nc.bs.ic.barcode.WsQueryBS;
 import nc.bs.pf.pub.PfDataCache;
 import nc.ift.ic.barcode.ITransferOrder;
+import nc.itf.uap.IUAPQueryBS;
 import nc.itf.uap.pf.IPFBusiAction;
 import nc.jdbc.framework.processor.ColumnProcessor;
 import nc.md.model.MetaDataException;
@@ -223,18 +224,15 @@ public class TransferOrderImpl implements ITransferOrder {
 					gi.setDbizdate(new UFDate()); // 入库日期
 
 					gi.setCbodytranstypecode("4A-02"); // 出入库类型pk
-
-					if (getWholemanaflag(pk_material, go.getPk_org())) {
+					if (WsQueryBS.getWholemanaflag(pk_material, go.getPk_org())) {
 						gi.setVbatchcode(item.getJSONObject(index).getString(
 								"BatchNo")); // 批次号
 					}
-
 					if (WsQueryBS.getPk_BatchCode(pk_material, item.getJSONObject(index)
 							.getString("BatchNo")) != null) {
 						gi.setPk_batchcode(WsQueryBS.getPk_BatchCode(pk_material, item
 								.getJSONObject(index).getString("BatchNo")));
 					}
-
 					gi.setDproducedate(go.getDproducedate()); // 生产日期
 					gi.setVvendbatchcode(go.getVvendbatchcode()); // 供应商批次号
 
@@ -269,33 +267,6 @@ public class TransferOrderImpl implements ITransferOrder {
 			return null;
 		}
 		return list;
-	}
-
-	
-
-	/**
-	 * 根据物料pk 和 库存组织 判断该物料是否启用批次号
-	 * 
-	 * @param pk_material
-	 * @param pk_org
-	 * @return true 启用
-	 */
-	private boolean getWholemanaflag(String pk_material, String pk_org) {
-
-		try {
-			Object wholemanaflag = new BaseDAO()
-					.executeQuery(
-							"select wholemanaflag from bd_materialstock where pk_material='"
-									+ pk_material
-									+ "' and pk_org='0001A510000000003BRC' and nvl(dr,0)=0",
-							new ColumnProcessor());
-			if (wholemanaflag != null) {
-				return "Y".equals(wholemanaflag.toString()) ? true : false;
-			}
-		} catch (DAOException e) {
-			e.printStackTrace();
-		}
-		return false;
 	}
 
 	/**

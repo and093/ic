@@ -4,9 +4,12 @@ import java.util.HashMap;
 
 import nc.bs.dao.BaseDAO;
 import nc.bs.dao.DAOException;
+import nc.bs.framework.common.NCLocator;
+import nc.itf.uap.IUAPQueryBS;
 import nc.jdbc.framework.SQLParameter;
 import nc.jdbc.framework.processor.ColumnProcessor;
 import nc.jdbc.framework.processor.MapProcessor;
+import nc.vo.pub.BusinessException;
 
 /**
  * 提供给ws接口的公共查询类
@@ -89,7 +92,7 @@ public class WsQueryBS {
 		}
 		return para;
 	}
-	
+
 	/**
 	 * 根据条码系统的仓库编码，查找nc仓库pk
 	 * 
@@ -131,15 +134,16 @@ public class WsQueryBS {
 		}
 		return para;
 	}
-	
-	
+
 	/**
 	 * 根据条码系统传过来的车间编码SenderLocationCode，查找nc部门主键
+	 * 
 	 * @param pk_deptid
 	 * @return
 	 * @throws DAOException
 	 */
-	public static HashMap<String, Object> queryDeptidByCode(String code, String pk_org) throws DAOException {
+	public static HashMap<String, Object> queryDeptidByCode(String code,
+			String pk_org) throws DAOException {
 		BaseDAO dao = new BaseDAO();
 		HashMap<String, Object> para = new HashMap<String, Object>();
 		SQLParameter sqlpa = new SQLParameter();
@@ -147,8 +151,9 @@ public class WsQueryBS {
 		sqlpa.addParam(code);
 		Object rst = dao
 				.executeQuery(
-						"select b.pk_dept, b.pk_vid from ic_dpc a, org_dept b" +
-						" where nvl(a.dr,0) = 0 and a.pk_dept = b.pk_dept and a.pk_org = ? and a.bc_code = ?", sqlpa, new MapProcessor());
+						"select b.pk_dept, b.pk_vid from ic_dpc a, org_dept b"
+								+ " where nvl(a.dr,0) = 0 and a.pk_dept = b.pk_dept and a.pk_org = ? and a.bc_code = ?",
+						sqlpa, new MapProcessor());
 		if (rst != null) {
 			para.putAll((HashMap) rst);
 		}
@@ -203,34 +208,40 @@ public class WsQueryBS {
 	 * @param ProductCode
 	 *            物料短号
 	 * @return 返回物料pk string
-	 * @throws DAOException 
+	 * @throws DAOException
 	 */
-	public static String queryPK_materialByProductCode(String ProductCode) throws DAOException {
+	public static String queryPK_materialByProductCode(String ProductCode)
+			throws DAOException {
 
 		BaseDAO dao = new BaseDAO();
 		Object rst = dao.executeQuery(
-				"select pk_material from bd_material where def8='"+ProductCode+"' and nvl(dr,0)=0",new ColumnProcessor());
+				"select pk_material from bd_material where def8='"
+						+ ProductCode + "' and nvl(dr,0)=0",
+				new ColumnProcessor());
 		return (String) rst; // 查询成功 返回物料pk
 	}
-	
+
 	/**
 	 * 根据名称或者编码，得到用户id
+	 * 
 	 * @param sender
 	 * @return
 	 */
-	public static String getUserid(String sender){
+	public static String getUserid(String sender) {
 		BaseDAO dao = new BaseDAO();
 		try {
-			Object rst = dao.executeQuery("select cuserid from sm_user where nvl(dr,0) = 0 and user_name = '"+sender+"'",  new ColumnProcessor());
-			if(rst != null){
-				return (String)rst;
+			Object rst = dao.executeQuery(
+					"select cuserid from sm_user where nvl(dr,0) = 0 and user_name = '"
+							+ sender + "'", new ColumnProcessor());
+			if (rst != null) {
+				return (String) rst;
 			}
 		} catch (DAOException e) {
 			e.printStackTrace();
 		}
 		return null;
 	}
-	
+
 	/**
 	 * 根据物料pk 和 批次号获取 批次档案主键
 	 * 
@@ -241,17 +252,39 @@ public class WsQueryBS {
 	public static String getPk_BatchCode(String pk_material, String batchCode) {
 
 		Object obj = null;
-		try {
 
+		try {
 			obj = new BaseDAO().executeQuery(
 					"select pk_batchcode from scm_batchcode where cmaterialvid='"
 							+ pk_material + "' and vbatchcode='" + batchCode
 							+ "'", new ColumnProcessor());
-			if (obj != null)
-				return obj.toString();
+			if(obj != null) return obj.toString();
 		} catch (DAOException e) {
 			e.printStackTrace();
 		}
 		return null;
+	}
+	
+	/**
+	 * 根据物料pk 和 库存组织 判断该物料是否启用批次号
+	 * 
+	 * @param pk_material
+	 * @param pk_org
+	 * @return true 启用
+	 */
+	public static boolean getWholemanaflag(String pk_material, String pk_org) {
+
+		try {
+			Object wholemanaflag = new BaseDAO().executeQuery(
+					"select wholemanaflag from bd_materialstock where pk_material='"
+							+ pk_material + "' and pk_org='" + pk_org
+							+ "' and nvl(dr,0)=0", new ColumnProcessor());
+			if (wholemanaflag != null) {
+				return "Y".equals(wholemanaflag.toString()) ? true : false;
+			}
+		} catch (DAOException e) {
+			e.printStackTrace();
+		}
+		return false;
 	}
 }
