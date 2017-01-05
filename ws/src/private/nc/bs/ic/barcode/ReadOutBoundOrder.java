@@ -70,7 +70,7 @@ public class ReadOutBoundOrder {
 						bodypara.put("PlanPackQty", body.getNshouldassistnum());
 						bodypara.put("ActualPackQty", body.getNassistnum());
 						bodypara.put("ScanQty",
-								CommonUtil.getUFDouble(body.getVbdef20()));//
+								CommonUtil.getUFDouble(body.getVbdef20()));
 						// 转换主辅单位
 						bodypara.put("PackUMName",
 								WsQueryBS.queryUnitName(body.getCastunitid()));
