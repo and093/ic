@@ -17,6 +17,7 @@
 			<ProductNo>${det.ProductNo!}</ProductNo>
 			<ProductName>${det.ProductName!}</ProductName>
 			<BatchNo>${det.BatchNo!}</BatchNo>
+			<PackUMName>${det.PackUMName!}</PackUMName>
 			<ProductUMName>${det.ProductUMName!}</ProductUMName>
 			<PackSize>${det.PackSize!}</PackSize>
 			<PlanPackQty>${det.PlanPackQty!}</PlanPackQty>

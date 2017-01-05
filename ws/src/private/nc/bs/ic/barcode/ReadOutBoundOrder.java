@@ -72,11 +72,10 @@ public class ReadOutBoundOrder {
 						bodypara.put("ScanQty",
 								CommonUtil.getUFDouble(body.getVbdef20()));
 						// 转换主辅单位
-						bodypara.put("ProductUMName",
-								WsQueryBS.queryUnitName(body.getCunitid()));
-						bodypara.put("ActualPackQty",
+						bodypara.put("PackUMName",
 								WsQueryBS.queryUnitName(body.getCastunitid()));
-
+						bodypara.put("ProductUMName",
+								WsQueryBS.queryUnitName(body.getCunitid()));//主单位
 						String pk_material = body.getCmaterialoid();
 						HashMap<String, Object> materailMap = WsQueryBS
 								.queryMaterialInfoByPk(pk_material);
@@ -149,11 +148,10 @@ public class ReadOutBoundOrder {
 						bodypara.put("ScanQty",
 								CommonUtil.getUFDouble(body.getVbdef20()));
 						// 转换主辅单位
-						bodypara.put("ProductUMName",
-								WsQueryBS.queryUnitName(body.getCunitid()));
-						bodypara.put("ActualPackQty",
+						bodypara.put("PackUMName",
 								WsQueryBS.queryUnitName(body.getCastunitid()));
-
+						bodypara.put("ProductUMName",
+								WsQueryBS.queryUnitName(body.getCunitid()));//主单位
 						String pk_material = body.getCmaterialoid();
 						HashMap<String, Object> materailMap = WsQueryBS
 								.queryMaterialInfoByPk(pk_material);
@@ -225,11 +223,10 @@ public class ReadOutBoundOrder {
 						bodypara.put("ScanQty",
 								CommonUtil.getUFDouble(body.getVbdef20()));
 						// 转换主辅单位
-						bodypara.put("ProductUMName",
-								WsQueryBS.queryUnitName(body.getCunitid()));
-						bodypara.put("ActualPackQty",
+						bodypara.put("PackUMName",
 								WsQueryBS.queryUnitName(body.getCastunitid()));
-
+						bodypara.put("ProductUMName",
+								WsQueryBS.queryUnitName(body.getCunitid()));//主单位
 						String pk_material = body.getCmaterialoid();
 						HashMap<String, Object> materailMap = WsQueryBS
 								.queryMaterialInfoByPk(pk_material);
