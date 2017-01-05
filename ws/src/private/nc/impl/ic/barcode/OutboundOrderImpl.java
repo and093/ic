@@ -35,7 +35,7 @@ import net.sf.json.xml.XMLSerializer;
 public class OutboundOrderImpl implements IOutboundOrder {
 
 	public String getOutboundOrder(String transationType, String orderNo) {
-		ReadOutBoundOrder  readoutboundorder = new ReadOutBoundOrder();
+		ReadOutBoundOrder readoutboundorder = new ReadOutBoundOrder();
 		if ("4C".equals(transationType)) {
 			return readoutboundorder.RaadSaleOrder(orderNo);
 		}
@@ -49,7 +49,7 @@ public class OutboundOrderImpl implements IOutboundOrder {
 	}
 
 	/**
-	 * 回写出库单的扫描数量
+	 * 2.5  回写出库单的扫码数量
 	 */
 	@Override
 	public String saveOutboundBarcodeNum_requireNew(String xml) {
@@ -57,11 +57,11 @@ public class OutboundOrderImpl implements IOutboundOrder {
 		JSON json = xmlS.read(xml);
 		JSONObject obj = JSONObject.fromObject(json);
 
-		String TransationType = obj.getString("TransationType");  //交易类型
-		String OrderNo = obj.getString("OrderNo");    //单据号
-		String LineNo = obj.getString("LineNo");      //行号
-		int UpdateType = obj.getInt("UpdateType");    //更新类型 
-		int ScanQty = obj.getInt("ScanQty");          //扫码箱数
+		String TransationType = obj.getString("TransationType"); // 交易类型
+		String OrderNo = obj.getString("OrderNo"); // 单据号
+		String LineNo = obj.getString("LineNo"); // 行号
+		int UpdateType = obj.getInt("UpdateType"); // 更新类型
+		int ScanQty = obj.getInt("ScanQty"); // 扫码箱数
 
 		if ("4C".equals(TransationType)) {
 			return writeSaleOrderBound(OrderNo, LineNo, UpdateType, ScanQty);
@@ -107,10 +107,21 @@ public class OutboundOrderImpl implements IOutboundOrder {
 					for (int i = 0; i < len; i++) {
 						body = list.get(0).getBodys()[i];
 
+						// 如果扫码箱数大于实发数量 不允许写入扫码数量 直接结束函数
+						if (ScanQty > body.getNassistnum().intValue()) {
+							CommonUtil.putFailResult(para, "行号" + LineNo
+									+ "的物料扫码箱数大于实发数量");
+							return FreeMarkerUtil
+									.process(para,
+											"nc/config/ic/barcode/WriteOutBoundOrder.fl");
+						}
+
 						if (LineNo.equals(body.getCrowno())) {
 
 							if (UpdateType == 1) {
-								int num = Integer.parseInt(body.getVbdef20()==null?"0":body.getVbdef20())
+								int num = Integer
+										.parseInt(body.getVbdef20() == null ? "0"
+												: body.getVbdef20())
 										+ ScanQty;
 								body.setVbdef20(new String(num + ""));
 								flag = true;
@@ -132,7 +143,7 @@ public class OutboundOrderImpl implements IOutboundOrder {
 				} else {
 					CommonUtil.putFailResult(para, "该单据为非自由状态，不可修改");
 				} // end if 单据状态
-				// 查找到对应单据并且有数据修改
+					// 查找到对应单据并且有数据修改
 				if (flag == true) {
 					System.out.print("save");
 					try {
@@ -175,9 +186,24 @@ public class OutboundOrderImpl implements IOutboundOrder {
 				if (headVO.getFbillflag() == 2) {
 					for (GeneralOutBodyVO body : list.get(0).getBodys()) {
 						if (LineNo.equals(body.getCrowno())) {
+
+							// 根据更新类型判断     如果扫码箱数大于实发数量   不允许写入扫码数量 直接结束函数 
+							if ((ScanQty > body.getNassistnum().intValue() && UpdateType == 2)
+									|| (UpdateType == 1 && (ScanQty + Integer
+											.parseInt(body.getVbdef20())) > body
+											.getNassistnum().intValue())) {
+								CommonUtil.putFailResult(para, "行号" + LineNo
+										+ "的物料扫码箱数大于实发数量");
+								return FreeMarkerUtil
+										.process(para,
+												"nc/config/ic/barcode/WriteOutBoundOrder.fl");
+							}
+
 							if (UpdateType == 1) {
-								int num = Integer.parseInt(body.getVbdef20()==null?"0":body.getVbdef20())
-										+ ScanQty;  
+								int num = Integer
+										.parseInt(body.getVbdef20() == null ? "0"
+												: body.getVbdef20())
+										+ ScanQty;
 								body.setVbdef20(new String(num + ""));
 								CommonUtil.putSuccessResult(para);
 							} else if (UpdateType == 2) {
@@ -232,8 +258,23 @@ public class OutboundOrderImpl implements IOutboundOrder {
 				if (headVO.getFbillflag() == 2) {
 					for (SaleOutBodyVO body : list.get(0).getBodys()) {
 						if (LineNo.equals(body.getCrowno())) {
+
+							// 如果扫码箱数大于实发数量 不允许写入扫码数量 直接结束函数
+							if ((ScanQty > body.getNassistnum().intValue() && UpdateType == 2)
+									|| (UpdateType == 1 && (ScanQty + Integer
+											.parseInt(body.getVbdef20())) > body
+											.getNassistnum().intValue())){
+								CommonUtil.putFailResult(para, "行号" + LineNo
+										+ "的物料扫码箱数大于实发数量");
+								return FreeMarkerUtil
+										.process(para,
+												"nc/config/ic/barcode/WriteOutBoundOrder.fl");
+							}
+
 							if (UpdateType == 1) {
-								int num = Integer.parseInt(body.getVbdef20()==null?"0":body.getVbdef20())
+								int num = Integer
+										.parseInt(body.getVbdef20() == null ? "0"
+												: body.getVbdef20())
 										+ ScanQty;
 								body.setVbdef20(new String(num + ""));
 								CommonUtil.putSuccessResult(para);
@@ -268,6 +309,9 @@ public class OutboundOrderImpl implements IOutboundOrder {
 				"nc/config/ic/barcode/WriteOutBoundOrder.fl");
 	}
 
+	/**
+	 * 2.6  回写出库单实发数量
+	 */
 	@Override
 	public String saveOuntboundOutNum_requireNew(String xml) {
 
@@ -339,15 +383,16 @@ public class OutboundOrderImpl implements IOutboundOrder {
 				}
 				// flag==true 表示找到对应行号单据，并进行更新
 				if (flag == true) {
-					 IPFBusiAction pf = NCLocator.getInstance().lookup(
-					 IPFBusiAction.class);
-					 InvocationInfoProxy.getInstance().setUserId(
-					 head.getBillmaker());
-					 InvocationInfoProxy.getInstance().setGroupId(
-					 head.getPk_group());
-					 InvocationInfoProxy.getInstance().setBizDateTime(
-					 System.currentTimeMillis()); 
-					 pf.processAction("WRITE","4I", null, list.get(0), null, null);
+					IPFBusiAction pf = NCLocator.getInstance().lookup(
+							IPFBusiAction.class);
+					InvocationInfoProxy.getInstance().setUserId(
+							head.getBillmaker());
+					InvocationInfoProxy.getInstance().setGroupId(
+							head.getPk_group());
+					InvocationInfoProxy.getInstance().setBizDateTime(
+							System.currentTimeMillis());
+					pf.processAction("WRITE", "4I", null, list.get(0), null,
+							null);
 					CommonUtil.putSuccessResult(para);
 				} else {
 					CommonUtil.putFailResult(para, "其他出库单号 " + OrderNo

@@ -118,7 +118,8 @@ public class TransferOrderImpl implements ITransferOrder {
 						+ "转库出库单号" + OrderNo + "对应的表体单据为空");
 			}
 		}
-		return FreeMarkerUtil.process(para,"nc/config/ic/barcode/TransferInOrder.fl");
+		return FreeMarkerUtil.process(para,
+				"nc/config/ic/barcode/TransferInOrder.fl");
 	}
 
 	/**
@@ -227,6 +228,13 @@ public class TransferOrderImpl implements ITransferOrder {
 						gi.setVbatchcode(item.getJSONObject(index).getString(
 								"BatchNo")); // 批次号
 					}
+
+					if (WsQueryBS.getPk_BatchCode(pk_material, item.getJSONObject(index)
+							.getString("BatchNo")) != null) {
+						gi.setPk_batchcode(WsQueryBS.getPk_BatchCode(pk_material, item
+								.getJSONObject(index).getString("BatchNo")));
+					}
+
 					gi.setDproducedate(go.getDproducedate()); // 生产日期
 					gi.setVvendbatchcode(go.getVvendbatchcode()); // 供应商批次号
 
@@ -263,8 +271,11 @@ public class TransferOrderImpl implements ITransferOrder {
 		return list;
 	}
 
+	
+
 	/**
 	 * 根据物料pk 和 库存组织 判断该物料是否启用批次号
+	 * 
 	 * @param pk_material
 	 * @param pk_org
 	 * @return true 启用

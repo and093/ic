@@ -209,7 +209,7 @@ public class WsQueryBS {
 
 		BaseDAO dao = new BaseDAO();
 		Object rst = dao.executeQuery(
-				"select pk_material from bd_material where def8='"+ProductCode+"'",new ColumnProcessor());
+				"select pk_material from bd_material where def8='"+ProductCode+"' and nvl(dr,0)=0",new ColumnProcessor());
 		return (String) rst; // 查询成功 返回物料pk
 	}
 	
@@ -231,4 +231,27 @@ public class WsQueryBS {
 		return null;
 	}
 	
+	/**
+	 * 根据物料pk 和 批次号获取 批次档案主键
+	 * 
+	 * @param pk_material
+	 * @param batchCode
+	 * @return
+	 */
+	public static String getPk_BatchCode(String pk_material, String batchCode) {
+
+		Object obj = null;
+		try {
+
+			obj = new BaseDAO().executeQuery(
+					"select pk_batchcode from scm_batchcode where cmaterialvid='"
+							+ pk_material + "' and vbatchcode='" + batchCode
+							+ "'", new ColumnProcessor());
+			if (obj != null)
+				return obj.toString();
+		} catch (DAOException e) {
+			e.printStackTrace();
+		}
+		return null;
+	}
 }
