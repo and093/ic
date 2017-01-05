@@ -57,11 +57,11 @@ public class OutboundOrderImpl implements IOutboundOrder {
 		JSON json = xmlS.read(xml);
 		JSONObject obj = JSONObject.fromObject(json);
 
-		String TransationType = obj.getString("TransationType");
-		String OrderNo = obj.getString("OrderNo");
-		String LineNo = obj.getString("LineNo");
-		int UpdateType = obj.getInt("UpdateType");
-		int ScanQty = obj.getInt("ScanQty");
+		String TransationType = obj.getString("TransationType");  //交易类型
+		String OrderNo = obj.getString("OrderNo");    //单据号
+		String LineNo = obj.getString("LineNo");      //行号
+		int UpdateType = obj.getInt("UpdateType");    //更新类型 
+		int ScanQty = obj.getInt("ScanQty");          //扫码箱数
 
 		if ("4C".equals(TransationType)) {
 			return writeSaleOrderBound(OrderNo, LineNo, UpdateType, ScanQty);
