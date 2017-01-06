@@ -63,8 +63,8 @@ public class TransferOrderImpl implements ITransferOrder {
 		JSONObject obj = JSONObject.fromObject(json);
 
 		UFDate Date = new UFDate(obj.getString("Date"));
-		String OrderNo = obj.getString("OrderNo");
-		JSONArray item = obj.getJSONArray("item");
+		String OrderNo = obj.getString("SourceOrderNo");
+		JSONArray item = obj.getJSONArray("items");
 
 		GeneralInVO gvi = new GeneralInVO();
 
@@ -86,6 +86,7 @@ public class TransferOrderImpl implements ITransferOrder {
 			// 获取转库出库单表头
 			GeneralOutHeadVO goHeadVO = gvo.getHead();
 			if (goHeadVO != null) {
+				InvocationInfoProxy.getInstance().setGroupId(goHeadVO.getPk_group());
 				// 通过转库出库单表头生成转库入库单表头
 				gvi.setParent(this.setGeneralInHeadVO(goHeadVO, Date));
 			} else {
@@ -233,6 +234,7 @@ public class TransferOrderImpl implements ITransferOrder {
 							.getString("BatchNo")) != null) {
 						gi.setPk_batchcode(WsQueryBS.getPk_BatchCode(pk_material, item
 								.getJSONObject(index).getString("BatchNo")));
+						gi.setDvalidate(new UFDate()); //失效日期
 					}
 					gi.setDproducedate(go.getDproducedate()); // 生产日期
 					gi.setVvendbatchcode(go.getVvendbatchcode()); // 供应商批次号
@@ -298,7 +300,7 @@ public class TransferOrderImpl implements ITransferOrder {
 
 		giHeadVO.setPk_group(goHeadVO.getPk_group());
 		giHeadVO.setVtrantypecode("4A-02");
-		giHeadVO.setCtrantypeid("0001A510000000002QE6"); // 单据类型pk (出入库类型)
+		giHeadVO.setCtrantypeid(PfDataCache.getBillType("4A-02").getPk_billtypeid()); // 单据类型pk (出入库类型)
 		giHeadVO.setCdptid(null); // 部门
 		giHeadVO.setCdptvid(null); // 部门信息
 
