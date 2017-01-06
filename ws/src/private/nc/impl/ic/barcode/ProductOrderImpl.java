@@ -3,6 +3,7 @@ package nc.impl.ic.barcode;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 
 import nc.bs.dao.BaseDAO;
 import nc.bs.dao.DAOException;
@@ -13,11 +14,16 @@ import nc.bs.pf.pub.PfDataCache;
 import nc.ift.ic.barcode.IProductOrder;
 import nc.itf.mmpac.wr.IWrBusinessService;
 import nc.itf.mmpac.wr.pwr.IPwrMaintainService;
+import nc.itf.uap.pf.IPFBusiAction;
 import nc.itf.uap.pf.IPfExchangeService;
 import nc.jdbc.framework.processor.ColumnProcessor;
+import nc.md.persist.framework.MDPersistenceService;
 import nc.pub.ic.barcode.CommonUtil;
 import nc.pub.ic.barcode.FreeMarkerUtil;
 import nc.vo.am.common.util.CloneUtil;
+import nc.vo.ic.m46.entity.FinProdInBodyVO;
+import nc.vo.ic.m46.entity.FinProdInHeadVO;
+import nc.vo.ic.m46.entity.FinProdInVO;
 import nc.vo.mmpac.pmo.pac0002.entity.PMOAggVO;
 import nc.vo.mmpac.pmo.pac0002.entity.PMOHeadVO;
 import nc.vo.mmpac.pmo.pac0002.entity.PMOItemVO;
@@ -26,6 +32,7 @@ import nc.vo.mmpac.wr.entity.WrItemVO;
 import nc.vo.mmpac.wr.entity.WrQualityVO;
 import nc.vo.mmpac.wr.entity.WrVO;
 import nc.vo.pub.BusinessException;
+import nc.vo.pub.VOStatus;
 import nc.vo.pub.lang.UFDate;
 import nc.vo.pub.lang.UFDateTime;
 import nc.vo.pub.lang.UFDouble;
@@ -141,8 +148,12 @@ public class ProductOrderImpl implements IProductOrder {
 					int scanQty = jsitem.getInt("ScanQty");
 					newItem.setNbwrastnum(new UFDouble(scanQty));
 					newItem.setNbwrnum(calcMainNum(scanQty, newItem.getVbchangerate()));
-					//入库批次号
-					newItem.setVbinbatchcode(jsitem.getString("BatchNo"));
+					//判断物料是否启用了批次
+					if(WsQueryBS.getWholemanaflag(newItem.getCbmaterialid(), headvo.getPk_org())){
+						//入库批次号
+						newItem.setVbinbatchcode(jsitem.getString("BatchNo"));
+						newItem.setVbinbatchid(WsQueryBS.getPk_BatchCode(newItem.getCbmaterialid(), jsitem.getString("BatchNo")));
+					}
 					newItem.setCbdeptid(pk_dept);
 					newItem.setCbdeptvid(pk_vid);
 					newItem.setFbproducttype(1); //产出类型 主产品
@@ -189,14 +200,30 @@ public class ProductOrderImpl implements IProductOrder {
 				IWrBusinessService businessService = NCLocator.getInstance().lookup(IWrBusinessService.class);
 				rstagg = businessService.prodIn(rstagg);
 				
-				//对应的产成品入库单填写实收数量
+				//对应的产成品入库单填写实收数量， 
+				//实收数量改为在交换规则配置，只要交换规则配置了，入库就有实收数量
+				//cgeneralbid.nnum,cgeneralbid.nassistnum, cgeneralbid.dvalidate
+				//需要配置以上3个字段
+				IPFBusiAction pf = NCLocator.getInstance().lookup(IPFBusiAction.class);
 				for(AggWrVO agg : rstagg){
 					WrVO wrheadvo = agg.getParentVO();
-					
-					//String cgeneralhid = queryFinprodinpkByWrpk(wrheadvo.getPk_wr());
-					
-					String vbillcode = queryFinprodinpkByWrpk(wrheadvo.getPk_wr());
-					para.put("OrderNo", vbillcode);
+					String cgeneralhid = queryFinprodinpkByWrpk(wrheadvo.getPk_wr());
+					List<FinProdInVO> list = (List<FinProdInVO>) MDPersistenceService
+							.lookupPersistenceQueryService().queryBillOfVOByCond(
+									FinProdInVO.class, "cgeneralhid = '"+cgeneralhid+"'", true, false);
+					for (FinProdInVO finprodvo : list) {
+						FinProdInHeadVO finheadvo = finprodvo.getHead();
+						FinProdInBodyVO[] finProdInBodyVOs = (FinProdInBodyVO[]) finprodvo.getChildren(FinProdInBodyVO.class);
+						for (FinProdInBodyVO bvo : finProdInBodyVOs) {
+							bvo.setNassistnum(bvo.getNshouldassistnum());
+							bvo.setNnum(bvo.getNshouldnum());
+							bvo.setDvalidate(new UFDate()); // 失效日期
+							bvo.setStatus(VOStatus.UPDATED);
+						}
+						pf.processAction("WRITE", "46", null, finprodvo, null, null);
+						para.put("OrderNo", finheadvo.getVbillcode());
+					}
+					//String vbillcode = queryFinprodinpkByWrpk(wrheadvo.getPk_wr());
 				}
 				
 				CommonUtil.putSuccessResult(para);
@@ -223,7 +250,7 @@ public class ProductOrderImpl implements IProductOrder {
 		BaseDAO dao = new BaseDAO();
 		try {
 			StringBuffer sql = new StringBuffer();
-			sql.append(" select h.vbillcode from ic_finprodin_b b, ic_finprodin_h h ")
+			sql.append(" select h.cgeneralhid from ic_finprodin_b b, ic_finprodin_h h ")
 			.append("  where nvl(h.dr,0) = 0 and nvl(b.dr,0) = 0  ")
 			.append("  and b.cgeneralhid = h.cgeneralhid  ")
 			.append("  and b.csourcebillhid = '"+pk_wr+"' ");
