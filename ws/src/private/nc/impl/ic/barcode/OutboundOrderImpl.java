@@ -393,10 +393,8 @@ public class OutboundOrderImpl implements IOutboundOrder {
 							}
 							// 更新类型 1-追加 2-覆写
 							if (UpdateType == 1) {
-								body.setNassistnum(new UFDouble(ScanQty
-										+ body.getNassistnum().doubleValue()));
-								body.setNnum(new UFDouble(ScanQty * vc1 / vc2
-										+ body.getNnum().doubleValue()));
+								body.setNassistnum(new UFDouble(ScanQty+Double.parseDouble(body.getNassistnum()==null?"0":body.getNassistnum().toString())));
+								body.setNnum(new UFDouble(ScanQty * vc1 / vc2 + Double.parseDouble(body.getNnum()==null?"0":body.getNnum().toString())));
 								body.setStatus(VOStatus.UPDATED);
 								flag = true;
 								CommonUtil.putSuccessResult(para);
