@@ -86,7 +86,7 @@ public class TOInOrderImpl implements ITOInOrder {
 					// 生成调拨入库表头数据
 					TransInHeadVO hvo = InsertTransOutHeadVO(ohvo,
 							SenderLocationCode, ReceiverLocationCode, Date,
-							Receiver, Sender);
+							Receiver, Sender,para);
 					TransOutBodyVO[] obodys = agg.getBodys();
 					// 生成调拨入库表体数据
 					List<TransInBodyVO> bvo = getTransBodyVOTransout(ohvo,
@@ -143,7 +143,7 @@ public class TOInOrderImpl implements ITOInOrder {
 	// 目前数据问题：业务类型没有实现，单据类型pk写死，部门部门信息获取
 	public static TransInHeadVO InsertTransOutHeadVO(TransOutHeadVO ohvo,
 			String SenderLocationCode, String ReceiverLocationCode,
-			String Date, String Receiver, String Sender) {
+			String Date, String Receiver, String Sender,HashMap<String, Object> para) {
 		IPFConfig ipf = NCLocator.getInstance().lookup(IPFConfig.class);
 		String pk_busitype = null;
 		try {
@@ -181,7 +181,12 @@ public class TOInOrderImpl implements ITOInOrder {
 		hvo.setCothercalbodyvid(ohvo.getCothercalbodyvid());// 出库库存组织版本
 		hvo.setBdirecttranflag(UFBoolean.FALSE);
 		hvo.setCsendtypeid(ohvo.getCdilivertypeid());// 运输方式
-		hvo.setCwarehouseid(ReceiverLocationCode);// 仓库-xml获取的入库仓库
+		try {
+			hvo.setCwarehouseid(WsQueryBS.queryStordocByCode(ReceiverLocationCode).get("pk_stordoc"));
+		} catch (DAOException e) {
+			CommonUtil.putFailResult(para, e.getMessage());
+			e.printStackTrace();
+		}// 仓库-xml获取的入库仓库
 		hvo.setStatus(VOStatus.NEW);//
 		return hvo;
 	}
