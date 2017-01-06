@@ -54,7 +54,7 @@ public class TOInOrderImpl implements ITOInOrder {
 			String Date = obj.getString("Date");// 单据日期
 			String SourceOrderNo = obj.getString("SourceOrderNo");
 			// 取xml表体数据
-			JSONArray item = obj.getJSONArray("item");
+			JSONArray item = obj.getJSONArray("items");
 
 			String where = "nvl(dr,0) = 0 and vbillcode = '" + SourceOrderNo
 					+ "'";
@@ -114,12 +114,7 @@ public class TOInOrderImpl implements ITOInOrder {
 								CommonUtil.putSuccessResult(para);
 							}
 
-						} else {
-							CommonUtil.putFailResult(para,
-									"出现物料编号在与调拨出库单表体不匹配 或者单号" + SourceOrderNo
-											+ "调拨入库表体数据没有生成");
-
-						}
+						} 
 					} else {
 						CommonUtil.putFailResult(para, "单号" + SourceOrderNo
 								+ "调拨入库表头数据没有生成");
@@ -208,6 +203,7 @@ public class TOInOrderImpl implements ITOInOrder {
 				pk_material = WsQueryBS.queryPK_materialByProductCode(item
 						.getJSONObject(i).getString("ProductCode"));
 			} catch (DAOException e) {
+				CommonUtil.putFailResult(para, e.getMessage());
 				e.printStackTrace();
 			}
 			for (TransOutBodyVO dbvo : obodys) {
@@ -241,7 +237,7 @@ public class TOInOrderImpl implements ITOInOrder {
 					bvo.setVnotebody(dbvo.getCrowno());// 行备注
 					bvo.setCvendorid(dbvo.getCvendorid());// 供应商
 					bvo.setCvmivenderid(dbvo.getCvmivenderid());
-					bvo.setNcostprice(dbvo.getNcostprice());// 单价
+					bvo.setNcostprice(dbvo.getNcostprice());//单价
 					bvo.setCbodytranstypecode("4E-01");
 					bvo.setFlargess(dbvo.getFlargess());// 赠品
 					bvo.setBsourcelargess(dbvo.getBsourcelargess());// 上游赠品行
@@ -256,7 +252,6 @@ public class TOInOrderImpl implements ITOInOrder {
 								pk_material,
 								item.getJSONObject(i).getString("BatchNo")));
 					}
-
 					bvo.setCoutcalbodyoid(SenderLocationCode);
 					bvo.setCoutcalbodyvid(SenderLocationCode);
 					// 来源信息
@@ -301,12 +296,13 @@ public class TOInOrderImpl implements ITOInOrder {
 			if (!flag) {
 				 error = error + "条形码的物料短号："
 						+ item.getJSONObject(i).getString("ProductCode")
-						+ "在调拨出库表体中没有匹配的物料；";
+						+ "  在调拨出库表体中没有匹配的物料；  ";
 			}
 		}
 		if (!error.equals("")) {
 			CommonUtil.putFailResult(para, error);
-			return null;
+			list.clear(); 
+			return list;
 		}
 
 		return list;
