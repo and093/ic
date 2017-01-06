@@ -49,7 +49,7 @@ public class OutboundOrderImpl implements IOutboundOrder {
 	}
 
 	/**
-	 * 2.5  回写出库单的扫码数量
+	 * 2.5 回写出库单的扫码数量
 	 */
 	@Override
 	public String saveOutboundBarcodeNum_requireNew(String xml) {
@@ -80,6 +80,7 @@ public class OutboundOrderImpl implements IOutboundOrder {
 
 	/**
 	 * 调拨出库
+	 * 
 	 * @param OrderNo
 	 * @param LineNo
 	 * @param UpdateType
@@ -115,13 +116,14 @@ public class OutboundOrderImpl implements IOutboundOrder {
 					for (int i = 0; i < len; i++) {
 						body = list.get(0).getBodys()[i];
 
-						// 如果扫码箱数大于实发数量 不允许写入扫码数量 直接结束函数
+						// 如果扫码箱数大于应发数量 不允许写入扫码数量 直接结束函数
 						if ((ScanQty > body.getNshouldassistnum().intValue() && UpdateType == 2)
 								|| (UpdateType == 1 && (ScanQty + Integer
-										.parseInt(body.getVbdef20()==null?"0":body.getVbdef20())) > body
+										.parseInt(body.getVbdef20() == null ? "0"
+												: body.getVbdef20())) > body
 										.getNshouldassistnum().intValue())) {
 							CommonUtil.putFailResult(para, "行号" + LineNo
-									+ "的物料扫码箱数大于实发数量");
+									+ "的物料扫码箱数大于应发数量");
 							return FreeMarkerUtil
 									.process(para,
 											"nc/config/ic/barcode/WriteOutBoundOrder.fl");
@@ -177,6 +179,7 @@ public class OutboundOrderImpl implements IOutboundOrder {
 
 	/**
 	 * 其它出库
+	 * 
 	 * @param OrderNo
 	 * @param LineNo
 	 * @param UpdateType
@@ -206,13 +209,15 @@ public class OutboundOrderImpl implements IOutboundOrder {
 					for (GeneralOutBodyVO body : list.get(0).getBodys()) {
 						if (LineNo.equals(body.getCrowno())) {
 
-							// 根据更新类型判断     如果扫码箱数大于实发数量   不允许写入扫码数量 直接结束函数 
-							if ((ScanQty > body.getNshouldassistnum().intValue() && UpdateType == 2)
+							// 根据更新类型判断 如果扫码箱数大于应发数量 不允许写入扫码数量 直接结束函数
+							if ((ScanQty > body.getNshouldassistnum()
+									.intValue() && UpdateType == 2)
 									|| (UpdateType == 1 && (ScanQty + Integer
-											.parseInt(body.getVbdef20()==null?"0":body.getVbdef20())) > body
+											.parseInt(body.getVbdef20() == null ? "0"
+													: body.getVbdef20())) > body
 											.getNshouldassistnum().intValue())) {
 								CommonUtil.putFailResult(para, "行号" + LineNo
-										+ "的物料扫码箱数大于实发数量");
+										+ "的物料扫码箱数大于应发数量");
 								return FreeMarkerUtil
 										.process(para,
 												"nc/config/ic/barcode/WriteOutBoundOrder.fl");
@@ -257,6 +262,7 @@ public class OutboundOrderImpl implements IOutboundOrder {
 
 	/**
 	 * 销售出库
+	 * 
 	 * @param OrderNo
 	 * @param LineNo
 	 * @param UpdateType
@@ -286,13 +292,15 @@ public class OutboundOrderImpl implements IOutboundOrder {
 					for (SaleOutBodyVO body : list.get(0).getBodys()) {
 						if (LineNo.equals(body.getCrowno())) {
 
-							// 如果扫码箱数大于实发数量 不允许写入扫码数量 直接结束函数
-							if ((ScanQty > body.getNshouldassistnum().intValue() && UpdateType == 2)
+							// 如果扫码箱数大于应发数量 不允许写入扫码数量 直接结束函数
+							if ((ScanQty > body.getNshouldassistnum()
+									.intValue() && UpdateType == 2)
 									|| (UpdateType == 1 && (ScanQty + Integer
-											.parseInt(body.getVbdef20()==null?"0":body.getVbdef20())) > body
-											.getNshouldassistnum().intValue())){
+											.parseInt(body.getVbdef20() == null ? "0"
+													: body.getVbdef20())) > body
+											.getNshouldassistnum().intValue())) {
 								CommonUtil.putFailResult(para, "行号" + LineNo
-										+ "的物料扫码箱数大于实发数量");
+										+ "的物料扫码箱数大于应发数量");
 								return FreeMarkerUtil
 										.process(para,
 												"nc/config/ic/barcode/WriteOutBoundOrder.fl");
@@ -337,7 +345,7 @@ public class OutboundOrderImpl implements IOutboundOrder {
 	}
 
 	/**
-	 * 2.6  回写出库单实发数量
+	 * 2.6 回写出库单实发数量
 	 */
 	@Override
 	public String saveOuntboundOutNum_requireNew(String xml) {
