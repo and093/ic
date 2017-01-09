@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
+import uap.xbrl.adapter.log.Logger;
+
 import nc.bs.dao.BaseDAO;
 import nc.bs.dao.DAOException;
 import nc.bs.framework.common.InvocationInfoProxy;
@@ -11,8 +13,8 @@ import nc.bs.framework.common.NCLocator;
 import nc.bs.ic.barcode.WsQueryBS;
 import nc.bs.pf.pub.PfDataCache;
 import nc.ift.ic.barcode.ITransferOrder;
-import nc.itf.uap.IUAPQueryBS;
 import nc.itf.uap.pf.IPFBusiAction;
+import nc.itf.uap.pf.IPfExchangeService;
 import nc.jdbc.framework.processor.ColumnProcessor;
 import nc.md.model.MetaDataException;
 import nc.md.persist.framework.MDPersistenceService;
@@ -25,12 +27,10 @@ import nc.vo.ic.m4i.entity.GeneralOutBodyVO;
 import nc.vo.ic.m4i.entity.GeneralOutHeadVO;
 import nc.vo.ic.m4i.entity.GeneralOutVO;
 import nc.vo.ic.m4k.entity.WhsTransBillBodyVO;
+import nc.vo.ic.m4k.entity.WhsTransBillHeaderVO;
 import nc.vo.ic.m4k.entity.WhsTransBillVO;
 import nc.vo.pub.BusinessException;
-import nc.vo.pub.CircularlyAccessibleValueObject;
-import nc.vo.pub.ISuperVO;
 import nc.vo.pub.VOStatus;
-import nc.vo.pub.billtype.BilltypeVO;
 import nc.vo.pub.lang.UFDate;
 import nc.vo.pub.lang.UFDateTime;
 import nc.vo.pub.lang.UFDouble;
@@ -43,11 +43,139 @@ public class TransferOrderImpl implements ITransferOrder {
 
 	@Override
 	public String saveTransferOut_requireNew(String xml) {
+		HashMap<String, Object> para = new HashMap<String, Object>();
 		
-		// TODO Auto-generated method stub
-		return null;
+		XMLSerializer xmls = new XMLSerializer();
+		JSON json = xmls.read(xml);
+		JSONObject obj = JSONObject.fromObject(json);
+		
+		String senderLocationCode = obj.getString("SenderLocationCode");
+		String receiverLocationCode = obj.getString("ReceiverLocationCode");
+		JSONArray items = obj.getJSONArray("items");
+		
+		try{
+			if(senderLocationCode == null || receiverLocationCode == null){
+				throw new BusinessException("SenderLocationCode和ReceiverLocationCode不能为空");
+			}
+			HashMap<String, String> outStoreMap = WsQueryBS.queryStordocByCode(senderLocationCode);
+			HashMap<String, String> inStoreMap = WsQueryBS.queryStordocByCode(receiverLocationCode);
+			if(outStoreMap.size() == 0 ){
+				throw new BusinessException("仓库对照找不到仓库编码" + senderLocationCode);
+			}
+			if(inStoreMap.size() == 0 ){ 
+				throw new BusinessException("仓库对照找不到仓库编码" + receiverLocationCode);
+			}
+			if(!outStoreMap.get("pk_org").equals(inStoreMap.get("pk_org"))){
+				throw new BusinessException("转出跟转入仓库所属组织不一致");
+			}
+			
+			WhsTransBillVO wtbillvo = new WhsTransBillVO();
+			WhsTransBillHeaderVO wthvo = getWhsTransBillHeaderVO(obj, outStoreMap, inStoreMap);
+			wtbillvo.setParent(wthvo);
+			wtbillvo.setChildrenVO(getWhsTransBillBodysVO(wthvo, items));
+			//保存转库单
+			IPFBusiAction pf = NCLocator.getInstance().lookup(IPFBusiAction.class);
+			pf.processAction("WRITE", "4K", null, wtbillvo, null, null);
+			Logger.error("转库保存成 ");
+			pf.processAction("APPROVE", "4K", null, wtbillvo, null, null);
+			Logger.error("转库审核成功 ");
+			//转库单推其他出库
+			IPfExchangeService exchangeService = NCLocator.getInstance().lookup(IPfExchangeService.class);
+			GeneralOutVO outvo = (GeneralOutVO )exchangeService.runChangeData("4K", "4I", wtbillvo, null);
+			GeneralOutHeadVO outheadvo = outvo.getHead();
+			outheadvo.setVtrantypecode("4I-02");
+			outheadvo.setCtrantypeid(PfDataCache.getBillType("4I-02").getPk_billtypeid());
+			GeneralOutBodyVO[] outbodys = outvo.getBodys();
+			for(int i = 0; i < outbodys.length; i++){
+				GeneralOutBodyVO outbody = outbodys[i];
+				outbody.setCrowno(String.valueOf((i + 1) * 10));
+				outbody.setNassistnum(outbody.getNshouldassistnum());
+				outbody.setNnum(outbody.getNshouldnum());
+				//outbody.setDproducedate(new UFDate());
+				//outbody.setDvalidate(new UFDate()); // 失效日期
+				outbody.setVtransfercode("4I-02");
+				//outbody.setDinbounddate(new UFDate());
+				Logger.error("出库批次号   " + outbody.getVbatchcode());
+				Logger.error("出库批次pk   " + outbody.getPk_batchcode());
+				Logger.error("出库失效日期   " + outbody.getDvalidate());
+				Logger.error("出库生产日期   " + outbody.getDproducedate());
+			}
+			GeneralOutVO[] outrst = (GeneralOutVO[])pf.processAction("WRITE", "4I", null, outvo, null, null);
+			para.put("OrderNo", outrst[0].getHead().getVbillcode());
+			CommonUtil.putSuccessResult(para);
+		} catch(BusinessException e){
+			Logger.error("接口报错了  ----  ", e);
+			e.printStackTrace();
+			CommonUtil.putFailResult(para, "发生异常：" + e.getMessage());
+		}
+		return FreeMarkerUtil.process(para,"nc/config/ic/barcode/PostProductionOrderl.fl");
 	}
 
+	private WhsTransBillHeaderVO getWhsTransBillHeaderVO(JSONObject obj, HashMap<String, String> outStoreMap, HashMap<String, String> inStoreMap){
+		WhsTransBillHeaderVO wthvo = new WhsTransBillHeaderVO();
+		UFDate Date = new UFDate(obj.getString("Date"));
+		String sender = obj.getString("Sender");
+		String receiver = obj.getString("Receiver");
+		String cuserid = WsQueryBS.getUserid(sender);
+		InvocationInfoProxy.getInstance().setUserId(cuserid);
+		InvocationInfoProxy.getInstance().setGroupId(outStoreMap.get("pk_group"));
+		
+		String pk_org = outStoreMap.get("pk_org");
+		String pk_org_v = outStoreMap.get("pk_vid");
+		wthvo.setCorpoid(pk_org);
+		wthvo.setCorpvid(pk_org_v);
+		wthvo.setCotherwhid(inStoreMap.get("pk_stordoc")); //入库仓库
+		wthvo.setCtrantypeid(PfDataCache.getBillType("4K-01").getPk_billtypeid());
+		wthvo.setCwarehouseid(outStoreMap.get("pk_stordoc")); //出库仓库
+		wthvo.setDbilldate(Date);
+		wthvo.setFbillflag(1); //单据状态
+		wthvo.setPk_group(outStoreMap.get("pk_group"));
+		wthvo.setPk_org(pk_org);
+		wthvo.setPk_org_v(pk_org_v);
+		wthvo.setVtrantypecode("4K-01");
+		
+		return wthvo;
+	}
+	
+	private WhsTransBillBodyVO[] getWhsTransBillBodysVO(WhsTransBillHeaderVO wthvo, JSONArray items) throws BusinessException{
+		WhsTransBillBodyVO[] wtbodys = new WhsTransBillBodyVO[items.size()];
+		for(int i = 0; i < items.size(); i++){
+			WhsTransBillBodyVO bvo = new WhsTransBillBodyVO();
+			JSONObject jsitem = items.getJSONObject(i);
+			String ProductCode = jsitem.getString("ProductCode");
+			String BatchNo = jsitem.getString("BatchNo");
+			UFDouble ScanQty = new UFDouble(jsitem.getInt("ScanQty"));
+			HashMap<String, String> materialMap = WsQueryBS.queryMaterialInfoByCode(ProductCode);
+			if(materialMap.size() == 0){
+				throw new BusinessException("根据条码短号" + ProductCode + "找不到对应的物料或者物料单位不是箱");	
+			}
+			bvo.setPk_group(wthvo.getPk_group());
+			bvo.setPk_org(wthvo.getPk_org());
+			bvo.setPk_org_v(wthvo.getPk_org_v());
+			bvo.setCastunitid(materialMap.get("castunitid"));
+			bvo.setCunitid(materialMap.get("cunitid"));
+			bvo.setCmaterialoid(materialMap.get("pk_material"));
+			bvo.setCmaterialvid(materialMap.get("pk_material"));
+			bvo.setCorpoid(wthvo.getCorpoid());
+			bvo.setCorpvid(wthvo.getCorpvid());
+			bvo.setCrowno(String.valueOf((i + 1) * 10));
+			bvo.setVchangerate(materialMap.get("measrate"));
+			bvo.setNassistnum(ScanQty);
+			bvo.setNnum(ScanQty.multiply(getVchangerate(bvo.getVchangerate())));
+			//判断物料是否启用了批次
+			if(WsQueryBS.getWholemanaflag(bvo.getCmaterialoid(), bvo.getPk_org())){
+				//批次号
+				bvo.setVbatchcode(BatchNo);
+				bvo.setPk_batchcode(WsQueryBS.getPk_BatchCode(bvo.getCmaterialoid(), BatchNo));
+				bvo.setDproducedate(new UFDate());
+				bvo.setDvalidate(new UFDate());
+			}
+			wtbodys[i] = bvo;
+		}
+		return wtbodys;
+	}
+	
+	
 	/**
 	 * 2.9 写入转库入库单
 	 */
