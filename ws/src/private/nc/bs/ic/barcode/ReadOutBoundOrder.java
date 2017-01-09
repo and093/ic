@@ -23,7 +23,7 @@ import nc.vo.pub.AggregatedValueObject;
 
 public class ReadOutBoundOrder {
 	/**
-	 * 销售出库单读取，
+	 * 销售出库单读取，，
 	 * 
 	 * @param orderNo
 	 * @return
