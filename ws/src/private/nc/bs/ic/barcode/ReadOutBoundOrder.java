@@ -10,6 +10,7 @@ import nc.md.model.MetaDataException;
 import nc.md.persist.framework.MDPersistenceService;
 import nc.pub.ic.barcode.CommonUtil;
 import nc.pub.ic.barcode.FreeMarkerUtil;
+import nc.pub.ic.barcode.LoggerUtil;
 import nc.vo.ic.m4c.entity.SaleOutBodyVO;
 import nc.vo.ic.m4c.entity.SaleOutHeadVO;
 import nc.vo.ic.m4c.entity.SaleOutVO;
@@ -29,6 +30,7 @@ public class ReadOutBoundOrder {
 	 * @return
 	 */
 	public String RaadSaleOrder(String orderNo) {
+		LoggerUtil.debug("entry ProductOrderImpl RaadSaleOrder " + orderNo);
 		HashMap<String, Object> para = new HashMap<String, Object>();
 		para.put("detail", "null");
 		String where = "nvl(dr,0) = 0 and vbillcode = '" + orderNo + "'";
@@ -87,19 +89,26 @@ public class ReadOutBoundOrder {
 				} else {
 					CommonUtil.putFailResult(para, "单号" + orderNo
 							+ "在仓库对照表没有相应的数据");
+					LoggerUtil.error("单号" + orderNo
+							+ "在仓库对照表没有相应的数据");
 				}
 			} else {
 				CommonUtil.putFailResult(para, "单号" + orderNo + "找不到对应的销售出库单");
+				LoggerUtil.error("单号" + orderNo + "找不到对应的销售出库单");
 			}
 		} catch (MetaDataException e) {
 			e.printStackTrace();
 			CommonUtil.putFailResult(para, "查询数据库失败：" + e.getMessage());
+			LoggerUtil.error("查询数据库失败：" , e);
 		} catch (DAOException e) {
 			e.printStackTrace();
 			CommonUtil.putFailResult(para, "查询数据库失败：" + e.getMessage());
+			LoggerUtil.error("查询数据库失败：" , e);
 		}
-		return FreeMarkerUtil.process(para,
+		String rst = FreeMarkerUtil.process(para,
 				"nc/config/ic/barcode/ReadOutBoundOrder.fl");
+		LoggerUtil.debug("leave OutboundOrderImpl RaadSaleOrder" + rst);
+		return rst;
 	}
 
 	/**
@@ -163,6 +172,8 @@ public class ReadOutBoundOrder {
 				} else {
 					CommonUtil.putFailResult(para, "单号" + orderNo
 							+ "在仓库对照表没有相应的数据");
+					LoggerUtil.error( "单号" + orderNo
+							+ "在仓库对照表没有相应的数据");
 				}
 			} else {
 				CommonUtil.putFailResult(para, "单号" + orderNo + "找不到对应的调拨出库单");
@@ -174,8 +185,10 @@ public class ReadOutBoundOrder {
 			e.printStackTrace();
 			CommonUtil.putFailResult(para, "查询数据库失败：" + e.getMessage());
 		}
-		return FreeMarkerUtil.process(para,
+		String rst = FreeMarkerUtil.process(para,
 				"nc/config/ic/barcode/ReadOutBoundOrder.fl");
+		LoggerUtil.debug("leave OutboundOrderImpl ReadOutBoundOrder" + rst);
+		return rst;
 	}
 
 	/**

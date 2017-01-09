@@ -17,6 +17,7 @@ import nc.itf.uap.pf.IPFBusiAction;
 import nc.itf.uap.pf.IPFConfig;
 import nc.pub.ic.barcode.CommonUtil;
 import nc.pub.ic.barcode.FreeMarkerUtil;
+import nc.pub.ic.barcode.LoggerUtil;
 import nc.vo.ic.m4e.entity.TransInBodyVO;
 import nc.vo.ic.m4e.entity.TransInHeadVO;
 import nc.vo.ic.m4e.entity.TransInVO;
@@ -123,25 +124,35 @@ public class TOInOrderImpl implements ITOInOrder {
 					} else {
 						CommonUtil.putFailResult(para, "单号" + SourceOrderNo
 								+ "调拨入库表头数据没有生成");
+						LoggerUtil.error("单号" + SourceOrderNo
+								+ "调拨入库表头数据没有生成");
 					}
 				} else {
 					CommonUtil.putFailResult(para, error);
+					LoggerUtil.error(error);
 
 				}
 			} else {
 				CommonUtil.putFailResult(para, "在调拨出库单数据库中不存在单号"
+						+ SourceOrderNo);
+				LoggerUtil.error("在调拨出库单数据库中不存在单号"
 						+ SourceOrderNo);
 			}
 
 		} catch (MetaDataException e) {
 			e.printStackTrace();
 			CommonUtil.putFailResult(para, "查询数据库失败：" + e.getMessage());
+			LoggerUtil.error("TOInOrderImpl setTransInOrder error" , e);
 		} catch (BusinessException e) {
 			e.printStackTrace();
 			CommonUtil.putFailResult(para, "生成调拨入库单失败：" + e.getMessage());
+			LoggerUtil.error("TOInOrderImpl setTransInOrder error" , e);
 		}
-		return FreeMarkerUtil.process(para,
+		String rst = FreeMarkerUtil.process(para,
 				"nc/config/ic/barcode/TransferInOrder.fl");
+		LoggerUtil.debug("leave TOInOrderImpl setTransInOrder" + rst);
+		return rst;
+		
 	}
 
 	// 赋值调拨入库表头数据
@@ -163,7 +174,7 @@ public class TOInOrderImpl implements ITOInOrder {
 		TransInHeadVO hvo = new TransInHeadVO();
 		hvo.setPk_group(ohvo.getPk_group());// 集团
 		hvo.setVtrantypecode("4E-01");// 单据类型
-		hvo.setCbiztype(ohvo.getCbiztype());// 业务流程 未完成
+		hvo.setCbiztype(ohvo.getCbiztype());// 业务流程 
 		
 		 hvo.setCtrantypeid(PfDataCache.getBillType("4E-01").getPk_billtypeid());// 单据类型pk
 		 
@@ -308,6 +319,7 @@ public class TOInOrderImpl implements ITOInOrder {
 		}
 		if (!error.equals("")) {
 			CommonUtil.putFailResult(para, error);
+			LoggerUtil.error(error);
 			list.clear(); 
 			return list;
 		}
