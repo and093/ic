@@ -4,8 +4,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-import uap.xbrl.adapter.log.Logger;
-
 import nc.bs.dao.BaseDAO;
 import nc.bs.dao.DAOException;
 import nc.bs.framework.common.InvocationInfoProxy;
@@ -20,6 +18,7 @@ import nc.md.model.MetaDataException;
 import nc.md.persist.framework.MDPersistenceService;
 import nc.pub.ic.barcode.CommonUtil;
 import nc.pub.ic.barcode.FreeMarkerUtil;
+import nc.pub.ic.barcode.LoggerUtil;
 import nc.vo.ic.m4a.entity.GeneralInBodyVO;
 import nc.vo.ic.m4a.entity.GeneralInHeadVO;
 import nc.vo.ic.m4a.entity.GeneralInVO;
@@ -43,6 +42,7 @@ public class TransferOrderImpl implements ITransferOrder {
 
 	@Override
 	public String saveTransferOut_requireNew(String xml) {
+		LoggerUtil.debug("entry TransferOrderImpl saveTransferOut_requireNew " + xml);
 		HashMap<String, Object> para = new HashMap<String, Object>();
 		
 		XMLSerializer xmls = new XMLSerializer();
@@ -76,9 +76,9 @@ public class TransferOrderImpl implements ITransferOrder {
 			//保存转库单
 			IPFBusiAction pf = NCLocator.getInstance().lookup(IPFBusiAction.class);
 			pf.processAction("WRITE", "4K", null, wtbillvo, null, null);
-			Logger.error("转库保存成 ");
+			LoggerUtil.error("TransferOrderImpl saveTransferOut_requireNew 转库保存 ");
 			pf.processAction("APPROVE", "4K", null, wtbillvo, null, null);
-			Logger.error("转库审核成功 ");
+			LoggerUtil.error("TransferOrderImpl saveTransferOut_requireNew 转库审核 ");
 			//转库单推其他出库
 			IPfExchangeService exchangeService = NCLocator.getInstance().lookup(IPfExchangeService.class);
 			GeneralOutVO outvo = (GeneralOutVO )exchangeService.runChangeData("4K", "4I", wtbillvo, null);
@@ -95,20 +95,23 @@ public class TransferOrderImpl implements ITransferOrder {
 				//outbody.setDvalidate(new UFDate()); // 失效日期
 				outbody.setVtransfercode("4I-02");
 				//outbody.setDinbounddate(new UFDate());
-				Logger.error("出库批次号   " + outbody.getVbatchcode());
-				Logger.error("出库批次pk   " + outbody.getPk_batchcode());
-				Logger.error("出库失效日期   " + outbody.getDvalidate());
-				Logger.error("出库生产日期   " + outbody.getDproducedate());
+//				Logger.error("出库批次号   " + outbody.getVbatchcode());
+//				Logger.error("出库批次pk   " + outbody.getPk_batchcode());
+//				Logger.error("出库失效日期   " + outbody.getDvalidate());
+//				Logger.error("出库生产日期   " + outbody.getDproducedate());
 			}
 			GeneralOutVO[] outrst = (GeneralOutVO[])pf.processAction("WRITE", "4I", null, outvo, null, null);
+			LoggerUtil.error("TransferOrderImpl saveTransferOut_requireNew 其他出库保存 ");
 			para.put("OrderNo", outrst[0].getHead().getVbillcode());
 			CommonUtil.putSuccessResult(para);
 		} catch(BusinessException e){
-			Logger.error("接口报错了  ----  ", e);
 			e.printStackTrace();
 			CommonUtil.putFailResult(para, "发生异常：" + e.getMessage());
+			LoggerUtil.error("TransferOrderImpl saveTransferOut_requireNew error ", e);
 		}
-		return FreeMarkerUtil.process(para,"nc/config/ic/barcode/PostProductionOrderl.fl");
+		String rst = FreeMarkerUtil.process(para,"nc/config/ic/barcode/PostProductionOrderl.fl");
+		LoggerUtil.debug("leave TransferOrderImpl saveTransferOut_requireNew " + rst);
+		return rst;
 	}
 
 	private WhsTransBillHeaderVO getWhsTransBillHeaderVO(JSONObject obj, HashMap<String, String> outStoreMap, HashMap<String, String> inStoreMap){

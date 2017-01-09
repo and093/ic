@@ -8,20 +8,12 @@ public class LoggerUtil {
 
 	private static HashMap<String, Log> loggerPluginMap = new HashMap<String, Log>();
 	
-	private String module;
+	private static Log log;
 	
-	private Log log;
-	
-	private LoggerUtil(){
+	static{
+		log = getLogger("sync");
 	}
 	
-	public static LoggerUtil getSyncLogger(){
-		LoggerUtil logobj = new LoggerUtil();
-		logobj.module = "sync";
-		logobj.log = getLogger(logobj.module);
-		return logobj;
-	}
-
 	private static Log getLogger(String module){
 		synchronized(loggerPluginMap){
 			Log log = loggerPluginMap.get(module);
@@ -33,19 +25,19 @@ public class LoggerUtil {
 		}
 	}
 	
-	public void error(Object msg, Throwable throwable) {
+	public static void error(Object msg, Throwable throwable) {
 		log.error(msg, throwable);
 	}
 	
-	public void error(Object msg) {
+	public static void error(Object msg) {
 		log.error(msg);
 	}
 	
-	public void debug(Object msg) {
+	public static void debug(Object msg) {
 		log.error(msg);
 	}
 	
-	public void info(Object msg) {
+	public static void info(Object msg) {
 		log.error(msg);
 	}
 	
