@@ -20,6 +20,7 @@ import nc.jdbc.framework.processor.ColumnProcessor;
 import nc.md.persist.framework.MDPersistenceService;
 import nc.pub.ic.barcode.CommonUtil;
 import nc.pub.ic.barcode.FreeMarkerUtil;
+import nc.pub.ic.barcode.LoggerUtil;
 import nc.vo.am.common.util.CloneUtil;
 import nc.vo.ic.m46.entity.FinProdInBodyVO;
 import nc.vo.ic.m46.entity.FinProdInHeadVO;
@@ -45,6 +46,7 @@ public class ProductOrderImpl implements IProductOrder {
 
 	@Override
 	public String getProductOrder(String batchcode) {
+		LoggerUtil.debug("entry ProductOrderImpl getProductOrder " + batchcode);
 		HashMap<String, Object> para = new HashMap<String, Object>();
 		BaseDAO dao = new BaseDAO();
 		//根据生产批次号查询生产订单明细行
@@ -81,13 +83,16 @@ public class ProductOrderImpl implements IProductOrder {
 		} catch (BusinessException e) {
 			e.printStackTrace();
 			CommonUtil.putFailResult(para, "查询数据库失败：" + e.getMessage());
+			LoggerUtil.error("ProductOrderImpl getProductOrder error ", e);
 		}
-		return FreeMarkerUtil.process(para,"nc/config/ic/barcode/productionOrderl.fl");
+		String rst = FreeMarkerUtil.process(para,"nc/config/ic/barcode/productionOrderl.fl");
+		LoggerUtil.debug("leave ProductOrderImpl getProductOrder " + rst);
+		return rst;
 	}
 
 	@Override
 	public String saveProductInbound_requireNew(String xml) {
-		
+		LoggerUtil.debug("entry ProductOrderImpl saveProductInbound_requireNew " + xml);
 		HashMap<String, Object> para = new HashMap<String, Object>();
 		XMLSerializer xmlS = new XMLSerializer();
 		JSON json = xmlS.read(xml);
@@ -179,7 +184,9 @@ public class ProductOrderImpl implements IProductOrder {
 				//生产报告保存并签字
 				IPwrMaintainService service = NCLocator.getInstance().lookup(IPwrMaintainService.class);
 				AggWrVO[] rstagg = service.insert(new AggWrVO[] {wragg});
+				LoggerUtil.debug("ProductOrderImpl saveProductInbound_requireNew  完工报告保存");
 				rstagg = service.audit(rstagg);
+				LoggerUtil.debug("ProductOrderImpl saveProductInbound_requireNew  完工报告签字");
 				//设置仓库
 				for(AggWrVO agg : rstagg){
 					WrItemVO[] items = (WrItemVO[])agg.getChildren(WrItemVO.class);
@@ -199,6 +206,8 @@ public class ProductOrderImpl implements IProductOrder {
 				//生产报告生成产成品入库
 				IWrBusinessService businessService = NCLocator.getInstance().lookup(IWrBusinessService.class);
 				rstagg = businessService.prodIn(rstagg);
+				
+				LoggerUtil.debug("ProductOrderImpl saveProductInbound_requireNew  生成产成品入库");
 				
 				//对应的产成品入库单填写实收数量， 
 				//实收数量改为在交换规则配置，只要交换规则配置了，入库就有实收数量
@@ -221,6 +230,7 @@ public class ProductOrderImpl implements IProductOrder {
 							bvo.setStatus(VOStatus.UPDATED);
 						}
 						pf.processAction("WRITE", "46", null, finprodvo, null, null);
+						LoggerUtil.debug("ProductOrderImpl saveProductInbound_requireNew  产成品入库实发数量更新");
 						para.put("OrderNo", finheadvo.getVbillcode());
 					}
 					//String vbillcode = queryFinprodinpkByWrpk(wrheadvo.getPk_wr());
@@ -231,8 +241,11 @@ public class ProductOrderImpl implements IProductOrder {
 		} catch (BusinessException e) {
 			e.printStackTrace();
 			CommonUtil.putFailResult(para, "发生异常：" + e.getMessage());
+			LoggerUtil.error("ProductOrderImpl saveProductInbound_requireNew error ", e);
 		}
-		return FreeMarkerUtil.process(para,"nc/config/ic/barcode/PostProductionOrderl.fl");
+		String rst = FreeMarkerUtil.process(para,"nc/config/ic/barcode/PostProductionOrderl.fl");
+		LoggerUtil.debug("leave ProductOrderImpl saveProductInbound_requireNew " + rst);
+		return rst;
 	}
 
 	private UFDouble calcMainNum(int scanQty, String vbchangerate){

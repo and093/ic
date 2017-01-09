@@ -4,12 +4,9 @@ import java.util.HashMap;
 
 import nc.bs.dao.BaseDAO;
 import nc.bs.dao.DAOException;
-import nc.bs.framework.common.NCLocator;
-import nc.itf.uap.IUAPQueryBS;
 import nc.jdbc.framework.SQLParameter;
 import nc.jdbc.framework.processor.ColumnProcessor;
 import nc.jdbc.framework.processor.MapProcessor;
-import nc.vo.pub.BusinessException;
 
 /**
  * 提供给ws接口的公共查询类
@@ -106,7 +103,7 @@ public class WsQueryBS {
 		HashMap<String, String> para = new HashMap<String, String>();
 		Object rst = dao
 				.executeQuery(
-						"select pk_org, pk_stordoc from ic_warehouse_contrast where nvl(dr,0) = 0 and wc_code = '"
+						"select a.pk_org, b.pk_vid, pk_stordoc, b.pk_group from ic_warehouse_contrast a , org_orgs b where a.pk_org = b.pk_org and nvl(a.dr,0) = 0 and wc_code = '"
 								+ code + "'", new MapProcessor());
 		if (rst != null) {
 			para.putAll((HashMap) rst);
@@ -255,7 +252,7 @@ public class WsQueryBS {
 
 		try {
 			obj = new BaseDAO().executeQuery(
-					"select pk_batchcode from scm_batchcode where cmaterialvid='"
+					"select pk_batchcode from scm_batchcode where cmaterialoid ='"
 							+ pk_material + "' and vbatchcode='" + batchCode
 							+ "'", new ColumnProcessor());
 			if(obj != null) return obj.toString();
@@ -286,5 +283,30 @@ public class WsQueryBS {
 			e.printStackTrace();
 		}
 		return false;
+	}
+	
+	/**
+	 * 根据条码短号，查询物料pk和物料主辅单位
+	 * @param productCode
+	 * @return
+	 * @throws DAOException
+	 */
+	public static HashMap<String, String> queryMaterialInfoByCode(String productCode) throws DAOException {
+		// 通过条码的物料短码，查询物料信息，主要是物料pk和物料主辅单位
+		BaseDAO dao = new BaseDAO();
+		HashMap<String, String> para = new HashMap<String, String>();
+		StringBuffer sql = new StringBuffer();
+		sql.append(" select a.pk_material, a.pk_measdoc cunitid, b.pk_measdoc castunitid, b.measrate  ")
+			.append("  from bd_material a, bd_materialconvert b, bd_measdoc c ")
+			.append(" where a.pk_material = b.pk_material  ")
+			.append(" and b.pk_measdoc = c.pk_measdoc ")
+			.append(" and a.def8 = '"+productCode+"' ")
+			.append(" and c.name = '箱' ")
+			.append(" and nvl(a.dr,0) = 0 ");
+		Object rst = dao.executeQuery(sql.toString(), new MapProcessor());
+		if (rst != null) {
+			para.putAll((HashMap) rst);
+		}
+		return para;
 	}
 }

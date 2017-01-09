@@ -8,11 +8,13 @@ import nc.ift.ic.barcode.IMaterialInfo;
 import nc.jdbc.framework.processor.MapProcessor;
 import nc.pub.ic.barcode.CommonUtil;
 import nc.pub.ic.barcode.FreeMarkerUtil;
+import nc.pub.ic.barcode.LoggerUtil;
 
 public class MaterialInfoImpl implements IMaterialInfo {
 
 	@Override
 	public String getMaterialInfo(String bccode) {
+		LoggerUtil.debug("entry MaterialInfoImpl getMaterialInfo " + bccode);
 		//通过条码的物料短码，查询物料信息
 		BaseDAO dao = new BaseDAO();
 		HashMap<String, Object> para = new HashMap<String, Object>();
@@ -36,9 +38,12 @@ public class MaterialInfoImpl implements IMaterialInfo {
 				CommonUtil.putFailResult(para, "条码号" + bccode + "找不到对应的物料信息");
 			}
 		} catch (DAOException e) {
+			LoggerUtil.error("MaterialInfoImpl getMaterialInfo error ", e);
 			CommonUtil.putFailResult(para, "查询数据库失败：" + e.getMessage());
 		}
-		return FreeMarkerUtil.process(para,"nc/config/ic/barcode/material.fl");
+		String rst = FreeMarkerUtil.process(para,"nc/config/ic/barcode/material.fl");
+		LoggerUtil.debug("leave MaterialInfoImpl getMaterialInfo : " + rst);
+		return rst;
 	}
 
 }
