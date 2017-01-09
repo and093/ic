@@ -224,12 +224,12 @@ public class WsQueryBS {
 	 * @param sender
 	 * @return
 	 */
-	public static String getUserid(String sender) {
+	public static String getUseridByCode(String code) {
 		BaseDAO dao = new BaseDAO();
 		try {
 			Object rst = dao.executeQuery(
-					"select cuserid from sm_user where nvl(dr,0) = 0 and user_name = '"
-							+ sender + "'", new ColumnProcessor());
+					"select cuserid from sm_user where nvl(dr,0) = 0 and user_code = '"
+							+ code + "'", new ColumnProcessor());
 			if (rst != null) {
 				return (String) rst;
 			}

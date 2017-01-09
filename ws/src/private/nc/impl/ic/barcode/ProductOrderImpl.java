@@ -105,7 +105,6 @@ public class ProductOrderImpl implements IProductOrder {
 		String sourceOrderNo = obj.getString("SourceOrderNo"); //源单号（生产订单表体生产批次号）
 		JSONArray arrays = obj.getJSONArray("items");
 		
-		InvocationInfoProxy.getInstance().setUserId(WsQueryBS.getUserid(sender));
 		BaseDAO dao = new BaseDAO();
 		//根据生产批次号查询生产订单明细行
 		String where = " nvl(dr,0) = 0 and vbatchcode = '"+sourceOrderNo+"'";

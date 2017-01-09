@@ -119,8 +119,6 @@ public class TransferOrderImpl implements ITransferOrder {
 		UFDate Date = new UFDate(obj.getString("Date"));
 		String sender = obj.getString("Sender");
 		String receiver = obj.getString("Receiver");
-		String cuserid = WsQueryBS.getUserid(sender);
-		InvocationInfoProxy.getInstance().setUserId(cuserid);
 		InvocationInfoProxy.getInstance().setGroupId(outStoreMap.get("pk_group"));
 		
 		String pk_org = outStoreMap.get("pk_org");
@@ -437,11 +435,11 @@ public class TransferOrderImpl implements ITransferOrder {
 
 		giHeadVO.setNtotalnum(goHeadVO.getNtotalnum()); // 总数量
 
-		giHeadVO.setCreator("NC_USER0000000000000"); // 创建人
+		//giHeadVO.setCreator("NC_USER0000000000000"); // 创建人
 		giHeadVO.setCreationtime(new UFDateTime(System.currentTimeMillis())); // 创建日期
-		giHeadVO.setBillmaker("NC_USER0000000000000"); // 制单人
-		giHeadVO.setModifier("NC_USER0000000000000");
-		giHeadVO.setModifiedtime(new UFDateTime());
+		//giHeadVO.setBillmaker("NC_USER0000000000000"); // 制单人
+		//giHeadVO.setModifier("NC_USER0000000000000");
+		//giHeadVO.setModifiedtime(new UFDateTime());
 		giHeadVO.setDbilldate(date); // 单据日期
 		giHeadVO.setDmakedate(new UFDate());
 		giHeadVO.setVnote(goHeadVO.getVnote()); // 备注

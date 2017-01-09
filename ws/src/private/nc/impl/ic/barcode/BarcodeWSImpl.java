@@ -2,6 +2,7 @@ package nc.impl.ic.barcode;
 
 import nc.bs.framework.common.InvocationInfoProxy;
 import nc.bs.framework.common.NCLocator;
+import nc.bs.ic.barcode.WsQueryBS;
 import nc.ift.ic.barcode.IBarcodeWS;
 import nc.ift.ic.barcode.IMaterialInfo;
 import nc.ift.ic.barcode.IOutboundOrder;
@@ -50,6 +51,9 @@ public class BarcodeWSImpl implements IBarcodeWS {
 //		ISecurityTokenCallback sc = (ISecurityTokenCallback)NCLocator.getInstance().lookup(ISecurityTokenCallback.class);
 //		sc.token("WSSystem".getBytes(), "WSSystem".getBytes()); 
 		InvocationInfoProxy.getInstance().setUserDataSource(ResourceUtil.getPro().getProperty("system.dataSource"));
+		String userCode = ResourceUtil.getPro().getProperty("system.user");
+		String cuserid = WsQueryBS.getUseridByCode(userCode);
+		InvocationInfoProxy.getInstance().setUserId(cuserid);
 		IProductOrder s = NCLocator.getInstance().lookup(IProductOrder.class);
 		return s.saveProductInbound_requireNew(xml);
 	}
@@ -79,6 +83,9 @@ public class BarcodeWSImpl implements IBarcodeWS {
 //		ISecurityTokenCallback sc = (ISecurityTokenCallback)NCLocator.getInstance().lookup(ISecurityTokenCallback.class);
 //		sc.token("WSSystem".getBytes(), "WSSystem".getBytes()); 
 		InvocationInfoProxy.getInstance().setUserDataSource(ResourceUtil.getPro().getProperty("system.dataSource"));
+		String userCode = ResourceUtil.getPro().getProperty("system.user");
+		String cuserid = WsQueryBS.getUseridByCode(userCode);
+		InvocationInfoProxy.getInstance().setUserId(cuserid);
 		IOutboundOrder s = NCLocator.getInstance().lookup(IOutboundOrder.class);
 		return s.saveOutboundBarcodeNum_requireNew(xml);
 	}
@@ -93,6 +100,9 @@ public class BarcodeWSImpl implements IBarcodeWS {
 //		ISecurityTokenCallback sc = (ISecurityTokenCallback)NCLocator.getInstance().lookup(ISecurityTokenCallback.class);
 //		sc.token("WSSystem".getBytes(), "WSSystem".getBytes()); 
 		InvocationInfoProxy.getInstance().setUserDataSource(ResourceUtil.getPro().getProperty("system.dataSource"));
+		String userCode = ResourceUtil.getPro().getProperty("system.user");
+		String cuserid = WsQueryBS.getUseridByCode(userCode);
+		InvocationInfoProxy.getInstance().setUserId(cuserid);
 		IOutboundOrder s = NCLocator.getInstance().lookup(IOutboundOrder.class);
 		return s.saveOuntboundOutNum_requireNew(xml);
 	}
@@ -107,6 +117,9 @@ public class BarcodeWSImpl implements IBarcodeWS {
 //		ISecurityTokenCallback sc = (ISecurityTokenCallback)NCLocator.getInstance().lookup(ISecurityTokenCallback.class);
 //		sc.token("WSSystem".getBytes(), "WSSystem".getBytes()); 
 		InvocationInfoProxy.getInstance().setUserDataSource(ResourceUtil.getPro().getProperty("system.dataSource"));
+		String userCode = ResourceUtil.getPro().getProperty("system.user");
+		String cuserid = WsQueryBS.getUseridByCode(userCode);
+		InvocationInfoProxy.getInstance().setUserId(cuserid);
 		ITOInOrder s = NCLocator.getInstance().lookup(ITOInOrder.class);
 		return s.saveTransferIn_requireNew(xml);
 	}
@@ -121,6 +134,9 @@ public class BarcodeWSImpl implements IBarcodeWS {
 //		ISecurityTokenCallback sc = (ISecurityTokenCallback)NCLocator.getInstance().lookup(ISecurityTokenCallback.class);
 //		sc.token("WSSystem".getBytes(), "WSSystem".getBytes()); 
 		InvocationInfoProxy.getInstance().setUserDataSource(ResourceUtil.getPro().getProperty("system.dataSource"));
+		String userCode = ResourceUtil.getPro().getProperty("system.user");
+		String cuserid = WsQueryBS.getUseridByCode(userCode);
+		InvocationInfoProxy.getInstance().setUserId(cuserid);
 		ITransferOrder s = NCLocator.getInstance().lookup(ITransferOrder.class);
 		return s.saveTransferOut_requireNew(xml);
 	}
@@ -135,6 +151,9 @@ public class BarcodeWSImpl implements IBarcodeWS {
 //		ISecurityTokenCallback sc = (ISecurityTokenCallback)NCLocator.getInstance().lookup(ISecurityTokenCallback.class);
 //		sc.token("WSSystem".getBytes(), "WSSystem".getBytes()); 
 		InvocationInfoProxy.getInstance().setUserDataSource(ResourceUtil.getPro().getProperty("system.dataSource"));
+		String userCode = ResourceUtil.getPro().getProperty("system.user");
+		String cuserid = WsQueryBS.getUseridByCode(userCode);
+		InvocationInfoProxy.getInstance().setUserId(cuserid);
 		ITransferOrder s = NCLocator.getInstance().lookup(ITransferOrder.class);
 		return s.saveTransferIn_requireNew(xml);
 	}

@@ -4,17 +4,15 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-import nc.bs.ic.barcode.WsQueryBS;
-import nc.md.model.MetaDataException;
-import nc.md.persist.framework.MDPersistenceService;
 import nc.bs.dao.DAOException;
 import nc.bs.framework.common.InvocationInfoProxy;
 import nc.bs.framework.common.NCLocator;
+import nc.bs.ic.barcode.WsQueryBS;
 import nc.bs.pf.pub.PfDataCache;
 import nc.ift.ic.barcode.ITOInOrder;
-
 import nc.itf.uap.pf.IPFBusiAction;
-import nc.itf.uap.pf.IPFConfig;
+import nc.md.model.MetaDataException;
+import nc.md.persist.framework.MDPersistenceService;
 import nc.pub.ic.barcode.CommonUtil;
 import nc.pub.ic.barcode.FreeMarkerUtil;
 import nc.pub.ic.barcode.LoggerUtil;
@@ -26,12 +24,9 @@ import nc.vo.ic.m4y.entity.TransOutHeadVO;
 import nc.vo.ic.m4y.entity.TransOutVO;
 import nc.vo.pub.AggregatedValueObject;
 import nc.vo.pub.BusinessException;
-import nc.vo.pub.ISuperVO;
 import nc.vo.pub.VOStatus;
-import nc.vo.pub.billtype.BilltypeVO;
 import nc.vo.pub.lang.UFBoolean;
 import nc.vo.pub.lang.UFDate;
-import nc.vo.pub.lang.UFDateTime;
 import nc.vo.pub.lang.UFDouble;
 import net.sf.json.JSON;
 import net.sf.json.JSONArray;
@@ -55,7 +50,7 @@ public class TOInOrderImpl implements ITOInOrder {
 			String Date = obj.getString("Date");// 单据日期
 			String SourceOrderNo = obj.getString("SourceOrderNo");
 			
-			InvocationInfoProxy.getInstance().setUserId(WsQueryBS.getUserid(Sender));
+			//InvocationInfoProxy.getInstance().setUserId(WsQueryBS.getUserid(Sender));
 			
 			
 			// 取xml表体数据
@@ -182,9 +177,9 @@ public class TOInOrderImpl implements ITOInOrder {
 		hvo.setCdptid(null);// 部门
 		hvo.setCdptvid(null);// 部门信息
 		hvo.setFmodetype(0);// 0-普通 1-直运 2-寄存调拨
-		hvo.setCreator(WsQueryBS.getUserid(Sender));// 创建人，，，xml发货人
-		hvo.setCreationtime(new UFDateTime(System.currentTimeMillis()));// 创建时间
-		hvo.setBillmaker(WsQueryBS.getUserid(Sender));// 制单人，，，xml发货人
+		//hvo.setCreator(WsQueryBS.getUserid(Sender));// 创建人，，，xml发货人
+		//hvo.setCreationtime(new UFDateTime(System.currentTimeMillis()));// 创建时间
+		//hvo.setBillmaker(WsQueryBS.getUserid(Sender));// 制单人，，，xml发货人
 		hvo.setDbilldate(new UFDate(Date));// 单据日期
 		hvo.setDmakedate(new UFDate());// 制单日期
 		hvo.setVnote(ohvo.getVnote());// 备注
