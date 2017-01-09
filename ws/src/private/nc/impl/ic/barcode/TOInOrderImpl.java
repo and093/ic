@@ -53,6 +53,10 @@ public class TOInOrderImpl implements ITOInOrder {
 			String Receiver = obj.getString("Receiver");// 收货人
 			String Date = obj.getString("Date");// 单据日期
 			String SourceOrderNo = obj.getString("SourceOrderNo");
+			
+			InvocationInfoProxy.getInstance().setUserId(WsQueryBS.getUserid(Sender));
+			
+			
 			// 取xml表体数据
 			JSONArray item = obj.getJSONArray("items");
 
@@ -83,13 +87,14 @@ public class TOInOrderImpl implements ITOInOrder {
 					TransInVO transInVO = new TransInVO();
 					TransOutVO agg = (TransOutVO) list.get(0);
 					TransOutHeadVO ohvo = agg.getHead();
+					InvocationInfoProxy.getInstance().setGroupId(ohvo.getPk_group());
 					// 生成调拨入库表头数据
 					TransInHeadVO hvo = InsertTransOutHeadVO(ohvo,
 							SenderLocationCode, ReceiverLocationCode, Date,
 							Receiver, Sender,para);
 					TransOutBodyVO[] obodys = agg.getBodys();
 					// 生成调拨入库表体数据
-					List<TransInBodyVO> bvo = getTransBodyVOTransout(ohvo,
+					List<TransInBodyVO> bvo = getTransBodyVOTransout(hvo, ohvo,
 							obodys, SenderLocationCode, item, para);
 					if (hvo != null) {
 						transInVO.setParentVO(hvo);
@@ -144,26 +149,25 @@ public class TOInOrderImpl implements ITOInOrder {
 	public static TransInHeadVO InsertTransOutHeadVO(TransOutHeadVO ohvo,
 			String SenderLocationCode, String ReceiverLocationCode,
 			String Date, String Receiver, String Sender,HashMap<String, Object> para) {
-		IPFConfig ipf = NCLocator.getInstance().lookup(IPFConfig.class);
-		String pk_busitype = null;
-		try {
-			pk_busitype = ipf.retBusitypeCanStart("4E-01", "4E-01",
-					ohvo.getPk_org(), Receiver);
-		} catch (BusinessException e) {
-			// TODO 自动生成的 catch 块
-			e.printStackTrace();
-		}
-		if (pk_busitype == null) {
-		}// 判断pk_busitype的值
+//		IPFConfig ipf = NCLocator.getInstance().lookup(IPFConfig.class);
+//		String pk_busitype = null;
+//		try {
+//			pk_busitype = ipf.retBusitypeCanStart("4E-01", "4E-01",
+//					ohvo.getPk_org(), Receiver);
+//		} catch (BusinessException e) {
+//			// TODO 自动生成的 catch 块
+//			e.printStackTrace();
+//		}
+//		if (pk_busitype == null) {
+//		}// 判断pk_busitype的值
 		TransInHeadVO hvo = new TransInHeadVO();
 		hvo.setPk_group(ohvo.getPk_group());// 集团
 		hvo.setVtrantypecode("4E-01");// 单据类型
-		hvo.setCbiztype(pk_busitype);// 业务流程 未完成
-		/*
-		 * BilltypeVO billTypeVO = PfDataCache.getBillTypeInfo("4E-01");
-		 * hvo.setCtrantypeid(billTypeVO.getPk_billtypeid());// 单据类型pk
-		 */
-		hvo.setCtrantypeid("0001A510000000002QF8");// 测试单据类型pk
+		hvo.setCbiztype(ohvo.getCbiztype());// 业务流程 未完成
+		
+		 hvo.setCtrantypeid(PfDataCache.getBillType("4E-01").getPk_billtypeid());// 单据类型pk
+		 
+		//hvo.setCtrantypeid("0001A510000000002QF8");// 测试单据类型pk
 		hvo.setCdptid(null);// 部门
 		hvo.setCdptvid(null);// 部门信息
 		hvo.setFmodetype(0);// 0-普通 1-直运 2-寄存调拨
@@ -174,11 +178,11 @@ public class TOInOrderImpl implements ITOInOrder {
 		hvo.setDmakedate(new UFDate());// 制单日期
 		hvo.setVnote(ohvo.getVnote());// 备注
 		hvo.setFbillflag(2);// 单据状态 2-自由
-		hvo.setPk_org(ohvo.getPk_org());// 库存组织
-		hvo.setPk_org_v(ohvo.getPk_org_v());// 库存组织版本
-		hvo.setCotherwhid(ohvo.getCotherwhid());// 设置出库仓库-
-		hvo.setCothercalbodyoid(ohvo.getCothercalbodyoid());// 库存组织
-		hvo.setCothercalbodyvid(ohvo.getCothercalbodyvid());// 出库库存组织版本
+		hvo.setPk_org(ohvo.getCothercalbodyoid());// 库存组织
+		hvo.setPk_org_v(ohvo.getCothercalbodyvid());// 库存组织版本
+		hvo.setCotherwhid(ohvo.getCwarehouseid());// 设置出库仓库-
+		hvo.setCothercalbodyoid(ohvo.getPk_org());// 库存组织
+		hvo.setCothercalbodyvid(ohvo.getPk_org_v());// 出库库存组织版本
 		hvo.setBdirecttranflag(UFBoolean.FALSE);
 		hvo.setCsendtypeid(ohvo.getCdilivertypeid());// 运输方式
 		try {
@@ -192,16 +196,13 @@ public class TOInOrderImpl implements ITOInOrder {
 	}
 
 	// 赋值给调拨入库表体数据
-	private static List<TransInBodyVO> getTransBodyVOTransout(
+	private static List<TransInBodyVO> getTransBodyVOTransout(TransInHeadVO hvo,
 			TransOutHeadVO ohvo, TransOutBodyVO[] obodys,
 			String SenderLocationCode, JSONArray item,
 			HashMap<String, Object> para) {
 		List<TransInBodyVO> list = new ArrayList<TransInBodyVO>();
-		TransInBodyVO bvo = new TransInBodyVO();
-		int i = 0;
 		String error = "";
-		int a=item.size();
-		for (; i < item.size(); i++) {
+		for (int i = 0; i < item.size(); i++) {
 			boolean flag = false;
 			String pk_material = null;
 			try {
@@ -213,6 +214,7 @@ public class TOInOrderImpl implements ITOInOrder {
 			}
 			for (TransOutBodyVO dbvo : obodys) {
 				if (pk_material.equals(dbvo.getCmaterialoid())) {
+					TransInBodyVO bvo = new TransInBodyVO();
 					flag = true;
 					bvo.setCmaterialoid(dbvo.getCmaterialoid());
 					bvo.setCmaterialvid(dbvo.getCmaterialvid());
@@ -227,9 +229,9 @@ public class TOInOrderImpl implements ITOInOrder {
 							"ScanQty")
 							* getVchangerate(dbvo.getVchangerate())));// 实收主数量
 					bvo.setCrowno((i + 1) * 10 + "");// 行号
-					bvo.setPk_group(ohvo.getPk_group());// 集团
-					bvo.setPk_org(dbvo.getPk_org());// 库存组织
-					bvo.setPk_org_v(dbvo.getPk_org_v());// 库存组织版本
+					bvo.setPk_group(hvo.getPk_group());// 集团
+					bvo.setPk_org(hvo.getPk_org());// 库存组织
+					bvo.setPk_org_v(hvo.getPk_org_v());// 库存组织版本
 					bvo.setCunitid(dbvo.getCunitid());// 主单位
 					bvo.setCastunitid(dbvo.getCastunitid());// 辅单位
 					bvo.setVchangerate(dbvo.getVchangerate());// 换算率
@@ -238,7 +240,7 @@ public class TOInOrderImpl implements ITOInOrder {
 					bvo.setCasscustid(dbvo.getCasscustid());// 客户
 					bvo.setCliabilityoid(dbvo.getCliabilityoid());// 利润中心
 					bvo.setCliabilityvid(dbvo.getCliabilityvid());// 利润中心版本
-					bvo.setCbodywarehouseid(dbvo.getCbodywarehouseid());// 库存仓库
+					bvo.setCbodywarehouseid(hvo.getCwarehouseid());// 库存仓库
 					bvo.setVnotebody(dbvo.getCrowno());// 行备注
 					bvo.setCvendorid(dbvo.getCvendorid());// 供应商
 					bvo.setCvmivenderid(dbvo.getCvmivenderid());
@@ -250,15 +252,15 @@ public class TOInOrderImpl implements ITOInOrder {
 							.getWholemanaflag(pk_material, bvo.getPk_org())) {
 						bvo.setVbatchcode(item.getJSONObject(i).getString(
 								"BatchNo")); // 批次号
-					}
-					if (WsQueryBS.getPk_BatchCode(pk_material, item
-							.getJSONObject(i).getString("BatchNo")) != null) {
 						bvo.setPk_batchcode(WsQueryBS.getPk_BatchCode(
 								pk_material,
 								item.getJSONObject(i).getString("BatchNo")));
+						bvo.setDproducedate(dbvo.getDproducedate()); //生效日期
+						bvo.setDvalidate(new UFDate()); //失效日期
 					}
-					bvo.setCoutcalbodyoid(SenderLocationCode);
-					bvo.setCoutcalbodyvid(SenderLocationCode);
+					bvo.setDbizdate(hvo.getDbilldate());
+					bvo.setCoutcalbodyoid(ohvo.getPk_org());
+					bvo.setCoutcalbodyvid(ohvo.getPk_org_v());
 					// 来源信息
 					bvo.setCsourcebillhid(dbvo.getCgeneralhid());
 					bvo.setCsourcebillbid(dbvo.getCgeneralbid());
