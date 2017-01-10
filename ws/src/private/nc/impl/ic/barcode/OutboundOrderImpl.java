@@ -39,14 +39,13 @@ public class OutboundOrderImpl implements IOutboundOrder {
 		String rst = "";
 		if ("4C".equals(transationType)) {
 			rst = readoutboundorder.RaadSaleOrder(orderNo);
-		}
-		if ("4A".equals(transationType)) {
+		} else if ("4A".equals(transationType)) {
 			rst = readoutboundorder.RaadGeneralOutOrder(orderNo);
-		}
-		if ("4Y".equals(transationType)) {
+		} else if ("4Y".equals(transationType)) {
 			rst = readoutboundorder.RaadTransOutOrder(orderNo);
+		} else {
+			rst = readoutboundorder.Error(orderNo);
 		}
-		rst = readoutboundorder.Error(orderNo);
 		LoggerUtil.debug("读取出库单结果 " + rst); 
 		return rst;  
 	}

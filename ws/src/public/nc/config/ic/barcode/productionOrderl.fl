@@ -9,10 +9,10 @@
 			<PlanProductionDate>${detail.PlanProductionDate!}</PlanProductionDate>
 			<ProductionOrderType>${detail.ProductionOrderType!}</ProductionOrderType>
 			<OrderStatus>${detail.OrderStatus!}</OrderStatus>
-			<WorkshopCode>${detail.WorkshopCode!}</WorkshopCode>
-			<WorkshopName>${detail.WorkshopName!}</WorkshopName>
-			<ProductionLineCode>${detail.ProductionLineCode!}</ProductionLineCode>
-			<ProductionLineName>${detail.ProductionLineName!}</ProductionLineName>
+			<WorkshopCode>${detail.workshopcode!}</WorkshopCode>
+			<WorkshopName>${detail.workshopname!}</WorkshopName>
+			<ProductionLineCode>${detail.productionlinecode!}</ProductionLineCode>
+			<ProductionLineName>${detail.productionlinename!}</ProductionLineName>
 			<ProductCategoryName>${detail.productcategoryname!}</ProductCategoryName>
 			<ProductCode>${detail.productcode!}</ProductCode>
 			<ProductNo>${detail.productno!}</ProductNo>
