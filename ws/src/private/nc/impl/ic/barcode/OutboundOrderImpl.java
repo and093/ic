@@ -421,25 +421,23 @@ public class OutboundOrderImpl implements IOutboundOrder {
 							// vchangerate 换算率
 							String[] vchangeate = body.getVchangerate().split(
 									"/");
-							int vc1 = Integer.parseInt(vchangeate[0].substring(
-									0, vchangeate[0].indexOf(".")));
-							int vc2 = Integer.parseInt(vchangeate[1].substring(
-									0, vchangeate[1].indexOf(".")));
-							if (vc2 == 0) {
-								CommonUtil.putFailResult(para, "换算率除数不能为0！");
-								LoggerUtil.error("换算率除数不能为0！");
-								break;
-							}
+							UFDouble vc1 = new UFDouble(vchangeate[0]);
+							UFDouble vc2 = new UFDouble(vchangeate[1]);
+//							if (vc2 == 0) {
+//								CommonUtil.putFailResult(para, "换算率除数不能为0！");
+//								LoggerUtil.error("换算率除数不能为0！");
+//								break;
+//							}
 							// 更新类型 1-追加 2-覆写
 							if (UpdateType == 1) {
 								body.setNassistnum(new UFDouble(ScanQty+Double.parseDouble(body.getNassistnum()==null?"0":body.getNassistnum().toString())));
-								body.setNnum(new UFDouble(ScanQty * vc1 / vc2 + Double.parseDouble(body.getNnum()==null?"0":body.getNnum().toString())));
+								body.setNnum(new UFDouble(ScanQty).multiply(vc1.div(vc2)).add(body.getNnum()==null?UFDouble.ZERO_DBL:body.getNnum()));
 								body.setStatus(VOStatus.UPDATED);
 								flag = true;
 								CommonUtil.putSuccessResult(para);
 							} else if (UpdateType == 2) {
 								body.setNassistnum(new UFDouble(ScanQty));
-								body.setNnum(new UFDouble(ScanQty * vc1 / vc2));
+								body.setNnum(new UFDouble(ScanQty).multiply(vc1.div(vc2)));
 								body.setStatus(VOStatus.UPDATED);
 								flag = true;
 								CommonUtil.putSuccessResult(para);
