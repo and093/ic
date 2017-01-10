@@ -78,6 +78,8 @@ public class OutboundOrderImpl implements IOutboundOrder {
 			HashMap<String, Object> para = new HashMap<String, Object>();
 			CommonUtil.putFailResult(para, "没有与交易类型" + TransationType
 					+ "对应的出库业务");
+			LoggerUtil.error("没有与交易类型" + TransationType
+					+ "对应的出库业务");
 			rst = FreeMarkerUtil.process(para,
 					"nc/config/ic/barcode/WriteOutBoundOrder.fl");
 		}
@@ -114,6 +116,7 @@ public class OutboundOrderImpl implements IOutboundOrder {
 			// 未查询到单号为 OrderNo 的出库单
 			if (list.size() == 0 || list == null) {
 				CommonUtil.putFailResult(para, "调拨出库单号" + OrderNo + "找不到对应的单据");
+				LoggerUtil.error("调拨出库单号" + OrderNo + "找不到对应的单据");
 			} else {
 				TransOutHeadVO headVO = list.get(0).getHead();
 
@@ -131,6 +134,9 @@ public class OutboundOrderImpl implements IOutboundOrder {
 										.getNshouldassistnum().intValue())) {
 							CommonUtil.putFailResult(para, "行号" + LineNo
 									+ "的物料扫码箱数大于应发数量");
+							LoggerUtil.error("行号" + LineNo
+									+ "的物料扫码箱数大于应发数量");
+							
 							return FreeMarkerUtil
 									.process(para,
 											"nc/config/ic/barcode/WriteOutBoundOrder.fl");
@@ -152,6 +158,7 @@ public class OutboundOrderImpl implements IOutboundOrder {
 								CommonUtil.putSuccessResult(para);
 							} else {
 								CommonUtil.putFailResult(para, "更新类型有误！");
+								LoggerUtil.error("更新类型有误！");
 							}
 						}
 					}
@@ -159,9 +166,12 @@ public class OutboundOrderImpl implements IOutboundOrder {
 					if (!flag && (UpdateType == 1 || UpdateType == 2)) {
 						CommonUtil.putFailResult(para, "调拨出库单号 " + OrderNo
 								+ " 找不到对应行号为：" + LineNo + "的子表");
+						LoggerUtil.error("调拨出库单号 " + OrderNo
+								+ " 找不到对应行号为：" + LineNo + "的子表");
 					}
 				} else {
 					CommonUtil.putFailResult(para, "该单据为非自由状态，不可修改");
+					LoggerUtil.error("该单据号" + OrderNo + "为非自由状态，不可修改");
 				} // end if 单据状态
 					// 查找到对应单据并且有数据修改
 				if (flag == true) {
@@ -211,6 +221,7 @@ public class OutboundOrderImpl implements IOutboundOrder {
 			// 未查询到单号为 OrderNo 的出库单
 			if (list.size() == 0 || list == null) {
 				CommonUtil.putFailResult(para, "其他出库单号" + OrderNo + "找不到对应的单据");
+				LoggerUtil.error("其他出库单号" + OrderNo + "找不到对应的单据");
 			} else {
 				GeneralOutHeadVO headVO = list.get(0).getHead();
 				// 获取单据状态 1-删除 2-自由 3-签字
@@ -226,6 +237,8 @@ public class OutboundOrderImpl implements IOutboundOrder {
 													: body.getVbdef20())) > body
 											.getNshouldassistnum().intValue())) {
 								CommonUtil.putFailResult(para, "行号" + LineNo
+										+ "的物料扫码箱数大于应发数量");
+								LoggerUtil.error("行号" + LineNo
 										+ "的物料扫码箱数大于应发数量");
 								return FreeMarkerUtil
 										.process(para,
@@ -244,6 +257,7 @@ public class OutboundOrderImpl implements IOutboundOrder {
 								CommonUtil.putSuccessResult(para);
 							} else {
 								CommonUtil.putFailResult(para, "更新类型有误！");
+								LoggerUtil.error( "更新类型有误！");
 							}
 							flag = true;
 							dao.updateVO(body);
@@ -253,9 +267,12 @@ public class OutboundOrderImpl implements IOutboundOrder {
 					if (!flag && (UpdateType == 1 || UpdateType == 2)) {
 						CommonUtil.putFailResult(para, "其他出库单号 " + OrderNo
 								+ " 找不到对应行号为：" + LineNo + "的子表");
+						LoggerUtil.error("其他出库单号 " + OrderNo
+								+ " 找不到对应行号为：" + LineNo + "的子表");
 					}
 				} else {
 					CommonUtil.putFailResult(para, "该单据为非自由状态，不可修改");
+					LoggerUtil.error("该单据为非自由状态，不可修改");
 				} // end if 单据状态
 			} // end if list.size()
 		} catch (MetaDataException e) {
@@ -296,6 +313,9 @@ public class OutboundOrderImpl implements IOutboundOrder {
 			if (list.size() == 0 || list == null) {
 				CommonUtil.putFailResult(para, "销售出库单号" + OrderNo
 						+ "找不到对应的销售出库单");
+				LoggerUtil.error("销售出库单号" + OrderNo
+						+ "找不到对应的销售出库单");
+				
 			} else {
 				SaleOutHeadVO headVO = (SaleOutHeadVO) list.get(0).getHead();
 				// 获取单据状态 1-删除 2-自由 3-签字
@@ -311,6 +331,8 @@ public class OutboundOrderImpl implements IOutboundOrder {
 													: body.getVbdef20())) > body
 											.getNshouldassistnum().intValue())) {
 								CommonUtil.putFailResult(para, "行号" + LineNo
+										+ "的物料扫码箱数大于应发数量");
+								LoggerUtil.error("行号" + LineNo
 										+ "的物料扫码箱数大于应发数量");
 								return FreeMarkerUtil
 										.process(para,
@@ -339,9 +361,12 @@ public class OutboundOrderImpl implements IOutboundOrder {
 					if (!flag && (UpdateType == 1 && UpdateType == 2)) {
 						CommonUtil.putFailResult(para, "销售出库单号 " + OrderNo
 								+ " 找不到对应行号为：" + LineNo + "的子表");
+						LoggerUtil.error("销售出库单号 " + OrderNo
+								+ " 找不到对应行号为：" + LineNo + "的子表");
 					}
 				} else {
 					CommonUtil.putFailResult(para, "该销售单为非自由状态，不可修改");
+					LoggerUtil.error("该销售单为非自由状态，不可修改");
 				}
 			}
 		} catch (MetaDataException e) {
@@ -403,6 +428,7 @@ public class OutboundOrderImpl implements IOutboundOrder {
 									0, vchangeate[1].indexOf(".")));
 							if (vc2 == 0) {
 								CommonUtil.putFailResult(para, "换算率除数不能为0！");
+								LoggerUtil.error("换算率除数不能为0！");
 								break;
 							}
 							// 更新类型 1-追加 2-覆写
@@ -420,12 +446,14 @@ public class OutboundOrderImpl implements IOutboundOrder {
 								CommonUtil.putSuccessResult(para);
 							} else {
 								CommonUtil.putFailResult(para, "单据更新类型有误！");
+								LoggerUtil.error("单据更新类型有误！");
 								break;
 							} // end if updateType 更新类型
 						}// end if LineNo 行号
 					}// end for
 				} else {
 					CommonUtil.putFailResult(para, "该单据为非自由状态，不可修改");
+					LoggerUtil.error("该单据为非自由状态，不可修改");
 				}
 				// flag==true 表示找到对应行号单据，并进行更新
 				if (flag == true) {
@@ -442,6 +470,8 @@ public class OutboundOrderImpl implements IOutboundOrder {
 					CommonUtil.putSuccessResult(para);
 				} else {
 					CommonUtil.putFailResult(para, "其他出库单号 " + OrderNo
+							+ " 找不到对应行号为：" + LineNo + "的子表");
+					LoggerUtil.error("其他出库单号 " + OrderNo
 							+ " 找不到对应行号为：" + LineNo + "的子表");
 				}
 			}

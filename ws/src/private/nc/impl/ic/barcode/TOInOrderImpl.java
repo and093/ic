@@ -60,10 +60,12 @@ public class TOInOrderImpl implements ITOInOrder {
 			String where = "nvl(dr,0) = 0 and vbillcode = '" + SourceOrderNo
 					+ "'";
 			String error = "";
+			LoggerUtil.debug("获取 " + xml + "数据成功");
 			List<AggregatedValueObject> list = (List<AggregatedValueObject>) MDPersistenceService
 					.lookupPersistenceQueryService().queryBillOfVOByCond(
 							TransOutHeadVO.class, where, true, false);
 			if (list != null && list.size() != 0) {
+				LoggerUtil.debug("匹配调拨出库单成功");
 				// 判断物料表中是否有相应的数据
 				for (int i = 0; i < item.size(); i++) {
 					if (WsQueryBS.queryPK_materialByProductCode(item
@@ -81,6 +83,7 @@ public class TOInOrderImpl implements ITOInOrder {
 					}
 				}
 				if (error.equals("")) {
+					LoggerUtil.debug("匹配物料表数据成功");
 					TransInVO transInVO = new TransInVO();
 					TransOutVO agg = (TransOutVO) list.get(0);
 					TransOutHeadVO ohvo = agg.getHead();
@@ -94,8 +97,10 @@ public class TOInOrderImpl implements ITOInOrder {
 					List<TransInBodyVO> bvo = getTransBodyVOTransout(hvo, ohvo,
 							obodys, SenderLocationCode, item, para);
 					if (hvo != null) {
+						LoggerUtil.debug("匹配调拨出库单表头数据成功");
 						transInVO.setParentVO(hvo);
 						if (bvo != null && bvo.size() > 0) {
+							LoggerUtil.debug("匹配调拨出库单表体数据成功");
 							transInVO.setChildrenVO(bvo
 									.toArray(new TransInBodyVO[0]));
 							IPFBusiAction pf = NCLocator.getInstance().lookup(
@@ -111,8 +116,10 @@ public class TOInOrderImpl implements ITOInOrder {
 									.processAction("WRITE", "4Y", null,
 											transInVO, null, null);
 							if (transInVOs.length != 0) {
+								LoggerUtil.debug("写入调拨入库表成功");
 								para.put("OrderNo", transInVOs[0].getHead()
 										.getVbillcode());
+								LoggerUtil.debug("返回调拨入库单单号成功");
 								CommonUtil.putSuccessResult(para);
 							}
 
@@ -146,13 +153,12 @@ public class TOInOrderImpl implements ITOInOrder {
 		}
 		String rst = FreeMarkerUtil.process(para,
 				"nc/config/ic/barcode/TransferInOrder.fl");
-		LoggerUtil.debug("写入调拨入库异常结果" + rst);
+		LoggerUtil.debug("离开接口 TOInOrderImpl" + rst);
 		return rst;
 		
 	}
 
 	// 赋值调拨入库表头数据
-	// 目前数据问题：业务类型没有实现，单据类型pk写死，部门部门信息获取
 	public static TransInHeadVO InsertTransOutHeadVO(TransOutHeadVO ohvo,
 			String SenderLocationCode, String ReceiverLocationCode,
 			String Date, String Receiver, String Sender,HashMap<String, Object> para) {
@@ -196,6 +202,7 @@ public class TOInOrderImpl implements ITOInOrder {
 			hvo.setCwarehouseid(WsQueryBS.queryStordocByCode(ReceiverLocationCode).get("pk_stordoc"));
 		} catch (DAOException e) {
 			CommonUtil.putFailResult(para, e.getMessage());
+			LoggerUtil.error("获取入库仓库异常：" , e);
 			e.printStackTrace();
 		}// 仓库-xml获取的入库仓库
 		hvo.setStatus(VOStatus.NEW);//
