@@ -68,7 +68,7 @@ public class ProductOrderImpl implements IProductOrder {
 					detail.put("PlanPackQty", item.getNmmastnum());
 					//条码车间对应nc的部门，根据部门对照表转换
 					detail.putAll(WsQueryBS.queryWorkShop(item.getCdeptid())); 
-					//生产线目前直接取nc的，应该还需要做对照
+					//生产线目前直接取nc的，应该还需要做对照。
 					detail.putAll(WsQueryBS.queryWorkLine(item.getCwkid()));
 					//读取物料信息
 					detail.putAll(WsQueryBS.queryMaterialInfoByPk(item.getCmaterialid()));
