@@ -42,7 +42,7 @@ public class TransferOrderImpl implements ITransferOrder {
 
 	@Override
 	public String saveTransferOut_requireNew(String xml) {
-		LoggerUtil.debug("entry TransferOrderImpl saveTransferOut_requireNew " + xml);
+		LoggerUtil.debug("写入转库出库 " + xml);
 		HashMap<String, Object> para = new HashMap<String, Object>();
 		
 		XMLSerializer xmls = new XMLSerializer();
@@ -76,9 +76,9 @@ public class TransferOrderImpl implements ITransferOrder {
 			//保存转库单
 			IPFBusiAction pf = NCLocator.getInstance().lookup(IPFBusiAction.class);
 			pf.processAction("WRITE", "4K", null, wtbillvo, null, null);
-			LoggerUtil.error("TransferOrderImpl saveTransferOut_requireNew 转库保存 ");
+			LoggerUtil.error("转库保存 ");
 			pf.processAction("APPROVE", "4K", null, wtbillvo, null, null);
-			LoggerUtil.error("TransferOrderImpl saveTransferOut_requireNew 转库审核 ");
+			LoggerUtil.error("转库审核 ");
 			//转库单推其他出库
 			IPfExchangeService exchangeService = NCLocator.getInstance().lookup(IPfExchangeService.class);
 			GeneralOutVO outvo = (GeneralOutVO )exchangeService.runChangeData("4K", "4I", wtbillvo, null);
@@ -101,16 +101,16 @@ public class TransferOrderImpl implements ITransferOrder {
 //				Logger.error("出库生产日期   " + outbody.getDproducedate());
 			}
 			GeneralOutVO[] outrst = (GeneralOutVO[])pf.processAction("WRITE", "4I", null, outvo, null, null);
-			LoggerUtil.error("TransferOrderImpl saveTransferOut_requireNew 其他出库保存 ");
+			LoggerUtil.error("其他出库保存 ");
 			para.put("OrderNo", outrst[0].getHead().getVbillcode());
 			CommonUtil.putSuccessResult(para);
 		} catch(BusinessException e){
 			e.printStackTrace();
 			CommonUtil.putFailResult(para, "发生异常：" + e.getMessage());
-			LoggerUtil.error("TransferOrderImpl saveTransferOut_requireNew error ", e);
+			LoggerUtil.error("写入转库出库异常", e);
 		}
 		String rst = FreeMarkerUtil.process(para,"nc/config/ic/barcode/PostProductionOrderl.fl");
-		LoggerUtil.debug("leave TransferOrderImpl saveTransferOut_requireNew " + rst);
+		LoggerUtil.debug("写入转库出库结果" + rst);
 		return rst;
 	}
 
@@ -182,7 +182,7 @@ public class TransferOrderImpl implements ITransferOrder {
 	 */
 	@Override
 	public String saveTransferIn_requireNew(String xml) {
-
+		LoggerUtil.debug("写入转库入库 " + xml);
 		HashMap<String, Object> para = new HashMap<String, Object>();
 
 		List<GeneralInVO> list_gi = new ArrayList<GeneralInVO>();
@@ -208,6 +208,7 @@ public class TransferOrderImpl implements ITransferOrder {
 
 			if (IsTurntoGenerIn(gvo)) {
 				CommonUtil.putFailResult(para, "该转库出库单已经生成过转库入库单，不能再次生成！");
+				LoggerUtil.debug("写入转库入库错误，  该转库出库单已经生成过转库入库单，不能再次生成！");
 				return FreeMarkerUtil.process(para,
 						"nc/config/ic/barcode/TransferInOrder.fl");
 			}
@@ -228,8 +229,8 @@ public class TransferOrderImpl implements ITransferOrder {
 				gvi.setChildrenVO(list.toArray(new GeneralInBodyVO[0]));
 				IPFBusiAction pf = NCLocator.getInstance().lookup(
 						IPFBusiAction.class);
-				InvocationInfoProxy.getInstance().setUserId(
-						gvi.getHead().getBillmaker());
+//				InvocationInfoProxy.getInstance().setUserId(
+//						gvi.getHead().getBillmaker());
 				InvocationInfoProxy.getInstance().setGroupId(
 						gvi.getHead().getPk_group());
 				InvocationInfoProxy.getInstance().setBizDateTime(
@@ -244,14 +245,17 @@ public class TransferOrderImpl implements ITransferOrder {
 				} catch (BusinessException e) {
 					CommonUtil.putFailResult(para, e.getMessage());
 					e.printStackTrace();
+					LoggerUtil.error("写入转库入库异常", e);
 				}
 			} else {
 				CommonUtil.putFailResult(para, "物料短号不能全部与转库出库单表体匹配  或者  "
 						+ "转库出库单号" + OrderNo + "对应的表体单据为空");
 			}
 		}
-		return FreeMarkerUtil.process(para,
+		String rst = FreeMarkerUtil.process(para,
 				"nc/config/ic/barcode/TransferInOrder.fl");
+		LoggerUtil.debug("写入转库入库结果 " + rst);
+		return rst;
 	}
 
 	/**

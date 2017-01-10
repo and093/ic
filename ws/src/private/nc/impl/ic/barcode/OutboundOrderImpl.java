@@ -3,18 +3,18 @@ package nc.impl.ic.barcode;
 import java.util.HashMap;
 import java.util.List;
 
-import nc.bs.dao.DAOException;
 import nc.bs.dao.BaseDAO;
+import nc.bs.dao.DAOException;
 import nc.bs.framework.common.InvocationInfoProxy;
 import nc.bs.framework.common.NCLocator;
 import nc.bs.ic.barcode.ReadOutBoundOrder;
 import nc.ift.ic.barcode.IOutboundOrder;
-
 import nc.itf.uap.pf.IPFBusiAction;
 import nc.md.model.MetaDataException;
 import nc.md.persist.framework.MDPersistenceService;
 import nc.pub.ic.barcode.CommonUtil;
 import nc.pub.ic.barcode.FreeMarkerUtil;
+import nc.pub.ic.barcode.LoggerUtil;
 import nc.vo.ic.m4c.entity.SaleOutBodyVO;
 import nc.vo.ic.m4c.entity.SaleOutHeadVO;
 import nc.vo.ic.m4c.entity.SaleOutVO;
@@ -24,7 +24,6 @@ import nc.vo.ic.m4i.entity.GeneralOutVO;
 import nc.vo.ic.m4y.entity.TransOutBodyVO;
 import nc.vo.ic.m4y.entity.TransOutHeadVO;
 import nc.vo.ic.m4y.entity.TransOutVO;
-import nc.vo.pub.AggregatedValueObject;
 import nc.vo.pub.BusinessException;
 import nc.vo.pub.VOStatus;
 import nc.vo.pub.lang.UFDouble;
@@ -35,17 +34,21 @@ import net.sf.json.xml.XMLSerializer;
 public class OutboundOrderImpl implements IOutboundOrder {
 
 	public String getOutboundOrder(String transationType, String orderNo) {
+		LoggerUtil.debug("读取出库单 " + transationType + " - " + orderNo);
 		ReadOutBoundOrder readoutboundorder = new ReadOutBoundOrder();
+		String rst = "";
 		if ("4C".equals(transationType)) {
-			return readoutboundorder.RaadSaleOrder(orderNo);
+			rst = readoutboundorder.RaadSaleOrder(orderNo);
 		}
 		if ("4A".equals(transationType)) {
-			return readoutboundorder.RaadGeneralOutOrder(orderNo);
+			rst = readoutboundorder.RaadGeneralOutOrder(orderNo);
 		}
 		if ("4Y".equals(transationType)) {
-			return readoutboundorder.RaadTransOutOrder(orderNo);
+			rst = readoutboundorder.RaadTransOutOrder(orderNo);
 		}
-		return readoutboundorder.Error(orderNo);
+		rst = readoutboundorder.Error(orderNo);
+		LoggerUtil.debug("读取出库单结果 " + rst); 
+		return rst;  
 	}
 
 	/**
@@ -53,6 +56,7 @@ public class OutboundOrderImpl implements IOutboundOrder {
 	 */
 	@Override
 	public String saveOutboundBarcodeNum_requireNew(String xml) {
+		LoggerUtil.debug("写入出库扫码数量 " + xml);
 		XMLSerializer xmlS = new XMLSerializer();
 		JSON json = xmlS.read(xml);
 		JSONObject obj = JSONObject.fromObject(json);
@@ -63,19 +67,22 @@ public class OutboundOrderImpl implements IOutboundOrder {
 		int UpdateType = obj.getInt("UpdateType"); // 更新类型
 		int ScanQty = obj.getInt("ScanQty"); // 扫码箱数
 
+		String rst = "";
 		if ("4C".equals(TransationType)) {
-			return writeSaleOrderBound(OrderNo, LineNo, UpdateType, ScanQty);
+			rst = writeSaleOrderBound(OrderNo, LineNo, UpdateType, ScanQty);
 		} else if ("4A".equals(TransationType)) {
-			return writeGeneralOut(OrderNo, LineNo, UpdateType, ScanQty);
+			rst = writeGeneralOut(OrderNo, LineNo, UpdateType, ScanQty);
 		} else if ("4Y".equals(TransationType)) {
-			return writeTransOut(OrderNo, LineNo, UpdateType, ScanQty);
+			rst = writeTransOut(OrderNo, LineNo, UpdateType, ScanQty);
 		} else {
 			HashMap<String, Object> para = new HashMap<String, Object>();
 			CommonUtil.putFailResult(para, "没有与交易类型" + TransationType
 					+ "对应的出库业务");
-			return FreeMarkerUtil.process(para,
+			rst = FreeMarkerUtil.process(para,
 					"nc/config/ic/barcode/WriteOutBoundOrder.fl");
 		}
+		LoggerUtil.debug("写入出库扫码数量结果 " + rst);
+		return rst;
 	}
 
 	/**
@@ -166,12 +173,14 @@ public class OutboundOrderImpl implements IOutboundOrder {
 					} catch (DAOException e) {
 						CommonUtil.putSuccessResult(para);
 						e.printStackTrace();
+						LoggerUtil.error("写入调拨出库扫码数量异常 ", e);
 					}
 				}
 			} // end if list.size()
 		} catch (MetaDataException e) {
 			CommonUtil.putFailResult(para, "查询数据库失败" + e.getMessage());
 			e.printStackTrace();
+			LoggerUtil.error("写入调拨出库扫码数量异常 ", e);
 		}
 		return FreeMarkerUtil.process(para,
 				"nc/config/ic/barcode/WriteOutBoundOrder.fl");
@@ -252,9 +261,11 @@ public class OutboundOrderImpl implements IOutboundOrder {
 		} catch (MetaDataException e) {
 			CommonUtil.putFailResult(para, "查询数据库失败" + e.getMessage());
 			e.printStackTrace();
+			LoggerUtil.error("写入其他出库扫码数量异常 ", e);
 		} catch (DAOException e) {
 			CommonUtil.putFailResult(para, "写入数据库失败" + e.getMessage());
 			e.printStackTrace();
+			LoggerUtil.error("写入其他出库扫码数量异常 ", e);
 		}
 		return FreeMarkerUtil.process(para,
 				"nc/config/ic/barcode/WriteOutBoundOrder.fl");
@@ -336,9 +347,11 @@ public class OutboundOrderImpl implements IOutboundOrder {
 		} catch (MetaDataException e) {
 			CommonUtil.putFailResult(para, "查询数据库失败" + e.getMessage());
 			e.printStackTrace();
+			LoggerUtil.error("写入销售出库扫码数量异常 ", e);
 		} catch (DAOException e) {
 			CommonUtil.putFailResult(para, "写入数据库失败" + e.getMessage());
 			e.printStackTrace();
+			LoggerUtil.error("写入销售出库扫码数量异常 ", e);
 		}
 		return FreeMarkerUtil.process(para,
 				"nc/config/ic/barcode/WriteOutBoundOrder.fl");
@@ -349,7 +362,7 @@ public class OutboundOrderImpl implements IOutboundOrder {
 	 */
 	@Override
 	public String saveOuntboundOutNum_requireNew(String xml) {
-
+		LoggerUtil.debug("写入出库实发数量 " + xml);
 		HashMap<String, Object> para = new HashMap<String, Object>();
 
 		XMLSerializer xmls = new XMLSerializer();
@@ -371,6 +384,7 @@ public class OutboundOrderImpl implements IOutboundOrder {
 
 			if (list.size() == 0 || list == null) {
 				CommonUtil.putFailResult(para, "其它出库单号" + OrderNo + "找不到对应的单据");
+				LoggerUtil.debug("写入出库实发数量错误，找不到对应单据 ");
 				return FreeMarkerUtil.process(para,
 						"nc/config/ic/barcode/WriteOutBoundOrder.fl");
 			} else {
@@ -433,14 +447,18 @@ public class OutboundOrderImpl implements IOutboundOrder {
 			}
 
 		} catch (MetaDataException e) {
+			LoggerUtil.error("写入出库实发数量异常 ", e);
 			CommonUtil.putFailResult(para, "查询数据库失败！" + e.getMessage());
 			e.printStackTrace();
 		} catch (BusinessException e) {
+			LoggerUtil.error("写入出库实发数量异常 ", e);
 			CommonUtil.putFailResult(para, "写入数据库失败！" + e.getMessage());
 			e.printStackTrace();
 		}
-		return FreeMarkerUtil.process(para,
+		String rst = FreeMarkerUtil.process(para,
 				"nc/config/ic/barcode/WriteOutBoundOrder.fl");
+		LoggerUtil.debug("写入出库实发数量结果 " + rst);
+		return rst;
 	}
 
 }

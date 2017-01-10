@@ -37,6 +37,7 @@ public class TOInOrderImpl implements ITOInOrder {
 
 	@Override
 	public String saveTransferIn_requireNew(String xml) {
+		LoggerUtil.debug("写入调拨入库 - " + xml);
 		XMLSerializer xmlS = new XMLSerializer();
 		JSON json = xmlS.read(xml);
 		JSONObject obj = JSONObject.fromObject(json);
@@ -137,15 +138,15 @@ public class TOInOrderImpl implements ITOInOrder {
 		} catch (MetaDataException e) {
 			e.printStackTrace();
 			CommonUtil.putFailResult(para, "查询数据库失败：" + e.getMessage());
-			LoggerUtil.error("TOInOrderImpl setTransInOrder error" , e);
+			LoggerUtil.error("写入调拨入库异常" , e);
 		} catch (BusinessException e) {
 			e.printStackTrace();
 			CommonUtil.putFailResult(para, "生成调拨入库单失败：" + e.getMessage());
-			LoggerUtil.error("TOInOrderImpl setTransInOrder error" , e);
+			LoggerUtil.error("写入调拨入库异常" , e);
 		}
 		String rst = FreeMarkerUtil.process(para,
 				"nc/config/ic/barcode/TransferInOrder.fl");
-		LoggerUtil.debug("leave TOInOrderImpl setTransInOrder" + rst);
+		LoggerUtil.debug("写入调拨入库异常结果" + rst);
 		return rst;
 		
 	}

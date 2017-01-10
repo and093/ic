@@ -46,7 +46,7 @@ public class ProductOrderImpl implements IProductOrder {
 
 	@Override
 	public String getProductOrder(String batchcode) {
-		LoggerUtil.debug("entry ProductOrderImpl getProductOrder " + batchcode);
+		LoggerUtil.debug("读取生产订单 - " + batchcode);
 		HashMap<String, Object> para = new HashMap<String, Object>();
 		BaseDAO dao = new BaseDAO();
 		//根据生产批次号查询生产订单明细行
@@ -67,7 +67,7 @@ public class ProductOrderImpl implements IProductOrder {
 					detail.put("OrderStatus", item.getFitemstatus());
 					detail.put("PlanPackQty", item.getNmmastnum());
 					//条码车间对应nc的部门，根据部门对照表转换
-					detail.putAll(WsQueryBS.queryWorkShop(item.getCdeptid()));
+					detail.putAll(WsQueryBS.queryWorkShop(item.getCdeptid())); 
 					//生产线目前直接取nc的，应该还需要做对照
 					detail.putAll(WsQueryBS.queryWorkLine(item.getCwkid()));
 					//读取物料信息
@@ -83,16 +83,16 @@ public class ProductOrderImpl implements IProductOrder {
 		} catch (BusinessException e) {
 			e.printStackTrace();
 			CommonUtil.putFailResult(para, "查询数据库失败：" + e.getMessage());
-			LoggerUtil.error("ProductOrderImpl getProductOrder error ", e);
+			LoggerUtil.error("读取生产订单异常 ", e);
 		}
 		String rst = FreeMarkerUtil.process(para,"nc/config/ic/barcode/productionOrderl.fl");
-		LoggerUtil.debug("leave ProductOrderImpl getProductOrder " + rst);
+		LoggerUtil.debug("读取生产订单结果 " + rst);
 		return rst;
 	}
 
 	@Override
 	public String saveProductInbound_requireNew(String xml) {
-		LoggerUtil.debug("entry ProductOrderImpl saveProductInbound_requireNew " + xml);
+		LoggerUtil.debug("写入完工入库" + xml);
 		HashMap<String, Object> para = new HashMap<String, Object>();
 		XMLSerializer xmlS = new XMLSerializer();
 		JSON json = xmlS.read(xml);
@@ -183,9 +183,9 @@ public class ProductOrderImpl implements IProductOrder {
 				//生产报告保存并签字
 				IPwrMaintainService service = NCLocator.getInstance().lookup(IPwrMaintainService.class);
 				AggWrVO[] rstagg = service.insert(new AggWrVO[] {wragg});
-				LoggerUtil.debug("ProductOrderImpl saveProductInbound_requireNew  完工报告保存");
+				LoggerUtil.debug("完工报告保存");
 				rstagg = service.audit(rstagg);
-				LoggerUtil.debug("ProductOrderImpl saveProductInbound_requireNew  完工报告签字");
+				LoggerUtil.debug("完工报告签字");
 				//设置仓库
 				for(AggWrVO agg : rstagg){
 					WrItemVO[] items = (WrItemVO[])agg.getChildren(WrItemVO.class);
@@ -206,7 +206,7 @@ public class ProductOrderImpl implements IProductOrder {
 				IWrBusinessService businessService = NCLocator.getInstance().lookup(IWrBusinessService.class);
 				rstagg = businessService.prodIn(rstagg);
 				
-				LoggerUtil.debug("ProductOrderImpl saveProductInbound_requireNew  生成产成品入库");
+				LoggerUtil.debug("生成产成品入库");
 				
 				//对应的产成品入库单填写实收数量， 
 				//实收数量改为在交换规则配置，只要交换规则配置了，入库就有实收数量
@@ -229,7 +229,7 @@ public class ProductOrderImpl implements IProductOrder {
 							bvo.setStatus(VOStatus.UPDATED);
 						}
 						pf.processAction("WRITE", "46", null, finprodvo, null, null);
-						LoggerUtil.debug("ProductOrderImpl saveProductInbound_requireNew  产成品入库实发数量更新");
+						LoggerUtil.debug("产成品入库实发数量更新");
 						para.put("OrderNo", finheadvo.getVbillcode());
 					}
 					//String vbillcode = queryFinprodinpkByWrpk(wrheadvo.getPk_wr());
@@ -240,10 +240,10 @@ public class ProductOrderImpl implements IProductOrder {
 		} catch (BusinessException e) {
 			e.printStackTrace();
 			CommonUtil.putFailResult(para, "发生异常：" + e.getMessage());
-			LoggerUtil.error("ProductOrderImpl saveProductInbound_requireNew error ", e);
+			LoggerUtil.error("写入完工入库异常", e);
 		}
 		String rst = FreeMarkerUtil.process(para,"nc/config/ic/barcode/PostProductionOrderl.fl");
-		LoggerUtil.debug("leave ProductOrderImpl saveProductInbound_requireNew " + rst);
+		LoggerUtil.debug("写入完工入库结果" + rst);
 		return rst;
 	}
 
