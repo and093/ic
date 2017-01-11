@@ -42,7 +42,7 @@ public class TransferOrderImpl implements ITransferOrder {
 
 	@Override
 	public String saveTransferOut_requireNew(String xml) {
-		LoggerUtil.debug("写入转库出库 " + xml);
+		LoggerUtil.debug("写入转库出库 saveTransferOut_requireNew " + xml);
 		HashMap<String, Object> para = new HashMap<String, Object>();
 
 		XMLSerializer xmls = new XMLSerializer();
@@ -121,7 +121,7 @@ public class TransferOrderImpl implements ITransferOrder {
 		}
 		String rst = FreeMarkerUtil.process(para,
 				"nc/config/ic/barcode/PostProductionOrderl.fl");
-		LoggerUtil.debug("写入转库出库结果" + rst);
+		LoggerUtil.debug("写入转库出库结果 saveTransferOut_requireNew " + rst);
 		return rst;
 	}
 
@@ -202,7 +202,7 @@ public class TransferOrderImpl implements ITransferOrder {
 	 */
 	@Override
 	public String saveTransferIn_requireNew(String xml) {
-		LoggerUtil.debug("写入转库入库 " + xml);
+		LoggerUtil.debug("写入转库入库 saveTransferIn_requireNew  " + xml);
 		HashMap<String, Object> para = new HashMap<String, Object>();
 
 		List<GeneralInVO> list_gi = new ArrayList<GeneralInVO>();
@@ -277,7 +277,7 @@ public class TransferOrderImpl implements ITransferOrder {
 		}
 		String rst = FreeMarkerUtil.process(para,
 				"nc/config/ic/barcode/TransferInOrder.fl");
-		LoggerUtil.debug("写入转库入库结果 " + rst);
+		LoggerUtil.debug("写入转库入库结果 saveTransferIn_requireNew " + rst);
 		return rst;
 	}
 

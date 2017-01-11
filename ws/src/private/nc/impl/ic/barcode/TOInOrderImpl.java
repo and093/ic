@@ -37,7 +37,7 @@ public class TOInOrderImpl implements ITOInOrder {
 
 	@Override
 	public String saveTransferIn_requireNew(String xml) {
-		LoggerUtil.debug("写入调拨入库 - " + xml);
+		LoggerUtil.debug("写入调拨入库  saveTransferIn_requireNew - " + xml);
 		XMLSerializer xmlS = new XMLSerializer();
 		JSON json = xmlS.read(xml);
 		JSONObject obj = JSONObject.fromObject(json);
@@ -153,7 +153,7 @@ public class TOInOrderImpl implements ITOInOrder {
 		}
 		String rst = FreeMarkerUtil.process(para,
 				"nc/config/ic/barcode/TransferInOrder.fl");
-		LoggerUtil.debug("离开接口 TOInOrderImpl" + rst);
+		LoggerUtil.debug("离开接口 TOInOrderImpl saveTransferIn_requireNew " + rst);
 		return rst;
 		
 	}

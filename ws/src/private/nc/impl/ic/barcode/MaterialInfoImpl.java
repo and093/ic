@@ -14,7 +14,7 @@ public class MaterialInfoImpl implements IMaterialInfo {
 
 	@Override
 	public String getMaterialInfo(String bccode) {
-		LoggerUtil.debug("读取物料信息 - " + bccode);
+		LoggerUtil.debug("读取物料信息 getMaterialInfo - " + bccode);
 		//通过条码的物料短码，查询物料信息
 		BaseDAO dao = new BaseDAO();
 		HashMap<String, Object> para = new HashMap<String, Object>();
@@ -42,7 +42,7 @@ public class MaterialInfoImpl implements IMaterialInfo {
 			CommonUtil.putFailResult(para, "查询数据库失败：" + e.getMessage());
 		}
 		String rst = FreeMarkerUtil.process(para,"nc/config/ic/barcode/material.fl");
-		LoggerUtil.debug("读取物料结果 : " + rst);
+		LoggerUtil.debug("读取物料结果 getMaterialInfo : " + rst);
 		return rst;
 	}
 

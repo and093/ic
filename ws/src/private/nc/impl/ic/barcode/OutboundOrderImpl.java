@@ -34,7 +34,7 @@ import net.sf.json.xml.XMLSerializer;
 public class OutboundOrderImpl implements IOutboundOrder {
 
 	public String getOutboundOrder(String transationType, String orderNo) {
-		LoggerUtil.debug("读取出库单 " + transationType + " - " + orderNo);
+		LoggerUtil.debug("读取出库单 getOutboundOrder " + transationType + " - " + orderNo);
 		ReadOutBoundOrder readoutboundorder = new ReadOutBoundOrder();
 		String rst = "";
 		if ("4C".equals(transationType)) {
@@ -46,7 +46,7 @@ public class OutboundOrderImpl implements IOutboundOrder {
 		} else {
 			rst = readoutboundorder.Error(orderNo);
 		}
-		LoggerUtil.debug("读取出库单结果 " + rst); 
+		LoggerUtil.debug("读取出库单结果  getOutboundOrder " + rst); 
 		return rst;  
 	}
 
@@ -55,7 +55,7 @@ public class OutboundOrderImpl implements IOutboundOrder {
 	 */
 	@Override
 	public String saveOutboundBarcodeNum_requireNew(String xml) {
-		LoggerUtil.debug("写入出库扫码数量 " + xml);
+		LoggerUtil.debug("写入出库扫码数量 saveOutboundBarcodeNum_requireNew " + xml);
 		XMLSerializer xmlS = new XMLSerializer();
 		JSON json = xmlS.read(xml);
 		JSONObject obj = JSONObject.fromObject(json);
@@ -82,7 +82,7 @@ public class OutboundOrderImpl implements IOutboundOrder {
 			rst = FreeMarkerUtil.process(para,
 					"nc/config/ic/barcode/WriteOutBoundOrder.fl");
 		}
-		LoggerUtil.debug("写入出库扫码数量结果 " + rst);
+		LoggerUtil.debug("写入出库扫码数量结果 saveOutboundBarcodeNum_requireNew " + rst);
 		return rst;
 	}
 
@@ -386,7 +386,7 @@ public class OutboundOrderImpl implements IOutboundOrder {
 	 */
 	@Override
 	public String saveOuntboundOutNum_requireNew(String xml) {
-		LoggerUtil.debug("写入出库实发数量 " + xml);
+		LoggerUtil.debug("写入出库实发数量 saveOuntboundOutNum_requireNew " + xml);
 		HashMap<String, Object> para = new HashMap<String, Object>();
 
 		XMLSerializer xmls = new XMLSerializer();
@@ -484,7 +484,7 @@ public class OutboundOrderImpl implements IOutboundOrder {
 		}
 		String rst = FreeMarkerUtil.process(para,
 				"nc/config/ic/barcode/WriteOutBoundOrder.fl");
-		LoggerUtil.debug("写入出库实发数量结果 " + rst);
+		LoggerUtil.debug("写入出库实发数量结果  saveOuntboundOutNum_requireNew " + rst);
 		return rst;
 	}
 

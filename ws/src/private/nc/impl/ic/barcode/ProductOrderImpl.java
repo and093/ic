@@ -46,7 +46,7 @@ public class ProductOrderImpl implements IProductOrder {
 
 	@Override
 	public String getProductOrder(String batchcode) {
-		LoggerUtil.debug("读取生产订单 - " + batchcode);
+		LoggerUtil.debug("读取生产订单  getProductOrder - " + batchcode);
 		HashMap<String, Object> para = new HashMap<String, Object>();
 		BaseDAO dao = new BaseDAO();
 		//根据生产批次号查询生产订单明细行
@@ -86,13 +86,13 @@ public class ProductOrderImpl implements IProductOrder {
 			LoggerUtil.error("读取生产订单异常 ", e);
 		}
 		String rst = FreeMarkerUtil.process(para,"nc/config/ic/barcode/productionOrderl.fl");
-		LoggerUtil.debug("读取生产订单结果 " + rst);
+		LoggerUtil.debug("读取生产订单结果  getProductOrder " + rst);
 		return rst;
 	}
 
 	@Override
 	public String saveProductInbound_requireNew(String xml) {
-		LoggerUtil.debug("写入完工入库" + xml);
+		LoggerUtil.debug("写入完工入库 saveProductInbound_requireNew " + xml);
 		HashMap<String, Object> para = new HashMap<String, Object>();
 		XMLSerializer xmlS = new XMLSerializer();
 		JSON json = xmlS.read(xml);
@@ -243,7 +243,7 @@ public class ProductOrderImpl implements IProductOrder {
 			LoggerUtil.error("写入完工入库异常", e);
 		}
 		String rst = FreeMarkerUtil.process(para,"nc/config/ic/barcode/PostProductionOrderl.fl");
-		LoggerUtil.debug("写入完工入库结果" + rst);
+		LoggerUtil.debug("写入完工入库结果 saveProductInbound_requireNew " + rst);
 		return rst;
 	}
 
