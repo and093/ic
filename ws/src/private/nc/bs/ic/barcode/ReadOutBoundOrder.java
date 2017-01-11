@@ -54,11 +54,9 @@ public class ReadOutBoundOrder {
 					para.put("Date", hvo.getDbilldate().toString());
 					para.put("Remark", hvo.getVnote());
 					para.put("Ccustomerid", hvo.getCcustomerid());
-					String ccustomerid = (String) para.get("Ccustomerid");
-					para.put("ReceiveLocationCode",
-							WsQueryBS.queryCustomer(ccustomerid).get("code"));
-					para.put("ReceiveLocationName",
-							WsQueryBS.queryCustomer(ccustomerid).get("name"));
+					HashMap<String, Object>  customer =WsQueryBS.queryCustomer( (String) para.get("Ccustomerid"));
+					para.put("ReceiverLocationCode", customer.get("code"));
+					para.put("ReceiverLocationName", customer.get("name"));
 					ArrayList<HashMap<String, Object>> bodylist = new ArrayList<HashMap<String, Object>>();
 					for (SaleOutBodyVO body : bodys) {
 						HashMap<String, Object> bodypara = new HashMap<String, Object>();
@@ -138,8 +136,8 @@ public class ReadOutBoundOrder {
 							stordocMap.get("senderlocationcode"));
 					para.put("SenderLocationName",
 							stordocMap.get("senderlocationname"));
-					para.put("ReceiveLocationCode", "");
-					para.put("ReceiveLocationName", "");
+					para.put("ReceiverLocationCode", "");
+					para.put("ReceiverLocationName", "");
 					para.put("Date", hvo.getDbilldate().toString());
 					para.put("Remark", hvo.getVnote());
 					ArrayList<HashMap<String, Object>> bodylist = new ArrayList<HashMap<String, Object>>();
@@ -220,8 +218,8 @@ public class ReadOutBoundOrder {
 							stordocMap.get("senderlocationcode"));
 					para.put("SenderLocationName",
 							stordocMap.get("senderlocationname"));
-					para.put("ReceiveLocationCode", "");
-					para.put("ReceiveLocationName", "");
+					para.put("ReceiverLocationCode", "");
+					para.put("ReceiverLocationName", "");
 					para.put("Date", hvo.getDbilldate().toString());
 					para.put("Remark", hvo.getVnote());
 					ArrayList<HashMap<String, Object>> bodylist = new ArrayList<HashMap<String, Object>>();
