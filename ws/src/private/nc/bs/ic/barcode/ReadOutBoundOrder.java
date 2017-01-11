@@ -30,7 +30,7 @@ public class ReadOutBoundOrder {
 	 * @return
 	 */
 	public String RaadSaleOrder(String orderNo) {
-		LoggerUtil.debug("读取销售出库单： " + orderNo);
+		
 		HashMap<String, Object> para = new HashMap<String, Object>();
 		para.put("detail", "null");
 		String where = "nvl(dr,0) = 0 and vbillcode = '" + orderNo + "'";
@@ -39,7 +39,6 @@ public class ReadOutBoundOrder {
 					.lookupPersistenceQueryService().queryBillOfVOByCond(
 							SaleOutHeadVO.class, where, true, false);
 			if (list != null && list.size() != 0) {
-				LoggerUtil.debug("单号： " + orderNo + "获取数据库销售出库单数据成功");
 				SaleOutVO agg = (SaleOutVO) list.get(0);
 				SaleOutHeadVO hvo = agg.getHead();
 				SaleOutBodyVO[] bodys = agg.getBodys();
@@ -108,7 +107,7 @@ public class ReadOutBoundOrder {
 		}
 		String rst = FreeMarkerUtil.process(para,
 				"nc/config/ic/barcode/ReadOutBoundOrder.fl");
-		LoggerUtil.debug("销售订单读取完成：" + rst);
+		LoggerUtil.debug("销售订单读取结束：" + rst);
 		return rst;
 	}
 
@@ -119,7 +118,6 @@ public class ReadOutBoundOrder {
 	 * @return
 	 */
 	public String RaadTransOutOrder(String orderNo) {
-		LoggerUtil.debug("读取调拨出库单：" + orderNo);
 		HashMap<String, Object> para = new HashMap<String, Object>();
 		para.put("detail", "null");
 		String where = "nvl(dr,0) = 0 and vbillcode = '" + orderNo + "'";
@@ -128,7 +126,6 @@ public class ReadOutBoundOrder {
 					.lookupPersistenceQueryService().queryBillOfVOByCond(
 							TransOutHeadVO.class, where, true, false);
 			if (list != null && list.size() != 0) {
-				LoggerUtil.debug("单号：" + orderNo + "获取数据库中调拨出库单数据成功");
 				TransOutVO agg = (TransOutVO) list.get(0);
 				TransOutHeadVO hvo = agg.getHead();
 				TransOutBodyVO[] bodys = agg.getBodys();
@@ -193,7 +190,7 @@ public class ReadOutBoundOrder {
 		}
 		String rst = FreeMarkerUtil.process(para,
 				"nc/config/ic/barcode/ReadOutBoundOrder.fl");
-		LoggerUtil.debug("调拨出库单读取完成：" + rst);
+		LoggerUtil.debug("调拨出库单读取结束：" + rst);
 		return rst;
 	}
 
@@ -204,7 +201,6 @@ public class ReadOutBoundOrder {
 	 * @return
 	 */
 	public String RaadGeneralOutOrder(String orderNo) {
-		LoggerUtil.debug("读取其他出库单：" + orderNo);
 		HashMap<String, Object> para = new HashMap<String, Object>();
 		para.put("detail", "null");
 		String where = "nvl(dr,0) = 0 and vbillcode = '" + orderNo + "'";
@@ -213,7 +209,6 @@ public class ReadOutBoundOrder {
 					.lookupPersistenceQueryService().queryBillOfVOByCond(
 							GeneralOutHeadVO.class, where, true, false);
 			if (list != null && list.size() != 0) {
-				LoggerUtil.debug("单号：" + orderNo + "获取数据库中其他出库单数据成功");
 				GeneralOutVO agg = (GeneralOutVO) list.get(0);
 				GeneralOutHeadVO hvo = agg.getHead();
 				GeneralOutBodyVO[] bodys = agg.getBodys();
@@ -277,7 +272,7 @@ public class ReadOutBoundOrder {
 		}
 		String rst = FreeMarkerUtil.process(para,
 				"nc/config/ic/barcode/ReadOutBoundOrder.fl");
-		LoggerUtil.debug("调拨出库单读取完成：" + rst);
+		LoggerUtil.debug("调拨出库单读取结束：" + rst);
 		return rst;
 	}
 
@@ -293,7 +288,6 @@ public class ReadOutBoundOrder {
 		LoggerUtil.error("单号" + orderNo + "找不到对应的出库类型或者出入库类型输入有误");
 		String rst = FreeMarkerUtil.process(para,
 				"nc/config/ic/barcode/ReadOutBoundOrder.fl");
-		LoggerUtil.debug("读取出现输入错误" + rst);
 		return rst;
 	}
 

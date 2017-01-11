@@ -60,12 +60,12 @@ public class TOInOrderImpl implements ITOInOrder {
 			String where = "nvl(dr,0) = 0 and vbillcode = '" + SourceOrderNo
 					+ "'";
 			String error = "";
-			LoggerUtil.debug("获取 " + xml + "数据成功");
+		
 			List<AggregatedValueObject> list = (List<AggregatedValueObject>) MDPersistenceService
 					.lookupPersistenceQueryService().queryBillOfVOByCond(
 							TransOutHeadVO.class, where, true, false);
 			if (list != null && list.size() != 0) {
-				LoggerUtil.debug("匹配调拨出库单成功");
+			
 				// 判断物料表中是否有相应的数据
 				for (int i = 0; i < item.size(); i++) {
 					if (WsQueryBS.queryPK_materialByProductCode(item
@@ -83,7 +83,7 @@ public class TOInOrderImpl implements ITOInOrder {
 					}
 				}
 				if (error.equals("")) {
-					LoggerUtil.debug("匹配物料表数据成功");
+					
 					TransInVO transInVO = new TransInVO();
 					TransOutVO agg = (TransOutVO) list.get(0);
 					TransOutHeadVO ohvo = agg.getHead();
@@ -97,10 +97,10 @@ public class TOInOrderImpl implements ITOInOrder {
 					List<TransInBodyVO> bvo = getTransBodyVOTransout(hvo, ohvo,
 							obodys, SenderLocationCode, item, para);
 					if (hvo != null) {
-						LoggerUtil.debug("匹配调拨出库单表头数据成功");
+						
 						transInVO.setParentVO(hvo);
 						if (bvo != null && bvo.size() > 0) {
-							LoggerUtil.debug("匹配调拨出库单表体数据成功");
+							
 							transInVO.setChildrenVO(bvo
 									.toArray(new TransInBodyVO[0]));
 							IPFBusiAction pf = NCLocator.getInstance().lookup(
@@ -116,10 +116,10 @@ public class TOInOrderImpl implements ITOInOrder {
 									.processAction("WRITE", "4Y", null,
 											transInVO, null, null);
 							if (transInVOs.length != 0) {
-								LoggerUtil.debug("写入调拨入库表成功");
+								
 								para.put("OrderNo", transInVOs[0].getHead()
 										.getVbillcode());
-								LoggerUtil.debug("返回调拨入库单单号成功");
+								
 								CommonUtil.putSuccessResult(para);
 							}
 
@@ -172,13 +172,13 @@ public class TOInOrderImpl implements ITOInOrder {
 //			e.printStackTrace();
 //		}
 //		if (pk_busitype == null) {
-//		}// 判断pk_busitype的值
+//		}// 判断pk_busitype的值 
 		TransInHeadVO hvo = new TransInHeadVO();
 		hvo.setPk_group(ohvo.getPk_group());// 集团
 		hvo.setVtrantypecode("4E-01");// 单据类型
 		hvo.setCbiztype(ohvo.getCbiztype());// 业务流程 
 		
-		 hvo.setCtrantypeid(PfDataCache.getBillType("4E-01").getPk_billtypeid());// 单据类型pk
+		hvo.setCtrantypeid(PfDataCache.getBillType("4E-01").getPk_billtypeid());// 单据类型pk
 		 
 		//hvo.setCtrantypeid("0001A510000000002QF8");// 测试单据类型pk
 		hvo.setCdptid(null);// 部门
