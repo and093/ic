@@ -105,7 +105,7 @@ public class ReadOutBoundOrder {
 		}
 		String rst = FreeMarkerUtil.process(para,
 				"nc/config/ic/barcode/ReadOutBoundOrder.fl");
-		LoggerUtil.debug("销售订单读取结束：" + rst);
+		//LoggerUtil.debug("销售订单读取结束：" + rst);
 		return rst;
 	}
 
@@ -188,7 +188,7 @@ public class ReadOutBoundOrder {
 		}
 		String rst = FreeMarkerUtil.process(para,
 				"nc/config/ic/barcode/ReadOutBoundOrder.fl");
-		LoggerUtil.debug("调拨出库单读取结束：" + rst);
+		//LoggerUtil.debug("调拨出库单读取结束：" + rst);
 		return rst;
 	}
 
@@ -270,7 +270,7 @@ public class ReadOutBoundOrder {
 		}
 		String rst = FreeMarkerUtil.process(para,
 				"nc/config/ic/barcode/ReadOutBoundOrder.fl");
-		LoggerUtil.debug("调拨出库单读取结束：" + rst);
+		//LoggerUtil.debug("调拨出库单读取结束：" + rst);
 		return rst;
 	}
 
