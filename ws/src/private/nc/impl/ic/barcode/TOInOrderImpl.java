@@ -37,7 +37,7 @@ public class TOInOrderImpl implements ITOInOrder {
 
 	@Override
 	public String saveTransferIn_requireNew(String xml) {
-		LoggerUtil.debug("写入调拨入库  saveTransferIn_requireNew - " + xml);
+		LoggerUtil.debug("写入调拨入库 - " + xml);
 		XMLSerializer xmlS = new XMLSerializer();
 		JSON json = xmlS.read(xml);
 		JSONObject obj = JSONObject.fromObject(json);
@@ -153,7 +153,7 @@ public class TOInOrderImpl implements ITOInOrder {
 		}
 		String rst = FreeMarkerUtil.process(para,
 				"nc/config/ic/barcode/TransferInOrder.fl");
-		LoggerUtil.debug("离开接口 TOInOrderImpl saveTransferIn_requireNew " + rst);
+		LoggerUtil.debug("离开接口 TOInOrderImpl" + rst);
 		return rst;
 		
 	}
@@ -219,15 +219,15 @@ public class TOInOrderImpl implements ITOInOrder {
 		for (int i = 0; i < item.size(); i++) {
 			boolean flag = false;
 			String pk_material = null;
-			try {
+			/*try {
 				pk_material = WsQueryBS.queryPK_materialByProductCode(item
 						.getJSONObject(i).getString("ProductCode"));
 			} catch (DAOException e) {
 				CommonUtil.putFailResult(para, e.getMessage());
 				e.printStackTrace();
-			}
+			}*/
 			for (TransOutBodyVO dbvo : obodys) {
-				if (pk_material.equals(dbvo.getCmaterialoid())) {
+				if (item.getJSONObject(i).getString("SourceOrderLineNo").equals(dbvo.getCrowno())) {
 					TransInBodyVO bvo = new TransInBodyVO();
 					flag = true;
 					bvo.setCmaterialoid(dbvo.getCmaterialoid());
@@ -242,7 +242,7 @@ public class TOInOrderImpl implements ITOInOrder {
 					bvo.setNnum(new UFDouble(item.getJSONObject(i).getInt(
 							"ScanQty")
 							* getVchangerate(dbvo.getVchangerate())));// 实收主数量
-					bvo.setCrowno((i + 1) * 10 + "");// 行号
+					bvo.setCrowno(item.getJSONObject(i).getString("SourceOrderLineNo"));// 行号
 					bvo.setPk_group(hvo.getPk_group());// 集团
 					bvo.setPk_org(hvo.getPk_org());// 库存组织
 					bvo.setPk_org_v(hvo.getPk_org_v());// 库存组织版本
@@ -315,9 +315,9 @@ public class TOInOrderImpl implements ITOInOrder {
 				}
 			}
 			if (!flag) {
-				 error = error + "条形码的物料短号："
-						+ item.getJSONObject(i).getString("ProductCode")
-						+ "  在调拨出库表体中没有匹配的物料；  ";
+				 error = error + "条形码的行号："
+						+ item.getJSONObject(i).getString("SourceOrderLineNo")
+						+ "  在调拨出库表体中没有匹配的行号；  ";
 			}
 		}
 		if (!error.equals("")) {
