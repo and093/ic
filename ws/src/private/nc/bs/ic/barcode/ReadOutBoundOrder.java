@@ -131,13 +131,18 @@ public class ReadOutBoundOrder {
 				String pk_stordoc = hvo.getCwarehouseid();
 				HashMap<String, Object> stordocMap = WsQueryBS
 						.queryLocationInfoByPk(pk_stordoc);
+				
+				HashMap<String, Object> instordocMap = WsQueryBS
+						.queryLocationInfoByPk(hvo.getCotherwhid());
+				
+				
 				if (stordocMap != null && stordocMap.size() != 0) {
 					para.put("SenderLocationCode",
 							stordocMap.get("senderlocationcode"));
 					para.put("SenderLocationName",
 							stordocMap.get("senderlocationname"));
-					para.put("ReceiverLocationCode", "");
-					para.put("ReceiverLocationName", "");
+					para.put("ReceiverLocationCode", instordocMap.get("senderlocationcode"));
+					para.put("ReceiverLocationName", instordocMap.get("senderlocationname"));
 					para.put("Date", hvo.getDbilldate().toString());
 					para.put("Remark", hvo.getVnote());
 					ArrayList<HashMap<String, Object>> bodylist = new ArrayList<HashMap<String, Object>>();
