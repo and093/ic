@@ -27,6 +27,7 @@ import nc.vo.pub.BusinessException;
 import nc.vo.pub.VOStatus;
 import nc.vo.pub.lang.UFBoolean;
 import nc.vo.pub.lang.UFDate;
+import nc.vo.pub.lang.UFDateTime;
 import nc.vo.pub.lang.UFDouble;
 import net.sf.json.JSON;
 import net.sf.json.JSONArray;
@@ -184,27 +185,28 @@ public class TOInOrderImpl implements ITOInOrder {
 		hvo.setCdptid(null);// 部门
 		hvo.setCdptvid(null);// 部门信息
 		hvo.setFmodetype(0);// 0-普通 1-直运 2-寄存调拨
-		//hvo.setCreator(WsQueryBS.getUserid(Sender));// 创建人，，，xml发货人
-		//hvo.setCreationtime(new UFDateTime(System.currentTimeMillis()));// 创建时间
-		//hvo.setBillmaker(WsQueryBS.getUserid(Sender));// 制单人，，，xml发货人
+		hvo.setCreator(InvocationInfoProxy.getInstance().getUserId());// 创建人，，，xml发货人
+		hvo.setCreationtime(new UFDateTime(System.currentTimeMillis()));// 创建时间
+		hvo.setBillmaker(InvocationInfoProxy.getInstance().getUserId());// 制单人，，，xml发货人
 		hvo.setDbilldate(new UFDate(Date));// 单据日期
 		hvo.setDmakedate(new UFDate());// 制单日期
 		hvo.setVnote(ohvo.getVnote());// 备注
 		hvo.setFbillflag(2);// 单据状态 2-自由
 		hvo.setPk_org(ohvo.getCothercalbodyoid());// 库存组织
 		hvo.setPk_org_v(ohvo.getCothercalbodyvid());// 库存组织版本
-		hvo.setCotherwhid(ohvo.getCwarehouseid());// 设置出库仓库-
+		hvo.setCotherwhid(ohvo.getCwarehouseid());// 设置出库仓库
 		hvo.setCothercalbodyoid(ohvo.getPk_org());// 库存组织
 		hvo.setCothercalbodyvid(ohvo.getPk_org_v());// 出库库存组织版本
 		hvo.setBdirecttranflag(UFBoolean.FALSE);
 		hvo.setCsendtypeid(ohvo.getCdilivertypeid());// 运输方式
-		try {
-			hvo.setCwarehouseid(WsQueryBS.queryStordocByCode(ReceiverLocationCode).get("pk_stordoc"));
-		} catch (DAOException e) {
-			CommonUtil.putFailResult(para, e.getMessage());
-			LoggerUtil.error("获取入库仓库异常：" , e);
-			e.printStackTrace();
-		}// 仓库-xml获取的入库仓库
+		hvo.setCwarehouseid(ohvo.getCotherwhid()); //入库仓库
+//		try {
+//			hvo.setCwarehouseid(WsQueryBS.queryStordocByCode(ReceiverLocationCode).get("pk_stordoc"));
+//		} catch (DAOException e) {
+//			CommonUtil.putFailResult(para, e.getMessage());
+//			LoggerUtil.error("获取入库仓库异常：" , e);
+//			e.printStackTrace();
+//		}// 仓库-xml获取的入库仓库
 		hvo.setStatus(VOStatus.NEW);//
 		return hvo;
 	}
