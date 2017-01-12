@@ -218,14 +218,7 @@ public class TOInOrderImpl implements ITOInOrder {
 		String error = "";
 		for (int i = 0; i < item.size(); i++) {
 			boolean flag = false;
-			String pk_material = null;
-			/*try {
-				pk_material = WsQueryBS.queryPK_materialByProductCode(item
-						.getJSONObject(i).getString("ProductCode"));
-			} catch (DAOException e) {
-				CommonUtil.putFailResult(para, e.getMessage());
-				e.printStackTrace();
-			}*/
+		
 			for (TransOutBodyVO dbvo : obodys) {
 				if (item.getJSONObject(i).getString("SourceOrderLineNo").equals(dbvo.getCrowno())) {
 					TransInBodyVO bvo = new TransInBodyVO();
@@ -262,16 +255,12 @@ public class TOInOrderImpl implements ITOInOrder {
 					bvo.setCbodytranstypecode("4E-01");
 					bvo.setFlargess(dbvo.getFlargess());// 赠品
 					bvo.setBsourcelargess(dbvo.getBsourcelargess());// 上游赠品行
-					if (WsQueryBS
-							.getWholemanaflag(pk_material, bvo.getPk_org())) {
-						bvo.setVbatchcode(item.getJSONObject(i).getString(
-								"BatchNo")); // 批次号
-						bvo.setPk_batchcode(WsQueryBS.getPk_BatchCode(
-								pk_material,
-								item.getJSONObject(i).getString("BatchNo")));
+					
+						bvo.setVbatchcode(dbvo.getVbatchcode()); // 批次号
+						bvo.setPk_batchcode(dbvo.getPk_batchcode());
 						bvo.setDproducedate(dbvo.getDproducedate()); //生效日期
 						bvo.setDvalidate(new UFDate()); //失效日期
-					}
+					
 					bvo.setDbizdate(hvo.getDbilldate());
 					bvo.setCoutcalbodyoid(ohvo.getPk_org());
 					bvo.setCoutcalbodyvid(ohvo.getPk_org_v());
