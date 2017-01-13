@@ -215,16 +215,19 @@ public class ReadOutBoundOrder {
 				GeneralOutVO agg = (GeneralOutVO) list.get(0);
 				GeneralOutHeadVO hvo = agg.getHead();
 				GeneralOutBodyVO[] bodys = agg.getBodys();
-				String pk_stordoc = hvo.getCwarehouseid();
-				HashMap<String, Object> stordocMap = WsQueryBS
-						.queryLocationInfoByPk(pk_stordoc);
-				if (stordocMap != null && stordocMap.size() != 0) {
+				String warehouseIn = hvo.getCwarehouseid();
+				HashMap<String, Object> warehouseInMap = WsQueryBS
+						.queryLocationInfoByPk(warehouseIn);
+				HashMap<String, Object> warehouseOutMap = WsQueryBS
+						.queryLocationInfoByPk(warehouseIn);
+				String warehouseOut = hvo.getCotherwhid ();
+				if (warehouseInMap != null && warehouseInMap.size() != 0) {
 					para.put("SenderLocationCode",
-							stordocMap.get("senderlocationcode"));
+							warehouseInMap.get("senderlocationcode"));
 					para.put("SenderLocationName",
-							stordocMap.get("senderlocationname"));
-					para.put("ReceiverLocationCode", "");
-					para.put("ReceiverLocationName", "");
+							warehouseInMap.get("senderlocationname"));
+					para.put("ReceiverLocationCode", warehouseOutMap.get("senderlocationcode"));
+					para.put("ReceiverLocationName", warehouseOutMap.get("senderlocationname"));
 					para.put("Date", hvo.getDbilldate().toString());
 					para.put("Remark", hvo.getVnote());
 					ArrayList<HashMap<String, Object>> bodylist = new ArrayList<HashMap<String, Object>>();
