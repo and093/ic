@@ -330,7 +330,7 @@ public class TransferOrderImpl implements ITransferOrder {
 	private List<GeneralInBodyVO> getGeneralInBodyVO(GeneralOutVO gvo,
 			JSONArray item, HashMap<String, Object> para) throws BusinessException {
 
-		String errorCode = new String();
+//		String errorCode = new String();
 
 		GeneralOutBodyVO[] goBodys = gvo.getBodys();
 		GeneralOutHeadVO gohead = gvo.getHead();
@@ -341,7 +341,7 @@ public class TransferOrderImpl implements ITransferOrder {
 
 			JSONObject bodyjson = item.getJSONObject(index);
 			
-			String SourceOrderLineNo = bodyjson.getString("ProductCode");
+			String SourceOrderLineNo = bodyjson.getString("SourceOrderLineNo");
 			if(SourceOrderLineNo == null || SourceOrderLineNo.length() == 0){
 				throw new BusinessException("ÐÐºÅÎª¿Õ");
 			}
@@ -429,6 +429,7 @@ public class TransferOrderImpl implements ITransferOrder {
 					gi.setStatus(VOStatus.NEW);
 
 					list.add(gi);
+					break;
 				} // end if pk_material.equals(go.getCmaterialoid())
 			} // end for go
 			if (!flag) {
