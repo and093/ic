@@ -205,8 +205,6 @@ public class TransferOrderImpl implements ITransferOrder {
 		LoggerUtil.debug("Ð´Èë×ª¿âÈë¿â saveTransferIn_requireNew  " + xml);
 		HashMap<String, Object> para = new HashMap<String, Object>();
 
-		List<GeneralInVO> list_gi = new ArrayList<GeneralInVO>();
-
 		XMLSerializer xmls = new XMLSerializer();
 		JSON json = xmls.read(xml);
 		JSONObject obj = JSONObject.fromObject(json);
