@@ -239,7 +239,7 @@ public class ReadOutBoundOrder {
 						bodypara.put("ProductNo", pk.get("productno"));
 						bodypara.put("ProductName", pk.get("productname"));
 						bodypara.put("PackSize", pk.get("packsize"));
-						bodypara.put("BatchNo", body.getVbatchcode());
+						bodypara.put("BatchNo", body.getVbatchcode());//
 						bodypara.put("LineNo", body.getCrowno());
 						bodypara.put("PlanPackQty", body.getNshouldassistnum());
 						bodypara.put("ActualPackQty", body.getNassistnum());
