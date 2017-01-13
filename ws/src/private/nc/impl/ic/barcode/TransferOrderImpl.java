@@ -205,8 +205,6 @@ public class TransferOrderImpl implements ITransferOrder {
 		LoggerUtil.debug("写入转库入库 saveTransferIn_requireNew  " + xml);
 		HashMap<String, Object> para = new HashMap<String, Object>();
 
-		List<GeneralInVO> list_gi = new ArrayList<GeneralInVO>();
-
 		XMLSerializer xmls = new XMLSerializer();
 		JSON json = xmls.read(xml);
 		JSONObject obj = JSONObject.fromObject(json);
@@ -330,7 +328,7 @@ public class TransferOrderImpl implements ITransferOrder {
 	private List<GeneralInBodyVO> getGeneralInBodyVO(GeneralOutVO gvo,
 			JSONArray item, HashMap<String, Object> para) throws BusinessException {
 
-		String errorCode = new String();
+//		String errorCode = new String();
 
 		GeneralOutBodyVO[] goBodys = gvo.getBodys();
 		GeneralOutHeadVO gohead = gvo.getHead();
@@ -341,7 +339,7 @@ public class TransferOrderImpl implements ITransferOrder {
 
 			JSONObject bodyjson = item.getJSONObject(index);
 			
-			String SourceOrderLineNo = bodyjson.getString("ProductCode");
+			String SourceOrderLineNo = bodyjson.getString("SourceOrderLineNo");
 			if(SourceOrderLineNo == null || SourceOrderLineNo.length() == 0){
 				throw new BusinessException("行号为空");
 			}
@@ -429,6 +427,7 @@ public class TransferOrderImpl implements ITransferOrder {
 					gi.setStatus(VOStatus.NEW);
 
 					list.add(gi);
+					break;
 				} // end if pk_material.equals(go.getCmaterialoid())
 			} // end for go
 			if (!flag) {
