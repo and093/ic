@@ -32,7 +32,7 @@ public class WsQueryBS {
 		StringBuffer sql = new StringBuffer();
 		sql.append(" select c.name ProductCategoryName, ")
 				.append("        a.code ProductNo, ")
-				.append("        a.name ProductName, ")//
+				.append("        a.name ProductName, ")
 				// .append("        b.name ProductUM, ")
 				.append("        a.def16 PackSize,   ")
 				.append("        a.def8 ProductCode,  ")
