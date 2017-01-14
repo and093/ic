@@ -217,8 +217,8 @@ public class ReadOutBoundOrder {
 				GeneralOutBodyVO[] bodys = agg.getBodys();
 				HashMap<String, Object>  warehouseOutMap = WsQueryBS.queryLocationInfoByPk(hvo.getCwarehouseid());
 				HashMap<String, Object> warehouseInMap = WsQueryBS.queryLocationInfoByPk(hvo.getCotherwhid());
-				
-				if (warehouseInMap != null && warehouseInMap.size() != 0) {
+				 
+				if (warehouseOutMap != null && warehouseOutMap.size() != 0) {
 					para.put("SenderLocationCode",
 							warehouseOutMap.get("senderlocationcode"));
 					para.put("SenderLocationName",
