@@ -5,6 +5,8 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 
+import org.hsqldb.lib.Iterator;
+
 import nc.bs.dao.BaseDAO;
 import nc.bs.dao.DAOException;
 import nc.bs.framework.common.InvocationInfoProxy;
@@ -102,38 +104,92 @@ public class ProductOrderImpl implements IProductOrder {
 		String sender = obj.getString("Sender"); //操作人
 		String receiver = obj.getString("Receiver"); //收货人
 		String date = obj.getString("Date"); //单据日期
-		String sourceOrderNo = obj.getString("SourceOrderNo"); //源单号（生产订单表体生产批次号）
 		JSONArray arrays = obj.getJSONArray("items");
 		
-		BaseDAO dao = new BaseDAO();
-		//根据生产批次号查询生产订单明细行
-		String where = " nvl(dr,0) = 0 and vbatchcode = '"+sourceOrderNo+"'";
-		try {
-			Collection<PMOItemVO> col = dao.retrieveByClause(PMOItemVO.class, where);
-			if(col == null || col.size() == 0){
-				CommonUtil.putFailResult(para, sourceOrderNo + "查询不到对应的生产订单数据");
-			} else {
+		try{
+			HashMap<String, String> stormap = WsQueryBS.queryStordocByCode(receiverLocationCode);
+			if(stormap == null || stormap.size() == 0){
+				throw new BusinessException("收货方" + receiverLocationCode + "在仓库对照找不到对应的仓库档案");
+			}
+			
+			BaseDAO dao = new BaseDAO();
+			//先将表体数据按生产批次号，班组，物料，批次号合并
+			HashMap<String, JSONObject> calMap = new HashMap<String, JSONObject>();
+			for(int i = 0; i < arrays.size(); i++){
+				JSONObject jsitem = arrays.getJSONObject(i);
+				String sourceOrderNo = jsitem.getString("SourceOrderNo"); //源单号（生产订单表体生产批次号）
+				String productCode = jsitem.getString("ProductCode");
+				String teamCode = jsitem.getString("TeamCode");
+				String batchno = jsitem.getString("BatchNo");
+				int scanQty = jsitem.getInt("ScanQty");
+				String key = sourceOrderNo + productCode + teamCode + batchno;
+				JSONObject jsonv = calMap.get(key);
+				if(jsonv != null){
+					jsonv.put("ScanQty", jsonv.getInt("ScanQty") + scanQty);
+				} else {
+					calMap.put(key, jsitem);
+				}
+			}
+			//按生产订单编号，生产部门，班组将表体数据分组
+			Collection<JSONObject> colMap = calMap.values();
+			HashMap<String, Object> deptmap = null;
+			//分别记录生产订单表头和表体，用于根据条码数据匹配对应的生产订单
+			HashMap<String, PMOHeadVO> pmoHeadMap = new HashMap<String, PMOHeadVO>();
+			HashMap<String, ArrayList<PMOItemVO>> pmoBodyListMap = new HashMap<String, ArrayList<PMOItemVO>>();
+			for(JSONObject jsonobj : colMap){
+				
+				String sourceOrderNo = jsonobj.getString("SourceOrderNo"); //源单号（生产订单表体生产批次号）
+				String productCode = jsonobj.getString("ProductCode");
+				String teamCode = jsonobj.getString("TeamCode");
+				String batchno = jsonobj.getString("BatchNo");
+				int scanQty = jsonobj.getInt("ScanQty");
+				String bcvalue = String.format("%s,%s,%s", teamCode, batchno, scanQty);
+				
+				String where = " nvl(dr,0) = 0 and vbatchcode = '"+sourceOrderNo+"'";
+				Collection<PMOItemVO> col = dao.retrieveByClause(PMOItemVO.class, where);
+				if(col == null || col.size() == 0){
+					throw new BusinessException(sourceOrderNo + "查询不到对应的生产订单数据");
+				}
 				PMOItemVO pmoitem = col.iterator().next();
 				if(pmoitem.getFitemstatus() != 1 && pmoitem.getFitemstatus() != 2){
-					throw new BusinessException("生产订单行状态不是投放或者完工,不能入库");
+					throw new BusinessException("生产订单行"+sourceOrderNo+"状态不是投放或者完工,不能入库");
 				}
-				PMOHeadVO pmohead = (PMOHeadVO)dao.retrieveByPK(PMOHeadVO.class, pmoitem.getCpmohid());
+				//临时记录条码班组、批次号和数量
+				pmoitem.setVdef20(bcvalue);
+				
+				PMOHeadVO pmohead = pmoHeadMap.get(pmoitem.getCpmohid());
+				if(pmohead == null){
+					pmohead = (PMOHeadVO)dao.retrieveByPK(PMOHeadVO.class, pmoitem.getCpmohid());
+					pmoHeadMap.put(pmoitem.getCpmohid(), pmohead);
+				}
+				if(deptmap == null){
+					deptmap = WsQueryBS.queryDeptidByCode(senderLocationCode, pmohead.getPk_org());
+				}
+				//组织 + 表头pk + 生产部门 + 生产线(工作中心) + 班组
+				String key = pmoitem.getPk_org() + pmoitem.getCpmohid() + pmoitem.getCdeptid() + pmoitem.getCwkid() + teamCode;
+				ArrayList<PMOItemVO> itemlist = pmoBodyListMap.get(key);
+				if(itemlist == null){
+					itemlist = new ArrayList<PMOItemVO>();
+					pmoBodyListMap.put(key, itemlist);
+				}
+				itemlist.add(pmoitem);
+			}
+			//按拆分后的生产订单明细生成完工报告
+			IPfExchangeService exchangeService = NCLocator.getInstance().lookup(IPfExchangeService.class);
+			ArrayList<String> billno = new ArrayList<String>();
+			Collection<ArrayList<PMOItemVO>> colbodyListMap = pmoBodyListMap.values();
+			for(ArrayList<PMOItemVO> pmoItems : colbodyListMap){
+				PMOHeadVO pmohead = pmoHeadMap.get(pmoItems.get(0).getCpmohid());
+				
 				PMOAggVO pmoagg = new PMOAggVO();
 				pmoagg.setParentVO(pmohead);
-				pmoagg.setChildrenVO(new PMOItemVO[]{pmoitem});
+				pmoagg.setChildrenVO(pmoItems.toArray(new PMOItemVO[0]));
 				
 				InvocationInfoProxy.getInstance().setGroupId(pmohead.getPk_group());
-				IPfExchangeService exchangeService = NCLocator.getInstance().lookup(IPfExchangeService.class);
 				AggWrVO wragg = (AggWrVO)exchangeService.runChangeData("55A2", "55A4", pmoagg, null);
 				
-				HashMap<String, Object> deptmap = WsQueryBS.queryDeptidByCode(senderLocationCode, pmohead.getPk_org());
 				String pk_dept = (String)deptmap.get("pk_dept");
 				String pk_vid = (String)deptmap.get("pk_vid");
-				
-				HashMap<String, String> stormap = WsQueryBS.queryStordocByCode(receiverLocationCode);
-				if(stormap == null || stormap.size() == 0){
-					throw new BusinessException("收货方" + receiverLocationCode + "在仓库对照找不到对应的仓库档案");
-				}
 				
 				WrVO headvo = wragg.getParentVO();
 				headvo.setCdeptid(pk_dept);
@@ -143,43 +199,31 @@ public class ProductOrderImpl implements IProductOrder {
 				headvo.setVtrantypeid(PfDataCache.getBillType("55A4-01").getPk_billtypeid());
 				headvo.setFbillstatus(1);  //自由态
 				WrItemVO[] writems = (WrItemVO[])wragg.getChildren(WrItemVO.class);
-				WrItemVO old = writems[0];
-				writems = new WrItemVO[arrays.size()];
-				for(int i = 0; i < arrays.size(); i++){
-					JSONObject jsitem = arrays.getJSONObject(i);
-					WrItemVO newItem = CloneUtil.clone(old);
-					//根据条码返回的箱数，计算主数量
-					int scanQty = jsitem.getInt("ScanQty");
-					newItem.setNbwrastnum(new UFDouble(scanQty));
-					newItem.setNbwrnum(calcMainNum(scanQty, newItem.getVbchangerate()));
-					//判断物料是否启用了批次
-					if(WsQueryBS.getWholemanaflag(newItem.getCbmaterialid(), headvo.getPk_org())){
-						//入库批次号
-						newItem.setVbinbatchcode(jsitem.getString("BatchNo"));
-						newItem.setVbinbatchid(WsQueryBS.getPk_BatchCode(newItem.getCbmaterialid(), jsitem.getString("BatchNo")));
-					}
-					newItem.setCbdeptid(pk_dept);
-					newItem.setCbdeptvid(pk_vid);
-					newItem.setFbproducttype(1); //产出类型 主产品
-					newItem.setTbstarttime(new UFDateTime(date + " 00:00:00"));
-					newItem.setTbendtime(new UFDateTime(date + " 23:59:59"));
+				for(int i = 0; i < writems.length; i++){
+					WrItemVO writem = writems[i];
+					String[] bcvalue = writem.getVbdef20().split(",");
+					String teamCode = bcvalue[0];
+					String batchno = bcvalue[1];
+					String scanQty = bcvalue[2];
 					
-					writems[i] = newItem;
-				}
-				//按物料+批次号汇总表体行
-				HashMap<String, WrItemVO> sumMap = new HashMap<String, WrItemVO>();
-				for(WrItemVO writem : writems){
-					String key = writem.getCbmaterialid() + writem.getVbinbatchcode();
-					WrItemVO olditem = sumMap.get(key);
-					if(olditem != null){
-						olditem.setNbwrastnum(olditem.getNbwrastnum().add(writem.getNbwrastnum()));
-						olditem.setNbwrnum(olditem.getNbwrnum().add(writem.getNbwrnum()));
-					} else {
-						sumMap.put(key, writem);
+					//根据条码返回的箱数，计算主数量
+					writem.setNbwrastnum(new UFDouble(scanQty));
+					writem.setNbwrnum(calcMainNum(scanQty, writem.getVbchangerate()));
+					//判断物料是否启用了批次
+					if(WsQueryBS.getWholemanaflag(writem.getCbmaterialid(), headvo.getPk_org())){
+						//入库批次号
+						writem.setVbinbatchcode(batchno);
+						writem.setVbinbatchid(WsQueryBS.getPk_BatchCode(writem.getCbmaterialid(), batchno));
 					}
+					writem.setVbrowno(String.valueOf((i + 1) * 10));
+					writem.setCbdeptid(pk_dept);
+					writem.setCbdeptvid(pk_vid);
+					writem.setFbproducttype(1); //产出类型 主产品
+					writem.setTbstarttime(new UFDateTime(date + " 00:00:00"));
+					writem.setTbendtime(new UFDateTime(date + " 23:59:59"));
+					writem.setVbdef20(teamCode);
+					headvo.setVdef20(teamCode);
 				}
-				
-				wragg.setChildren(WrItemVO.class, sumMap.values().toArray(new WrItemVO[0]));
 				//生产报告保存并签字
 				IPwrMaintainService service = NCLocator.getInstance().lookup(IPwrMaintainService.class);
 				AggWrVO[] rstagg = service.insert(new AggWrVO[] {wragg});
@@ -230,13 +274,13 @@ public class ProductOrderImpl implements IProductOrder {
 						}
 						pf.processAction("WRITE", "46", null, finprodvo, null, null);
 						LoggerUtil.debug("产成品入库实发数量更新");
-						para.put("OrderNo", finheadvo.getVbillcode());
+						billno.add(finheadvo.getVbillcode());
 					}
-					//String vbillcode = queryFinprodinpkByWrpk(wrheadvo.getPk_wr());
 				}
-				
-				CommonUtil.putSuccessResult(para);
 			}
+			para.put("OrderNo", join(billno));
+			CommonUtil.putSuccessResult(para);
+			
 		} catch (BusinessException e) {
 			e.printStackTrace();
 			CommonUtil.putFailResult(para, "发生异常：" + e.getMessage());
@@ -247,10 +291,10 @@ public class ProductOrderImpl implements IProductOrder {
 		return rst;
 	}
 
-	private UFDouble calcMainNum(int scanQty, String vbchangerate){
+	private UFDouble calcMainNum(String scanQty, String vbchangerate){
 		String numerator = vbchangerate.split("/")[0]; 
 		String denominator = vbchangerate.split("/")[1];
-		return new UFDouble(numerator).div(new UFDouble(denominator)).multiply(scanQty);
+		return new UFDouble(numerator).div(new UFDouble(denominator)).multiply(new UFDouble(scanQty));
 	}
 	
 	/**
@@ -258,7 +302,7 @@ public class ProductOrderImpl implements IProductOrder {
 	 * @param pk_wr
 	 * @return
 	 */
-	public  String queryFinprodinpkByWrpk(String pk_wr){
+	public String queryFinprodinpkByWrpk(String pk_wr){
 		BaseDAO dao = new BaseDAO();
 		try {
 			StringBuffer sql = new StringBuffer();
@@ -274,5 +318,16 @@ public class ProductOrderImpl implements IProductOrder {
 			e.printStackTrace();
 		}
 		return null;
+	}
+	
+	public String join(ArrayList<String> list){
+		StringBuffer str = new StringBuffer();
+		for(int i = 0; i < list.size(); i++){
+			str.append(list.get(i));
+			if(i != list.size() - 1){
+				str.append(",");
+			}
+		}
+		return str.toString();
 	}
 }
