@@ -34,7 +34,8 @@ import net.sf.json.xml.XMLSerializer;
 public class OutboundOrderImpl implements IOutboundOrder {
 
 	public String getOutboundOrder(String transationType, String orderNo) {
-		LoggerUtil.debug("读取出库单 getOutboundOrder " + transationType + " - " + orderNo);
+		LoggerUtil.debug("读取出库单 getOutboundOrder " + transationType + " - "
+				+ orderNo);
 		ReadOutBoundOrder readoutboundorder = new ReadOutBoundOrder();
 		String rst = "";
 		if ("4C".equals(transationType)) {
@@ -46,8 +47,8 @@ public class OutboundOrderImpl implements IOutboundOrder {
 		} else {
 			rst = readoutboundorder.Error(orderNo);
 		}
-		LoggerUtil.debug("读取出库单结果  getOutboundOrder " + rst); 
-		return rst;  
+		LoggerUtil.debug("读取出库单结果  getOutboundOrder " + rst);
+		return rst;
 	}
 
 	/**
@@ -77,8 +78,7 @@ public class OutboundOrderImpl implements IOutboundOrder {
 			HashMap<String, Object> para = new HashMap<String, Object>();
 			CommonUtil.putFailResult(para, "没有与交易类型" + TransationType
 					+ "对应的出库业务");
-			LoggerUtil.error("没有与交易类型" + TransationType
-					+ "对应的出库业务");
+			LoggerUtil.error("没有与交易类型" + TransationType + "对应的出库业务");
 			rst = FreeMarkerUtil.process(para,
 					"nc/config/ic/barcode/WriteOutBoundOrder.fl");
 		}
@@ -125,23 +125,31 @@ public class OutboundOrderImpl implements IOutboundOrder {
 					for (int i = 0; i < len; i++) {
 						body = list.get(0).getBodys()[i];
 
-						// 如果扫码箱数大于应发数量 不允许写入扫码数量 直接结束函数
-						if ((ScanQty > body.getNshouldassistnum().intValue() && UpdateType == 2)
-								|| (UpdateType == 1 && (ScanQty + Integer
-										.parseInt(body.getVbdef20() == null ? "0"
-												: body.getVbdef20())) > body
-										.getNshouldassistnum().intValue())) {
-							CommonUtil.putFailResult(para, "行号" + LineNo
-									+ "的物料扫码箱数大于应发数量");
-							LoggerUtil.error("行号" + LineNo
-									+ "的物料扫码箱数大于应发数量");
-							
-							return FreeMarkerUtil
-									.process(para,
-											"nc/config/ic/barcode/WriteOutBoundOrder.fl");
-						}
-
 						if (LineNo.equals(body.getCrowno())) {
+							// 实发数量为空 提示出错
+							if (body.getNassistnum() == null) {
+								CommonUtil.putFailResult(para, "行号 " + LineNo
+										+ " 的实发数量为空，不能填写扫描数量！");
+								LoggerUtil.error("行号" + LineNo + " 的实发数量为空，不能填写扫描数量！");
+								return FreeMarkerUtil
+										.process(para,
+												"nc/config/ic/barcode/WriteOutBoundOrder.fl");
+							}
+							
+							// 如果扫码箱数大于实发数量 不允许写入扫码数量 直接结束函数
+							if ((ScanQty > body.getNassistnum().intValue() && UpdateType == 2)
+									|| (UpdateType == 1 && (ScanQty + Integer
+											.parseInt(body.getVbdef20() == null ? "0"
+													: body.getVbdef20())) > body
+													.getNassistnum().intValue())) {
+								CommonUtil.putFailResult(para, "行号" + LineNo
+										+ "的物料扫码箱数大于实发数量");
+								LoggerUtil.error("行号" + LineNo + "的物料扫码箱数大于实发数量");
+								
+								return FreeMarkerUtil
+										.process(para,
+												"nc/config/ic/barcode/WriteOutBoundOrder.fl");
+							}
 
 							if (UpdateType == 1) {
 								int num = Integer
@@ -165,8 +173,8 @@ public class OutboundOrderImpl implements IOutboundOrder {
 					if (!flag && (UpdateType == 1 || UpdateType == 2)) {
 						CommonUtil.putFailResult(para, "调拨出库单号 " + OrderNo
 								+ " 找不到对应行号为：" + LineNo + "的子表");
-						LoggerUtil.error("调拨出库单号 " + OrderNo
-								+ " 找不到对应行号为：" + LineNo + "的子表");
+						LoggerUtil.error("调拨出库单号 " + OrderNo + " 找不到对应行号为："
+								+ LineNo + "的子表");
 					}
 				} else {
 					CommonUtil.putFailResult(para, "该单据为非自由状态，不可修改");
@@ -228,17 +236,27 @@ public class OutboundOrderImpl implements IOutboundOrder {
 					for (GeneralOutBodyVO body : list.get(0).getBodys()) {
 						if (LineNo.equals(body.getCrowno())) {
 
+							// 实发数量为空 提示出错
+							if (body.getNassistnum() == null) {
+								CommonUtil.putFailResult(para, "行号 " + LineNo
+										+ " 的实发数量为空，不能填写扫描数量！");
+								LoggerUtil.error("行号" + LineNo + " 的实发数量为空，不能填写扫描数量！");
+								return FreeMarkerUtil
+										.process(para,
+												"nc/config/ic/barcode/WriteOutBoundOrder.fl");
+							}
+							
 							// 根据更新类型判断 如果扫码箱数大于应发数量 不允许写入扫码数量 直接结束函数
-							if ((ScanQty > body.getNshouldassistnum()
+							if ((ScanQty > body.getNassistnum()
 									.intValue() && UpdateType == 2)
 									|| (UpdateType == 1 && (ScanQty + Integer
 											.parseInt(body.getVbdef20() == null ? "0"
 													: body.getVbdef20())) > body
-											.getNshouldassistnum().intValue())) {
+											.getNassistnum().intValue())) {
 								CommonUtil.putFailResult(para, "行号" + LineNo
-										+ "的物料扫码箱数大于应发数量");
+										+ "的物料扫码箱数大于实发数量");
 								LoggerUtil.error("行号" + LineNo
-										+ "的物料扫码箱数大于应发数量");
+										+ "的物料扫码箱数大于实发数量");
 								return FreeMarkerUtil
 										.process(para,
 												"nc/config/ic/barcode/WriteOutBoundOrder.fl");
@@ -256,7 +274,7 @@ public class OutboundOrderImpl implements IOutboundOrder {
 								CommonUtil.putSuccessResult(para);
 							} else {
 								CommonUtil.putFailResult(para, "更新类型有误！");
-								LoggerUtil.error( "更新类型有误！");
+								LoggerUtil.error("更新类型有误！");
 							}
 							flag = true;
 							dao.updateVO(body);
@@ -266,8 +284,8 @@ public class OutboundOrderImpl implements IOutboundOrder {
 					if (!flag && (UpdateType == 1 || UpdateType == 2)) {
 						CommonUtil.putFailResult(para, "其他出库单号 " + OrderNo
 								+ " 找不到对应行号为：" + LineNo + "的子表");
-						LoggerUtil.error("其他出库单号 " + OrderNo
-								+ " 找不到对应行号为：" + LineNo + "的子表");
+						LoggerUtil.error("其他出库单号 " + OrderNo + " 找不到对应行号为："
+								+ LineNo + "的子表");
 					}
 				} else {
 					CommonUtil.putFailResult(para, "该单据为非自由状态，不可修改");
@@ -312,9 +330,8 @@ public class OutboundOrderImpl implements IOutboundOrder {
 			if (list.size() == 0 || list == null) {
 				CommonUtil.putFailResult(para, "销售出库单号" + OrderNo
 						+ "找不到对应的销售出库单");
-				LoggerUtil.error("销售出库单号" + OrderNo
-						+ "找不到对应的销售出库单");
-				
+				LoggerUtil.error("销售出库单号" + OrderNo + "找不到对应的销售出库单");
+
 			} else {
 				SaleOutHeadVO headVO = (SaleOutHeadVO) list.get(0).getHead();
 				// 获取单据状态 1-删除 2-自由 3-签字
@@ -322,17 +339,27 @@ public class OutboundOrderImpl implements IOutboundOrder {
 					for (SaleOutBodyVO body : list.get(0).getBodys()) {
 						if (LineNo.equals(body.getCrowno())) {
 
-							// 如果扫码箱数大于应发数量 不允许写入扫码数量 直接结束函数
-							if ((ScanQty > body.getNshouldassistnum()
+							// 实发数量为空 提示出错
+							if (body.getNassistnum() == null) {
+								CommonUtil.putFailResult(para, "行号 " + LineNo
+										+ " 的实发数量为空，不能填写扫描数量！");
+								LoggerUtil.error("行号" + LineNo + " 的实发数量为空，不能填写扫描数量！");
+								return FreeMarkerUtil
+										.process(para,
+												"nc/config/ic/barcode/WriteOutBoundOrder.fl");
+							}
+							
+							// 如果扫码箱数大于实发数量 不允许写入扫码数量 直接结束函数
+							if ((ScanQty > body.getNassistnum()
 									.intValue() && UpdateType == 2)
 									|| (UpdateType == 1 && (ScanQty + Integer
 											.parseInt(body.getVbdef20() == null ? "0"
 													: body.getVbdef20())) > body
-											.getNshouldassistnum().intValue())) {
+											.getNassistnum().intValue())) {
 								CommonUtil.putFailResult(para, "行号" + LineNo
-										+ "的物料扫码箱数大于应发数量");
+										+ "的物料扫码箱数大于实发数量");
 								LoggerUtil.error("行号" + LineNo
-										+ "的物料扫码箱数大于应发数量");
+										+ "的物料扫码箱数大于实发数量");
 								return FreeMarkerUtil
 										.process(para,
 												"nc/config/ic/barcode/WriteOutBoundOrder.fl");
@@ -360,8 +387,8 @@ public class OutboundOrderImpl implements IOutboundOrder {
 					if (!flag && (UpdateType == 1 && UpdateType == 2)) {
 						CommonUtil.putFailResult(para, "销售出库单号 " + OrderNo
 								+ " 找不到对应行号为：" + LineNo + "的子表");
-						LoggerUtil.error("销售出库单号 " + OrderNo
-								+ " 找不到对应行号为：" + LineNo + "的子表");
+						LoggerUtil.error("销售出库单号 " + OrderNo + " 找不到对应行号为："
+								+ LineNo + "的子表");
 					}
 				} else {
 					CommonUtil.putFailResult(para, "该销售单为非自由状态，不可修改");
@@ -423,21 +450,29 @@ public class OutboundOrderImpl implements IOutboundOrder {
 									"/");
 							UFDouble vc1 = new UFDouble(vchangeate[0]);
 							UFDouble vc2 = new UFDouble(vchangeate[1]);
-//							if (vc2 == 0) {
-//								CommonUtil.putFailResult(para, "换算率除数不能为0！");
-//								LoggerUtil.error("换算率除数不能为0！");
-//								break;
-//							}
+							// if (vc2 == 0) {
+							// CommonUtil.putFailResult(para, "换算率除数不能为0！");
+							// LoggerUtil.error("换算率除数不能为0！");
+							// break;
+							// }
 							// 更新类型 1-追加 2-覆写
 							if (UpdateType == 1) {
-								body.setNassistnum(new UFDouble(ScanQty+Double.parseDouble(body.getNassistnum()==null?"0":body.getNassistnum().toString())));
-								body.setNnum(new UFDouble(ScanQty).multiply(vc1.div(vc2)).add(body.getNnum()==null?UFDouble.ZERO_DBL:body.getNnum()));
+								body.setNassistnum(new UFDouble(ScanQty
+										+ Double.parseDouble(body
+												.getNassistnum() == null ? "0"
+												: body.getNassistnum()
+														.toString())));
+								body.setNnum(new UFDouble(ScanQty)
+										.multiply(vc1.div(vc2))
+										.add(body.getNnum() == null ? UFDouble.ZERO_DBL
+												: body.getNnum()));
 								body.setStatus(VOStatus.UPDATED);
 								flag = true;
 								CommonUtil.putSuccessResult(para);
 							} else if (UpdateType == 2) {
 								body.setNassistnum(new UFDouble(ScanQty));
-								body.setNnum(new UFDouble(ScanQty).multiply(vc1.div(vc2)));
+								body.setNnum(new UFDouble(ScanQty).multiply(vc1
+										.div(vc2)));
 								body.setStatus(VOStatus.UPDATED);
 								flag = true;
 								CommonUtil.putSuccessResult(para);
@@ -468,8 +503,8 @@ public class OutboundOrderImpl implements IOutboundOrder {
 				} else {
 					CommonUtil.putFailResult(para, "其他出库单号 " + OrderNo
 							+ " 找不到对应行号为：" + LineNo + "的子表");
-					LoggerUtil.error("其他出库单号 " + OrderNo
-							+ " 找不到对应行号为：" + LineNo + "的子表");
+					LoggerUtil.error("其他出库单号 " + OrderNo + " 找不到对应行号为："
+							+ LineNo + "的子表");
 				}
 			}
 
