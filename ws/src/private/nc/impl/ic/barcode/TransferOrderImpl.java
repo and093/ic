@@ -118,6 +118,10 @@ public class TransferOrderImpl implements ITransferOrder {
 			e.printStackTrace();
 			CommonUtil.putFailResult(para, "发生异常：" + e.getMessage());
 			LoggerUtil.error("写入转库出库异常", e);
+		} catch (Exception e) {
+			e.printStackTrace();
+			CommonUtil.putFailResult(para, "发生异常：" + e.getMessage());
+			LoggerUtil.error("写入转库出库异常", e);
 		}
 		String rst = FreeMarkerUtil.process(para,
 				"nc/config/ic/barcode/PostProductionOrderl.fl");
@@ -222,30 +226,30 @@ public class TransferOrderImpl implements ITransferOrder {
 			CommonUtil.putFailResult(para, "转库出库单号" + OrderNo + "查询失败");
 			LoggerUtil.error("转库出库单号" + OrderNo + "查询失败");
 		} else {
-
-			// 检查转库出库单对应的 转库单 的累计出库主数量 是否为空，不为空则 表示该出库单已生成过转库入库单 不允许再次生成
-
-			if (IsTurntoGenerIn(gvo)) {
-				CommonUtil.putFailResult(para, "该转库出库单已经生成过转库入库单，不能再次生成！");
-				LoggerUtil.debug("写入转库入库错误，  该转库出库单已经生成过转库入库单，不能再次生成！");
-				return FreeMarkerUtil.process(para,
-						"nc/config/ic/barcode/TransferInOrder.fl");
-			}
-
-			// 获取转库出库单表头
-			GeneralOutHeadVO goHeadVO = gvo.getHead();
-			if (goHeadVO != null) {
-				InvocationInfoProxy.getInstance().setGroupId(
-						goHeadVO.getPk_group());
-				// 通过转库出库单表头生成转库入库单表头
-				gvi.setParent(this.setGeneralInHeadVO(goHeadVO, Date));
-			} else {
-				CommonUtil.putFailResult(para, "转库出库单号" + OrderNo+ "找不到对应的单据！");
-				LoggerUtil.error("转库出库单号" + OrderNo + "找不到对应的单据！");
-				return FreeMarkerUtil.process(para,
-						"nc/config/ic/barcode/TransferInOrder.fl");
-			}
 			try {
+				// 检查转库出库单对应的 转库单 的累计出库主数量 是否为空，不为空则 表示该出库单已生成过转库入库单 不允许再次生成
+	
+				if (IsTurntoGenerIn(gvo)) {
+					CommonUtil.putFailResult(para, "该转库出库单已经生成过转库入库单，不能再次生成！");
+					LoggerUtil.debug("写入转库入库错误，  该转库出库单已经生成过转库入库单，不能再次生成！");
+					return FreeMarkerUtil.process(para,
+							"nc/config/ic/barcode/TransferInOrder.fl");
+				}
+	
+				// 获取转库出库单表头
+				GeneralOutHeadVO goHeadVO = gvo.getHead();
+				if (goHeadVO != null) {
+					InvocationInfoProxy.getInstance().setGroupId(
+							goHeadVO.getPk_group());
+					// 通过转库出库单表头生成转库入库单表头
+					gvi.setParent(this.setGeneralInHeadVO(goHeadVO, Date));
+				} else {
+					CommonUtil.putFailResult(para, "转库出库单号" + OrderNo+ "找不到对应的单据！");
+					LoggerUtil.error("转库出库单号" + OrderNo + "找不到对应的单据！");
+					return FreeMarkerUtil.process(para,
+							"nc/config/ic/barcode/TransferInOrder.fl");
+				}
+				
 				List<GeneralInBodyVO> list = getGeneralInBodyVO(gvo, item, para);
 				// 通过转库出库单获取表体
 				if (list != null && list.size() != 0) {
@@ -270,7 +274,12 @@ public class TransferOrderImpl implements ITransferOrder {
 					CommonUtil.putFailResult(para, "物料短号不能全部与转库出库单表体匹配  或者  "
 							+ "转库出库单号" + OrderNo + "对应的表体单据为空");
 				}
+				
 			} catch (BusinessException e) {
+				CommonUtil.putFailResult(para, e.getMessage());
+				e.printStackTrace();
+				LoggerUtil.error("写入转库入库异常", e);
+			} catch (Exception e) {
 				CommonUtil.putFailResult(para, e.getMessage());
 				e.printStackTrace();
 				LoggerUtil.error("写入转库入库异常", e);
@@ -384,14 +393,10 @@ public class TransferOrderImpl implements ITransferOrder {
 					gi.setCastunitid(go.getCastunitid()); // 单位
 					gi.setVchangerate(go.getVchangerate()); // 换算率
 					gi.setNshouldassistnum(go.getNshouldassistnum()); // 应收数量
-					gi.setNshouldnum(new UFDouble(go.getNshouldassistnum()
-							.doubleValue()
-							* getVchangerate(go.getVchangerate()))); // 应收主数量
-																		// =
-																		// 应收数量*换算率
+					gi.setNshouldnum(go.getNshouldnum()); // 应收主数量
 					gi.setNassistnum(new UFDouble(item.getJSONObject(index)
 							.getInt("ScanQty"))); // 实收数量
-					gi.setNnum(gi.getNshouldnum()); // 实收主数量 与 应收主数量一致
+					gi.setNnum(gi.getNassistnum().multiply(getVchangerate(go.getVchangerate()))); // 实收主数量 与 应收主数量一致
 					gi.setCbodywarehouseid(go.getCbodywarehouseid()); // 库存仓库
 					gi.setNcostprice(go.getNcostprice()); // 单价
 					gi.setNcostmny(go.getNcostmny()); // 金额

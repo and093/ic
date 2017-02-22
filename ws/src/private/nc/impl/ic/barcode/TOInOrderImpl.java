@@ -151,6 +151,10 @@ public class TOInOrderImpl implements ITOInOrder {
 			e.printStackTrace();
 			CommonUtil.putFailResult(para, "生成调拨入库单失败：" + e.getMessage());
 			LoggerUtil.error("写入调拨入库异常" , e);
+		} catch (Exception e) {
+			e.printStackTrace();
+			CommonUtil.putFailResult(para, "生成调拨入库单失败：" + e.getMessage());
+			LoggerUtil.error("写入调拨入库异常" , e);
 		}
 		String rst = FreeMarkerUtil.process(para,
 				"nc/config/ic/barcode/TransferInOrder.fl");
