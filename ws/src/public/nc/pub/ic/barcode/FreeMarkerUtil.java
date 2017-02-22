@@ -29,7 +29,7 @@ public class FreeMarkerUtil {
 	        cfg.setDefaultEncoding("UTF-8");
 	        cfg.setOutputEncoding("UTF-8");
 	        cfg.setLocale(Locale.US);
-	        cfg.setTemplateUpdateDelay(0);	//调试的时候设为0，正式发布要设为一个比较大的值 
+	        cfg.setTemplateUpdateDelay(9000000);	//调试的时候设为0，正式发布要设为一个比较大的值 
 	        cfg.setCacheStorage(new MruCacheStorage(20, 250));
 	        cfg.setNumberFormat("0.##########");
 		} catch (Exception e) {

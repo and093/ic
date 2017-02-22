@@ -34,14 +34,17 @@ public class WsQueryBS {
 				.append("        a.code ProductNo, ")
 				.append("        a.name ProductName, ")//
 				// .append("        b.name ProductUM, ")
-				.append("        a.def16 PackSize,   ")
+				.append("        case a.def10 when 'Y' then 'T' else 'F' end ischeck,  ")   //是否需要校对料号
+				.append("        substr(d.measrate,0,INSTR(d.measrate, '/') - 1) PackSize,   ")
 				.append("        a.def8 ProductCode,  ")
 				.append("        a.def14 PalletPackSize,  ")
 				.append("        case a.def11 when 'Y' then 1 else 0 end ProductionOrderType   ")
-				.append("  from bd_material a, bd_measdoc b, bd_marbasclass c ")
+				.append("  from bd_material a, bd_measdoc b, bd_marbasclass c , bd_materialconvert d ")
 				.append(" where a.pk_measdoc = b.pk_measdoc ")
 				.append(" and a.pk_marbasclass = c.pk_marbasclass ")
+				.append(" and a.pk_material = d.pk_material ")
 				.append(" and nvl(a.dr,0) = 0 ")
+				.append(" and d.isprodmeasdoc = 'Y' and nvl(d.dr,0) = 0 ")
 				.append(" and a.pk_material = '" + pk_material + "' ");
 		Object rst = dao.executeQuery(sql.toString(), new MapProcessor());
 		if (rst != null) {

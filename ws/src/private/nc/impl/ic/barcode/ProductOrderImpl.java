@@ -5,8 +5,6 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 
-import org.hsqldb.lib.Iterator;
-
 import nc.bs.dao.BaseDAO;
 import nc.bs.dao.DAOException;
 import nc.bs.framework.common.InvocationInfoProxy;
@@ -23,7 +21,6 @@ import nc.md.persist.framework.MDPersistenceService;
 import nc.pub.ic.barcode.CommonUtil;
 import nc.pub.ic.barcode.FreeMarkerUtil;
 import nc.pub.ic.barcode.LoggerUtil;
-import nc.vo.am.common.util.CloneUtil;
 import nc.vo.ic.m46.entity.FinProdInBodyVO;
 import nc.vo.ic.m46.entity.FinProdInHeadVO;
 import nc.vo.ic.m46.entity.FinProdInVO;
@@ -76,7 +73,7 @@ public class ProductOrderImpl implements IProductOrder {
 					detail.putAll(WsQueryBS.queryMaterialInfoByPk(item.getCmaterialid()));
 					//读取物料单位，现在取的是主单位
 					detail.put("ProductUM", WsQueryBS.queryUnitName(item.getCunitid()));
-					detail.put("IsNeedToCheckProduct", "T"); //物料是否需要检验 
+					//detail.put("IsNeedToCheckProduct", "T"); //物料是否需要检验 
 					
 					details.add(detail);
 				}

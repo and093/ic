@@ -21,7 +21,7 @@
 			<PackSize>${detail.packsize!}</PackSize>
 			<PlanPackQty>${detail.PlanPackQty!}</PlanPackQty>
 			<PalletPackSize>${detail.palletpacksize!}</PalletPackSize>
-			<IsNeedToCheckProduct>${detail.IsNeedToCheckProduct!}</IsNeedToCheckProduct>
+			<IsNeedToCheckProduct>${detail.ischeck!}</IsNeedToCheckProduct>
 		</OrderDetail>
 	</#list>	
 	</Details>

@@ -23,11 +23,13 @@ public class MaterialInfoImpl implements IMaterialInfo {
 			.append("        a.code, ")
 			.append("        a.name, ")
 			.append("        b.name measname, ")
-			.append("        a.def16 materialspec   ")
-			.append("  from bd_material a, bd_measdoc b, bd_marbasclass c ")
+			.append("        substr(d.measrate,0,INSTR(d.measrate, '/') - 1) materialspec   ") 
+			.append("  from bd_material a, bd_measdoc b, bd_marbasclass c , bd_materialconvert d ")
 			.append(" where a.pk_measdoc = b.pk_measdoc ")
 			.append(" and a.pk_marbasclass = c.pk_marbasclass ")
+			.append(" and a.pk_material = d.pk_material ")
 			.append(" and nvl(a.dr,0) = 0 ")
+			.append(" and d.isprodmeasdoc = 'Y' and nvl(d.dr,0) = 0 ")
 			.append(" and a.def8 = '"+bccode+"' ");
 		try {
 			Object rst = dao.executeQuery(sql.toString(), new MapProcessor());
