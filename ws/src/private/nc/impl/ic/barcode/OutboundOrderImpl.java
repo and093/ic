@@ -105,7 +105,6 @@ public class OutboundOrderImpl implements IOutboundOrder {
 		TransOutBodyVO body = null;
 
 		try {
-			// false-未找到单号对应行号的数据
 			boolean flag = false;
 
 			List<TransOutVO> list = (List<TransOutVO>) MDPersistenceService
@@ -167,6 +166,7 @@ public class OutboundOrderImpl implements IOutboundOrder {
 								CommonUtil.putFailResult(para, "更新类型有误！");
 								LoggerUtil.error("更新类型有误！");
 							}
+							break;
 						}
 					}
 					// 没有找到对应行号的其他出库单子表
