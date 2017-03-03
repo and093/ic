@@ -220,6 +220,8 @@ public class ProductOrderImpl implements IProductOrder {
 					writem.setTbendtime(new UFDateTime(date + " 23:59:59"));
 					writem.setVbdef20(teamCode);
 					headvo.setVdef20(teamCode);
+					//生产日期
+					//writem.setVbdef1(date);  
 				}
 				//生产报告保存并签字
 				IPwrMaintainService service = NCLocator.getInstance().lookup(IPwrMaintainService.class);
@@ -263,10 +265,13 @@ public class ProductOrderImpl implements IProductOrder {
 					for (FinProdInVO finprodvo : list) {
 						FinProdInHeadVO finheadvo = finprodvo.getHead();
 						FinProdInBodyVO[] finProdInBodyVOs = (FinProdInBodyVO[]) finprodvo.getChildren(FinProdInBodyVO.class);
+						String pk_org = finheadvo.getPk_org();
 						for (FinProdInBodyVO bvo : finProdInBodyVOs) {
 							bvo.setNassistnum(bvo.getNshouldassistnum());
 							bvo.setNnum(bvo.getNshouldnum());
-							bvo.setDvalidate(new UFDate()); // 失效日期
+							String pk_material = bvo.getCmaterialoid();
+							Integer qualitynum = WsQueryBS.queryQualitynum(pk_org, pk_material);
+							bvo.setDvalidate(new UFDate(date).getDateAfter(qualitynum)); // 失效日期
 							bvo.setStatus(VOStatus.UPDATED);
 						}
 						pf.processAction("WRITE", "46", null, finprodvo, null, null);

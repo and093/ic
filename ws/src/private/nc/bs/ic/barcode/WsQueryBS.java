@@ -312,4 +312,24 @@ public class WsQueryBS {
 		}
 		return para;
 	}
+	
+	/**
+	 * 查询物料所在组织的保质期
+	 * @param pk_org
+	 * @param pk_material
+	 * @return
+	 */ 
+	public static Integer queryQualitynum(String pk_org, String pk_material){
+		
+		try {
+			Object obj = new BaseDAO().executeQuery(
+					"select qualitynum  from bd_materialstock where nvl(dr,0) = 0 and pk_material = '"+pk_material+"' and pk_org = '"+pk_org+"'", new ColumnProcessor());
+			if(obj != null) {
+				return (Integer)obj;
+			}
+		} catch (DAOException e) {
+			e.printStackTrace();
+		}
+		return 0;
+	}
 }

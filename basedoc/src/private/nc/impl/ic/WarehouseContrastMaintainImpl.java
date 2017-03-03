@@ -22,8 +22,8 @@ public class WarehouseContrastMaintainImpl extends AceWarehouseContrastPubServic
     BatchSaveAction<warehouse_contrastVO> saveAction = new BatchSaveAction<warehouse_contrastVO>();
     BatchOperateVO retData = saveAction.batchSave(batchVO);
     //调用编码、名称唯一性校验规则
-    new DataUniqueCheckRule().process(new BatchOperateVO[] {
-      batchVO    });
+//    new DataUniqueCheckRule().process(new BatchOperateVO[] {
+//      batchVO    }); 
     return retData;
   }
 }

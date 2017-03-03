@@ -22,8 +22,8 @@ public class PersonalContrastMaintainImpl extends AcePersonalContrastPubServiceI
     BatchSaveAction<personalContrastVO> saveAction = new BatchSaveAction<personalContrastVO>();
     BatchOperateVO retData = saveAction.batchSave(batchVO);
     //调用编码、名称唯一性校验规则
-    new DataUniqueCheckRule().process(new BatchOperateVO[] {
-      batchVO    });
+//    new DataUniqueCheckRule().process(new BatchOperateVO[] {
+//      batchVO    }); 
     return retData;
   }
 }
