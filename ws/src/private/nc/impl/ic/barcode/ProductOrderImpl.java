@@ -185,12 +185,13 @@ public class ProductOrderImpl implements IProductOrder {
 				InvocationInfoProxy.getInstance().setGroupId(pmohead.getPk_group());
 				AggWrVO wragg = (AggWrVO)exchangeService.runChangeData("55A2", "55A4", pmoagg, null);
 				
-				String pk_dept = (String)deptmap.get("pk_dept");
-				String pk_vid = (String)deptmap.get("pk_vid");
+				//条码传过来的部门目前没有使用，取的都是生产订单的部门
+//				String pk_dept = (String)deptmap.get("pk_dept");
+//				String pk_vid = (String)deptmap.get("pk_vid");
 				
 				WrVO headvo = wragg.getParentVO();
-				headvo.setCdeptid(pk_dept);
-				headvo.setCdeptvid(pk_vid);
+//				headvo.setCdeptid(pk_dept);
+//				headvo.setCdeptvid(pk_vid);
 				headvo.setDbilldate(new UFDate(date));
 				headvo.setVtrantypecode("55A4-01");
 				headvo.setVtrantypeid(PfDataCache.getBillType("55A4-01").getPk_billtypeid());
@@ -213,8 +214,8 @@ public class ProductOrderImpl implements IProductOrder {
 						writem.setVbinbatchid(WsQueryBS.getPk_BatchCode(writem.getCbmaterialid(), batchno));
 					}
 					writem.setVbrowno(String.valueOf((i + 1) * 10));
-					writem.setCbdeptid(pk_dept);
-					writem.setCbdeptvid(pk_vid);
+//					writem.setCbdeptid(pk_dept);
+//					writem.setCbdeptvid(pk_vid);
 					writem.setFbproducttype(1); //产出类型 主产品
 					writem.setTbstarttime(new UFDateTime(date + " 00:00:00"));
 					writem.setTbendtime(new UFDateTime(date + " 23:59:59"));
@@ -264,6 +265,9 @@ public class ProductOrderImpl implements IProductOrder {
 									FinProdInVO.class, "cgeneralhid = '"+cgeneralhid+"'", true, false);
 					for (FinProdInVO finprodvo : list) {
 						FinProdInHeadVO finheadvo = finprodvo.getHead();
+//						finheadvo.setCdptid(pk_dept);
+//						finheadvo.setCdptvid(pk_vid);
+//						finheadvo.setStatus(VOStatus.UPDATED);
 						FinProdInBodyVO[] finProdInBodyVOs = (FinProdInBodyVO[]) finprodvo.getChildren(FinProdInBodyVO.class);
 						String pk_org = finheadvo.getPk_org();
 						for (FinProdInBodyVO bvo : finProdInBodyVOs) {

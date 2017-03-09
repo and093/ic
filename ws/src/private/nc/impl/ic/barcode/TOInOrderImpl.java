@@ -203,15 +203,15 @@ public class TOInOrderImpl implements ITOInOrder {
 		hvo.setCothercalbodyvid(ohvo.getPk_org_v());// 出库库存组织版本
 		hvo.setBdirecttranflag(UFBoolean.FALSE);
 		hvo.setCsendtypeid(ohvo.getCdilivertypeid());// 运输方式
-		hvo.setCwarehouseid(ohvo.getCotherwhid()); //入库仓库
-//		try {
-//			hvo.setCwarehouseid(WsQueryBS.queryStordocByCode(ReceiverLocationCode).get("pk_stordoc"));
-//		} catch (DAOException e) {
-//			CommonUtil.putFailResult(para, e.getMessage());
-//			LoggerUtil.error("获取入库仓库异常：" , e);
-//			e.printStackTrace();
-//		}// 仓库-xml获取的入库仓库
-		hvo.setStatus(VOStatus.NEW);//
+		//hvo.setCwarehouseid(ohvo.getCotherwhid()); //入库仓库 不能取调拨出库单上的入库仓库字段，因为做调拨订单时，入库仓库是空的
+		try {
+			hvo.setCwarehouseid(WsQueryBS.queryStordocByCode(ReceiverLocationCode).get("pk_stordoc"));
+		} catch (DAOException e) {
+			CommonUtil.putFailResult(para, e.getMessage());
+			LoggerUtil.error("获取入库仓库异常：" , e);
+			e.printStackTrace();
+		}// 仓库-xml获取的入库仓库
+		hvo.setStatus(VOStatus.NEW);
 		return hvo;
 	}
 
