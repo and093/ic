@@ -278,12 +278,12 @@ public class TOInOrderImpl implements ITOInOrder {
 					bvo.setCsourcetype("4Y");
 					bvo.setCsourcetranstype(ohvo.getCtrantypeid());
 					// 其他来源
-					bvo.setCsrc2billhid(dbvo.getCsourcebillhid());
-					bvo.setCsrc2billbid(dbvo.getCsourcebillbid());
-					bvo.setVsrc2billcode(dbvo.getVsourcebillcode());
-					bvo.setVsrc2billrowno(dbvo.getVsourcerowno());
-					bvo.setCsrc2billtype("4331");
-					bvo.setCsrc2transtype(dbvo.getCsourcetranstype());
+//					bvo.setCsrc2billhid(dbvo.getCsourcebillhid());
+//					bvo.setCsrc2billbid(dbvo.getCsourcebillbid());
+//					bvo.setVsrc2billcode(dbvo.getVsourcebillcode());
+//					bvo.setVsrc2billrowno(dbvo.getVsourcerowno());
+//					bvo.setCsrc2billtype("4331");
+//					bvo.setCsrc2transtype(dbvo.getCsourcetranstype());
 					// 源头信息
 					bvo.setVfirstbillcode(dbvo.getVfirstbillcode());
 					bvo.setVfirstrowno(dbvo.getVfirstrowno());
@@ -291,8 +291,8 @@ public class TOInOrderImpl implements ITOInOrder {
 					bvo.setCfirstbillhid(dbvo.getCfirstbillhid());
 					bvo.setCfirsttranstype(dbvo.getCfirsttranstype());
 					bvo.setCfirsttype(dbvo.getCfirsttype());
-					bvo.setNweight(dbvo.getNweight());
-					bvo.setNvolume(dbvo.getNvolume());
+					bvo.setNweight(dbvo.getNweight()); 
+					bvo.setNvolume(dbvo.getNvolume()); 
 					bvo.setDplanoutdate(dbvo.getDplanoutdate());
 					bvo.setDplanarrivedate(dbvo.getDplanarrivedate());
 					bvo.setStatus(VOStatus.NEW);

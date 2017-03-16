@@ -7,7 +7,7 @@
 	<#list Details as detail> 
 		<OrderDetail>
 			<PlanProductionDate>${detail.PlanProductionDate!}</PlanProductionDate>
-			<ProductionOrderType>${detail.ProductionOrderType!}</ProductionOrderType>
+			<ProductionOrderType>${detail.productionordertype!}</ProductionOrderType>
 			<OrderStatus>${detail.OrderStatus!}</OrderStatus>
 			<WorkshopCode>${detail.workshopcode!}</WorkshopCode>
 			<WorkshopName>${detail.workshopname!}</WorkshopName>

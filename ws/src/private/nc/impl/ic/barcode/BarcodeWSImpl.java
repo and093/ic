@@ -20,8 +20,6 @@ public class BarcodeWSImpl implements IBarcodeWS {
 	 */
 	@Override
 	public String GetProductInfoByCode(String productCode) {
-//		ISecurityTokenCallback sc = (ISecurityTokenCallback)NCLocator.getInstance().lookup(ISecurityTokenCallback.class);
-		//sc.token("WSSystem".getBytes(), "WSSystem".getBytes()); 
 		InvocationInfoProxy.getInstance().setUserDataSource(ResourceUtil.getPro().getProperty("system.dataSource"));
 		IMaterialInfo s = NCLocator.getInstance().lookup(IMaterialInfo.class);
 		return s.getMaterialInfo(productCode);
@@ -34,8 +32,6 @@ public class BarcodeWSImpl implements IBarcodeWS {
 	 */
 	@Override
 	public String GetProductionOrderByNo(String orderNo) {
-//		ISecurityTokenCallback sc = (ISecurityTokenCallback)NCLocator.getInstance().lookup(ISecurityTokenCallback.class);
-//		sc.token("WSSystem".getBytes(), "WSSystem".getBytes()); 
 		InvocationInfoProxy.getInstance().setUserDataSource(ResourceUtil.getPro().getProperty("system.dataSource"));
 		IProductOrder s = NCLocator.getInstance().lookup(IProductOrder.class);
 		return s.getProductOrder(orderNo);
@@ -48,8 +44,6 @@ public class BarcodeWSImpl implements IBarcodeWS {
 	 */
 	@Override
 	public synchronized String PostGoodsReceiveNote(String xml) {
-//		ISecurityTokenCallback sc = (ISecurityTokenCallback)NCLocator.getInstance().lookup(ISecurityTokenCallback.class);
-//		sc.token("WSSystem".getBytes(), "WSSystem".getBytes()); 
 		InvocationInfoProxy.getInstance().setUserDataSource(ResourceUtil.getPro().getProperty("system.dataSource"));
 		String userCode = ResourceUtil.getPro().getProperty("system.user");
 		String cuserid = WsQueryBS.getUseridByCode(userCode);
@@ -66,8 +60,6 @@ public class BarcodeWSImpl implements IBarcodeWS {
 	 */
 	@Override
 	public String GetDeliveryNoteByNo(String transationType, String orderNo) {
-//		ISecurityTokenCallback sc = (ISecurityTokenCallback)NCLocator.getInstance().lookup(ISecurityTokenCallback.class);
-//		sc.token("WSSystem".getBytes(), "WSSystem".getBytes()); 
 		InvocationInfoProxy.getInstance().setUserDataSource(ResourceUtil.getPro().getProperty("system.dataSource"));
 		IOutboundOrder s = NCLocator.getInstance().lookup(IOutboundOrder.class);
 		return s.getOutboundOrder(transationType, orderNo);
@@ -80,8 +72,6 @@ public class BarcodeWSImpl implements IBarcodeWS {
 	 */
 	@Override
 	public synchronized String PostDeliveryNoteDetailScanQty(String xml) {
-//		ISecurityTokenCallback sc = (ISecurityTokenCallback)NCLocator.getInstance().lookup(ISecurityTokenCallback.class);
-//		sc.token("WSSystem".getBytes(), "WSSystem".getBytes()); 
 		InvocationInfoProxy.getInstance().setUserDataSource(ResourceUtil.getPro().getProperty("system.dataSource"));
 		String userCode = ResourceUtil.getPro().getProperty("system.user");
 		String cuserid = WsQueryBS.getUseridByCode(userCode);
@@ -97,8 +87,6 @@ public class BarcodeWSImpl implements IBarcodeWS {
 	 */
 	@Override
 	public synchronized String PostOtherDeliveryNoteDetailActualQty(String xml) {
-//		ISecurityTokenCallback sc = (ISecurityTokenCallback)NCLocator.getInstance().lookup(ISecurityTokenCallback.class);
-//		sc.token("WSSystem".getBytes(), "WSSystem".getBytes()); 
 		InvocationInfoProxy.getInstance().setUserDataSource(ResourceUtil.getPro().getProperty("system.dataSource"));
 		String userCode = ResourceUtil.getPro().getProperty("system.user");
 		String cuserid = WsQueryBS.getUseridByCode(userCode);
@@ -114,8 +102,6 @@ public class BarcodeWSImpl implements IBarcodeWS {
 	 */
 	@Override
 	public synchronized String PostTransferReceiveNote(String xml) {
-//		ISecurityTokenCallback sc = (ISecurityTokenCallback)NCLocator.getInstance().lookup(ISecurityTokenCallback.class);
-//		sc.token("WSSystem".getBytes(), "WSSystem".getBytes()); 
 		InvocationInfoProxy.getInstance().setUserDataSource(ResourceUtil.getPro().getProperty("system.dataSource"));
 		String userCode = ResourceUtil.getPro().getProperty("system.user");
 		String cuserid = WsQueryBS.getUseridByCode(userCode);
@@ -131,8 +117,6 @@ public class BarcodeWSImpl implements IBarcodeWS {
 	 */
 	@Override
 	public synchronized String PostTransferOutNote(String xml) {
-//		ISecurityTokenCallback sc = (ISecurityTokenCallback)NCLocator.getInstance().lookup(ISecurityTokenCallback.class);
-//		sc.token("WSSystem".getBytes(), "WSSystem".getBytes()); 
 		InvocationInfoProxy.getInstance().setUserDataSource(ResourceUtil.getPro().getProperty("system.dataSource"));
 		String userCode = ResourceUtil.getPro().getProperty("system.user");
 		String cuserid = WsQueryBS.getUseridByCode(userCode);
@@ -148,8 +132,6 @@ public class BarcodeWSImpl implements IBarcodeWS {
 	 */
 	@Override
 	public synchronized String PostTransferInNote(String xml) {
-//		ISecurityTokenCallback sc = (ISecurityTokenCallback)NCLocator.getInstance().lookup(ISecurityTokenCallback.class);
-//		sc.token("WSSystem".getBytes(), "WSSystem".getBytes()); 
 		InvocationInfoProxy.getInstance().setUserDataSource(ResourceUtil.getPro().getProperty("system.dataSource"));
 		String userCode = ResourceUtil.getPro().getProperty("system.user");
 		String cuserid = WsQueryBS.getUseridByCode(userCode);
