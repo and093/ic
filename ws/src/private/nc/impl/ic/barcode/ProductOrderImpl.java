@@ -72,7 +72,7 @@ public class ProductOrderImpl implements IProductOrder {
 					//读取物料信息
 					detail.putAll(WsQueryBS.queryMaterialInfoByPk(item.getCmaterialid()));
 					//读取物料单位，现在取的是主单位
-					detail.put("ProductUM", WsQueryBS.queryUnitName(item.getCunitid()));
+					detail.put("ProductUM", WsQueryBS.queryUnitName(item.getCastunitid()));
 					//detail.put("IsNeedToCheckProduct", "T"); //物料是否需要检验 
 					
 					details.add(detail);
@@ -110,7 +110,7 @@ public class ProductOrderImpl implements IProductOrder {
 			}
 			
 			BaseDAO dao = new BaseDAO();
-			//先将表体数据按生产批次号，班组，物料，批次号合并
+			//先将表体数据按生产批次号，班组，物料，批次号，生产方式合并
 			HashMap<String, JSONObject> calMap = new HashMap<String, JSONObject>();
 			for(int i = 0; i < arrays.size(); i++){
 				JSONObject jsitem = arrays.getJSONObject(i);
@@ -119,7 +119,8 @@ public class ProductOrderImpl implements IProductOrder {
 				String teamCode = jsitem.getString("TeamCode");
 				String batchno = jsitem.getString("BatchNo");
 				int scanQty = jsitem.getInt("ScanQty");
-				String key = sourceOrderNo + productCode + teamCode + batchno;
+				String productionMode = jsitem.getString("ProductionMode"); //生产方式
+				String key = sourceOrderNo + productCode + teamCode + batchno + productionMode;
 				JSONObject jsonv = calMap.get(key);
 				if(jsonv != null){
 					jsonv.put("ScanQty", jsonv.getInt("ScanQty") + scanQty);
@@ -129,7 +130,7 @@ public class ProductOrderImpl implements IProductOrder {
 			}
 			//按生产订单编号，生产部门，班组将表体数据分组
 			Collection<JSONObject> colMap = calMap.values();
-			HashMap<String, Object> deptmap = null;
+			//HashMap<String, Object> deptmap = null;
 			//分别记录生产订单表头和表体，用于根据条码数据匹配对应的生产订单
 			HashMap<String, PMOHeadVO> pmoHeadMap = new HashMap<String, PMOHeadVO>();
 			HashMap<String, ArrayList<PMOItemVO>> pmoBodyListMap = new HashMap<String, ArrayList<PMOItemVO>>();
@@ -140,11 +141,12 @@ public class ProductOrderImpl implements IProductOrder {
 				String teamCode = jsonobj.getString("TeamCode");
 				String batchno = jsonobj.getString("BatchNo");
 				int scanQty = jsonobj.getInt("ScanQty");
-				String bcvalue = String.format("%s,%s,%s", teamCode, batchno, scanQty);
+				String productionMode = jsonobj.getString("ProductionMode");
+				String bcvalue = String.format("%s,%s,%s,%s", teamCode, batchno, scanQty, productionMode);
 				
 				String where = " nvl(dr,0) = 0 and vbatchcode = '"+sourceOrderNo+"'";
-				Collection<PMOItemVO> col = dao.retrieveByClause(PMOItemVO.class, where);
-				if(col == null || col.size() == 0){
+				Collection<PMOItemVO> col = dao.retrieveByClause(PMOItemVO.class, where); 
+				if(col == null || col.size() == 0){ 
 					throw new BusinessException(sourceOrderNo + "查询不到对应的生产订单数据");
 				}
 				PMOItemVO pmoitem = col.iterator().next();
@@ -159,10 +161,10 @@ public class ProductOrderImpl implements IProductOrder {
 					pmohead = (PMOHeadVO)dao.retrieveByPK(PMOHeadVO.class, pmoitem.getCpmohid());
 					pmoHeadMap.put(pmoitem.getCpmohid(), pmohead);
 				}
-				if(deptmap == null){
-					deptmap = WsQueryBS.queryDeptidByCode(senderLocationCode, pmohead.getPk_org());
-				}
-				//组织 + 表头pk + 生产部门 + 生产线(工作中心) + 班组
+//				if(deptmap == null){
+//					deptmap = WsQueryBS.queryDeptidByCode(senderLocationCode, pmohead.getPk_org());
+//				}
+				//组织 + 表头pk + 生产部门 + 生产线(工作中心) + 班组 
 				String key = pmoitem.getPk_org() + pmoitem.getCpmohid() + pmoitem.getCdeptid() + pmoitem.getCwkid() + teamCode;
 				ArrayList<PMOItemVO> itemlist = pmoBodyListMap.get(key);
 				if(itemlist == null){
@@ -203,6 +205,7 @@ public class ProductOrderImpl implements IProductOrder {
 					String teamCode = bcvalue[0];
 					String batchno = bcvalue[1];
 					String scanQty = bcvalue[2];
+					String productionMode = bcvalue[3];
 					
 					//根据条码返回的箱数，计算主数量
 					writem.setNbwrastnum(new UFDouble(scanQty));
@@ -221,6 +224,7 @@ public class ProductOrderImpl implements IProductOrder {
 					writem.setTbendtime(new UFDateTime(date + " 23:59:59"));
 					writem.setVbdef20(teamCode);
 					headvo.setVdef20(teamCode);
+					writem.setVbdef19(WsQueryBS.getProductModelByCode(productionMode));
 					//生产日期
 					//writem.setVbdef1(date);  
 				}

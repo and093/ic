@@ -332,4 +332,35 @@ public class WsQueryBS {
 		}
 		return 0;
 	}
+	
+	private static HashMap<String, String> PM_CACHE = new HashMap<String, String>();
+	/**
+	 * 根据生产方式编码得到生产方式pk
+	 */
+	public static String getProductModelByCode(String code){
+		String pk_defdoc = PM_CACHE.get(code);
+		if(pk_defdoc == null){
+			Object obj = null;
+			try {
+				StringBuffer sql = new StringBuffer();
+				sql.append(" select pk_defdoc ")
+				.append("   from bd_defdoc ")
+				.append("  where code = '"+code+"' ")
+				.append("    and nvl(dr,0) = 0 and pk_defdoclist = (select pk_defdoclist ")
+				.append("                           from bd_defdoclist ")
+				.append("                          where code = 'hm017' ")
+				.append("                            and nvl(dr, 0) = 0 ) ");
+				obj = new BaseDAO().executeQuery(sql.toString(), new ColumnProcessor());
+				if(obj != null) {
+					pk_defdoc = obj.toString();
+				}
+				if(pk_defdoc != null){
+					PM_CACHE.put(code, pk_defdoc);
+				}
+			} catch (DAOException e) {
+				e.printStackTrace();
+			}
+		}
+		return pk_defdoc;
+	}
 }
