@@ -69,4 +69,10 @@ public interface IBarcodeWS {
 	public String PostTransferInNote(String xml);
 	
 	
+	/**
+	 * 写入转库单、并自动推其他出库和其他入库
+	 * @param xml
+	 * @return
+	 */
+	public String PostTransferOutAndInNote(String xml);
 }

@@ -153,6 +153,20 @@ targetNamespace="http://barcode.ic.ift.nc/IBarcodeWS">
              </xsd:sequence>  
          </xsd:complexType>
      </xsd:element>
+	<xsd:element name="PostTransferOutAndInNote">
+         <xsd:complexType>
+            <xsd:sequence>
+				<xsd:element name="string"  minOccurs="0" nillable="true" type="xsd:string"/>
+             </xsd:sequence>  
+         </xsd:complexType>
+     </xsd:element>
+	<xsd:element name="PostTransferOutAndInNoteResponse">
+         <xsd:complexType>
+            <xsd:sequence>
+				<xsd:element name="return"  minOccurs="0" nillable="true" type="xsd:string"/>
+             </xsd:sequence>  
+         </xsd:complexType>
+     </xsd:element>
    </xsd:schema>
 </wsdl:types>
     <wsdl:message name="GetProductInfoByCodeRequest">
@@ -209,6 +223,12 @@ targetNamespace="http://barcode.ic.ift.nc/IBarcodeWS">
     <wsdl:message name="PostTransferInNoteResponse">
         <wsdl:part name="parameters"  element="ns0:PostTransferInNoteResponse"/>
     </wsdl:message>
+    <wsdl:message name="PostTransferOutAndInNoteRequest">
+        <wsdl:part name="parameters"  element="ns0:PostTransferOutAndInNote"/>
+    </wsdl:message>
+    <wsdl:message name="PostTransferOutAndInNoteResponse">
+        <wsdl:part name="parameters"  element="ns0:PostTransferOutAndInNoteResponse"/>
+    </wsdl:message>
 
     <wsdl:portType name="IBarcodeWSPortType">
         <wsdl:operation name="GetProductInfoByCode">
@@ -246,6 +266,10 @@ targetNamespace="http://barcode.ic.ift.nc/IBarcodeWS">
         <wsdl:operation name="PostTransferInNote">
             <wsdl:input message="ns0:PostTransferInNoteRequest" wsaw:Action="urn:PostTransferInNote"/>
             <wsdl:output message="ns0:PostTransferInNoteResponse" wsaw:Action="urn:PostTransferInNoteResponse"/>
+        </wsdl:operation>
+        <wsdl:operation name="PostTransferOutAndInNote">
+            <wsdl:input message="ns0:PostTransferOutAndInNoteRequest" wsaw:Action="urn:PostTransferOutAndInNote"/>
+            <wsdl:output message="ns0:PostTransferOutAndInNoteResponse" wsaw:Action="urn:PostTransferOutAndInNoteResponse"/>
         </wsdl:operation>
     </wsdl:portType>
     
@@ -326,6 +350,15 @@ targetNamespace="http://barcode.ic.ift.nc/IBarcodeWS">
         </wsdl:operation>
         <wsdl:operation name="PostTransferInNote">
             <soap:operation soapAction="urn:PostTransferInNote" style="document"/>
+            <wsdl:input>
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap:body use="literal"/>
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="PostTransferOutAndInNote">
+            <soap:operation soapAction="urn:PostTransferOutAndInNote" style="document"/>
             <wsdl:input>
                 <soap:body use="literal"/>
             </wsdl:input>

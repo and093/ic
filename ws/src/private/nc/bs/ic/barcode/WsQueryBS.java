@@ -255,7 +255,7 @@ public class WsQueryBS {
 
 		try {
 			obj = new BaseDAO().executeQuery(
-					"select pk_batchcode from scm_batchcode where cmaterialoid ='"
+					"select pk_batchcode from scm_batchcode where nvl(dr,0) = 0 and cmaterialoid ='"
 							+ pk_material + "' and vbatchcode='" + batchCode
 							+ "'", new ColumnProcessor());
 			if(obj != null) return obj.toString();
@@ -263,6 +263,26 @@ public class WsQueryBS {
 			e.printStackTrace();
 		}
 		return null;
+	}
+	
+	/**
+	 * 根据物料pk 和 批次号获取 批次档案主键、生产日期、失效日期
+	 * @param pk_deptid
+	 * @return
+	 * @throws DAOException
+	 */
+	public static HashMap<String, String> getBatchCode(String pk_material, String batchCode) throws DAOException {
+		BaseDAO dao = new BaseDAO();
+		HashMap<String, String> para = new HashMap<String, String>();
+		Object rst = dao
+				.executeQuery(
+						"select pk_batchcode,dproducedate, dvalidate, dinbounddate from scm_batchcode where nvl(dr,0) = 0 and cmaterialoid ='"
+								+ pk_material + "' and vbatchcode='" + batchCode
+								+ "'", new MapProcessor());
+		if (rst != null) {
+			para.putAll((HashMap) rst);
+		}
+		return para;
 	}
 	
 	/**

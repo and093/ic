@@ -16,4 +16,13 @@ public interface ITransferOrder {
 	 */
 	public String saveTransferIn_requireNew(String xml);
 	
+	
+	/**
+	 * 保存转库、其他出库和其他入库
+	 * @param xml
+	 * @return
+	 */
+	public String saveTransferOutAndIn_requireNew(String xml);
+	
+	
 }

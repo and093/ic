@@ -140,4 +140,17 @@ public class BarcodeWSImpl implements IBarcodeWS {
 		return s.saveTransferIn_requireNew(xml);
 	}
 
+	/**
+	 * 写入转库，并自动生成其他出库和其他入库
+	 */
+	@Override
+	public String PostTransferOutAndInNote(String xml) {
+		InvocationInfoProxy.getInstance().setUserDataSource(ResourceUtil.getPro().getProperty("system.dataSource"));
+		String userCode = ResourceUtil.getPro().getProperty("system.user");
+		String cuserid = WsQueryBS.getUseridByCode(userCode);
+		InvocationInfoProxy.getInstance().setUserId(cuserid);
+		ITransferOrder s = NCLocator.getInstance().lookup(ITransferOrder.class);
+		return s.saveTransferOutAndIn_requireNew(xml);
+	}
+
 }
