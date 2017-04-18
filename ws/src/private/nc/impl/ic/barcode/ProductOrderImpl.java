@@ -16,17 +16,23 @@ import nc.itf.mmpac.wr.IWrBusinessService;
 import nc.itf.mmpac.wr.pwr.IPwrMaintainService;
 import nc.itf.uap.pf.IPFBusiAction;
 import nc.itf.uap.pf.IPfExchangeService;
+import nc.itf.uap.pf.busiflow.PfButtonClickContext;
 import nc.jdbc.framework.processor.ColumnProcessor;
 import nc.md.persist.framework.MDPersistenceService;
 import nc.pub.ic.barcode.CommonUtil;
 import nc.pub.ic.barcode.FreeMarkerUtil;
 import nc.pub.ic.barcode.LoggerUtil;
+import nc.util.mmf.busi.service.PFPubService;
+import nc.util.mmpac.wr.WrTransTypeUtil;
+import nc.util.mmpac.wr.vochange.WrBusiVOToChangeVO;
 import nc.vo.ic.m46.entity.FinProdInBodyVO;
 import nc.vo.ic.m46.entity.FinProdInHeadVO;
 import nc.vo.ic.m46.entity.FinProdInVO;
+import nc.vo.mmpac.pacpub.consts.MMPacBillTypeConstant;
 import nc.vo.mmpac.pmo.pac0002.entity.PMOAggVO;
 import nc.vo.mmpac.pmo.pac0002.entity.PMOHeadVO;
 import nc.vo.mmpac.pmo.pac0002.entity.PMOItemVO;
+import nc.vo.mmpac.wr.entity.AggWrChangeVO;
 import nc.vo.mmpac.wr.entity.AggWrVO;
 import nc.vo.mmpac.wr.entity.WrItemVO;
 import nc.vo.mmpac.wr.entity.WrQualityVO;
@@ -91,7 +97,9 @@ public class ProductOrderImpl implements IProductOrder {
 
 	@Override
 	public String saveProductInbound_requireNew(String xml) {
+		
 		LoggerUtil.debug("写入完工入库 saveProductInbound_requireNew " + xml);
+		
 		HashMap<String, Object> para = new HashMap<String, Object>();
 		XMLSerializer xmlS = new XMLSerializer();
 		JSON json = xmlS.read(xml);
@@ -102,6 +110,8 @@ public class ProductOrderImpl implements IProductOrder {
 		String receiver = obj.getString("Receiver"); //收货人
 		String date = obj.getString("Date"); //单据日期
 		JSONArray arrays = obj.getJSONArray("items");
+		
+		IPFBusiAction pf = NCLocator.getInstance().lookup(IPFBusiAction.class);
 		
 		try{
 			HashMap<String, String> stormap = WsQueryBS.queryStordocByCode(receiverLocationCode);
@@ -250,41 +260,80 @@ public class ProductOrderImpl implements IProductOrder {
 					}
 				}
 				
-				//生产报告生成产成品入库
-				IWrBusinessService businessService = NCLocator.getInstance().lookup(IWrBusinessService.class);
-				rstagg = businessService.prodIn(rstagg);
-				
-				LoggerUtil.debug("生成产成品入库");
-				
-				//对应的产成品入库单填写实收数量， 
-				//实收数量改为在交换规则配置，只要交换规则配置了，入库就有实收数量
-				//cgeneralbid.nnum,cgeneralbid.nassistnum, cgeneralbid.dvalidate
-				//需要配置以上3个字段
-				IPFBusiAction pf = NCLocator.getInstance().lookup(IPFBusiAction.class);
-				for(AggWrVO agg : rstagg){
-					WrVO wrheadvo = agg.getParentVO();
-					String cgeneralhid = queryFinprodinpkByWrpk(wrheadvo.getPk_wr());
+				//先判断是否有可以合并的产成品入库，有则合并，没有则新增
+				String cgeneralhidMer =  queryFinprodinpkByMerge(pmohead.getCpmohid(), date, stormap.get("pk_stordoc"),
+						pmoItems.get(0).getCdeptid(), pmoItems.get(0).getCclassid(), wragg.getParentVO().getVdef20());
+				if(cgeneralhidMer != null){
 					List<FinProdInVO> list = (List<FinProdInVO>) MDPersistenceService
 							.lookupPersistenceQueryService().queryBillOfVOByCond(
-									FinProdInVO.class, "cgeneralhid = '"+cgeneralhid+"'", true, false);
-					for (FinProdInVO finprodvo : list) {
-						FinProdInHeadVO finheadvo = finprodvo.getHead();
-//						finheadvo.setCdptid(pk_dept);
-//						finheadvo.setCdptvid(pk_vid);
-//						finheadvo.setStatus(VOStatus.UPDATED);
-						FinProdInBodyVO[] finProdInBodyVOs = (FinProdInBodyVO[]) finprodvo.getChildren(FinProdInBodyVO.class);
-						String pk_org = finheadvo.getPk_org();
-						for (FinProdInBodyVO bvo : finProdInBodyVOs) {
-							bvo.setNassistnum(bvo.getNshouldassistnum());
-							bvo.setNnum(bvo.getNshouldnum());
-							String pk_material = bvo.getCmaterialoid();
-							Integer qualitynum = WsQueryBS.queryQualitynum(pk_org, pk_material);
-							bvo.setDvalidate(new UFDate(date).getDateAfter(qualitynum)); // 失效日期
-							bvo.setStatus(VOStatus.UPDATED);
+									FinProdInVO.class, "cgeneralhid = '"+cgeneralhidMer+"'", true, false);
+					FinProdInVO finprodvo = list.get(0);
+					FinProdInHeadVO finheadvo = finprodvo.getHead();
+					LoggerUtil.debug("存在可以合并产成品入库：" + finheadvo.getVbillcode());
+					
+					FinProdInBodyVO[] finProdInBodyVOs = (FinProdInBodyVO[]) finprodvo.getChildren(FinProdInBodyVO.class);
+					ArrayList<FinProdInBodyVO> newBodyList = new ArrayList<FinProdInBodyVO>();
+					for(FinProdInBodyVO fb : finProdInBodyVOs){
+						newBodyList.add(fb);
+					}
+					//完工报告转换为产成品入库
+					FinProdInVO[] megerInVO = change(rstagg);
+					int rowno = newBodyList.size();
+					for(FinProdInVO finvo : megerInVO){
+						FinProdInBodyVO[] fbs = (FinProdInBodyVO[]) finvo.getChildren(FinProdInBodyVO.class);
+						for(FinProdInBodyVO fbb : fbs){
+							fbb.setNassistnum(fbb.getNshouldassistnum());
+							fbb.setNnum(fbb.getNshouldnum());
+							String pk_material = fbb.getCmaterialoid();
+							Integer qualitynum = WsQueryBS.queryQualitynum(pmohead.getPk_org(), pk_material);
+							fbb.setDvalidate(new UFDate(date).getDateAfter(qualitynum)); // 失效日期
+							fbb.setStatus(VOStatus.NEW);
+							fbb.setCrowno(String.valueOf((++rowno) * 10));
+							fbb.setCgeneralhid(finprodvo.getPrimaryKey()); 
+							newBodyList.add(fbb);
 						}
-						pf.processAction("WRITE", "46", null, finprodvo, null, null);
-						LoggerUtil.debug("产成品入库实发数量更新");
-						billno.add(finheadvo.getVbillcode());
+					}
+					finprodvo.setChildren(FinProdInBodyVO.class, newBodyList.toArray(new FinProdInBodyVO[0]));
+					pf.processAction("WRITE", "46", null, finprodvo, null, null);
+					LoggerUtil.debug("合并产成品入库，修改成功");
+					billno.add(finheadvo.getVbillcode());
+				} else {
+				
+					//生产报告生成产成品入库
+					IWrBusinessService businessService = NCLocator.getInstance().lookup(IWrBusinessService.class);
+					rstagg = businessService.prodIn(rstagg);
+					
+					LoggerUtil.debug("生成产成品入库");
+					
+					//对应的产成品入库单填写实收数量， 
+					//实收数量改为在交换规则配置，只要交换规则配置了，入库就有实收数量
+					//cgeneralbid.nnum,cgeneralbid.nassistnum, cgeneralbid.dvalidate
+					//需要配置以上3个字段
+					for(AggWrVO agg : rstagg){
+						WrVO wrheadvo = agg.getParentVO();
+						String cgeneralhid = queryFinprodinpkByWrpk(wrheadvo.getPk_wr());
+						List<FinProdInVO> list = (List<FinProdInVO>) MDPersistenceService
+								.lookupPersistenceQueryService().queryBillOfVOByCond(
+										FinProdInVO.class, "cgeneralhid = '"+cgeneralhid+"'", true, false);
+						for (FinProdInVO finprodvo : list) {
+							FinProdInHeadVO finheadvo = finprodvo.getHead();
+	//						finheadvo.setCdptid(pk_dept);
+	//						finheadvo.setCdptvid(pk_vid);
+	//						finheadvo.setStatus(VOStatus.UPDATED);
+							FinProdInBodyVO[] finProdInBodyVOs = (FinProdInBodyVO[]) finprodvo.getChildren(FinProdInBodyVO.class);
+							String pk_org = finheadvo.getPk_org();
+							for (FinProdInBodyVO bvo : finProdInBodyVOs) {
+								bvo.setNassistnum(bvo.getNshouldassistnum());
+								bvo.setNnum(bvo.getNshouldnum());
+								String pk_material = bvo.getCmaterialoid();
+								Integer qualitynum = WsQueryBS.queryQualitynum(pk_org, pk_material);
+								bvo.setDvalidate(new UFDate(date).getDateAfter(qualitynum)); // 失效日期
+								bvo.setStatus(VOStatus.UPDATED);
+							}
+							pf.processAction("WRITE", "46", null, finprodvo, null, null);
+							LoggerUtil.debug("产成品入库实发数量更新");
+							billno.add(finheadvo.getVbillcode());
+						}
 					}
 				}
 			}
@@ -330,6 +379,42 @@ public class ProductOrderImpl implements IProductOrder {
 		return null;
 	}
 	
+	/**
+	 * 查询相同纬度的产成品入库单
+	 * @param pk_wr
+	 * @return
+	 */
+	public String queryFinprodinpkByMerge(String cpmohid, String dbilldate, String cwarehouseid, String cdptid, String cshiftid,
+			String teamCode){
+		BaseDAO dao = new BaseDAO();
+		try {
+			StringBuffer sql = new StringBuffer();
+			sql.append("  select distinct h.cgeneralhid   ")
+			.append("     from ic_finprodin_b b, ic_finprodin_h h  ")
+			.append("    where  ")
+			.append("      b.cgeneralhid = h.cgeneralhid  ")
+			.append("      and h.fbillflag = 2  ")
+			.append("      and nvl(h.dr, 0) = 0  ")
+			.append("      and nvl(b.dr, 0) = 0  ")
+			.append("      and b.cfirstbillhid = '"+cpmohid+"'  ")
+			.append("      and substr(h.dbilldate, 1, 10) = '"+dbilldate+"'  ")
+			.append("      and h.cwarehouseid = '"+cwarehouseid+"'  ")
+			.append("      and h.cdptid = '"+cdptid+"' ")
+			.append("      and h.vdef4 = '"+cshiftid+"' ")
+			.append("      and b.vbdef20 = '"+teamCode+"' ")
+			.append("      and nvl(h.vdef2,'~') <> 'Y' "); 
+			//.append("      and b.vbdef19 = '"+productionMode+"' ");
+			Object rst = dao.executeQuery(sql.toString(),  new ColumnProcessor());
+			if(rst != null){
+				return (String)rst;
+			}
+		} catch (DAOException e) {
+			e.printStackTrace();
+		}
+		return null;
+	}
+	
+	
 	public String join(ArrayList<String> list){
 		StringBuffer str = new StringBuffer();
 		for(int i = 0; i < list.size(); i++){
@@ -340,4 +425,33 @@ public class ProductOrderImpl implements IProductOrder {
 		}
 		return str.toString();
 	}
+	
+	
+	public static FinProdInVO[] change(AggWrVO[] aggVOs) throws BusinessException {
+
+		// 是否紧急放行=false 时，不能把紧急放行信息传给库存， 传了的话会按紧急放行入库处理
+		WrItemVO[] items = null;
+
+		for (AggWrVO wr : aggVOs) {
+			WrTransTypeUtil.changeTransTypeCodeDefault(wr.getParentVO());
+			items = (WrItemVO[]) wr.getChildren(WrItemVO.class);
+			for (WrItemVO item : items) {
+				if (null == item.getBbisempass() || item.getBbisempass().booleanValue() == false) {
+					item.setNbempassastnum(null);
+					item.setNbempassnum(null);
+					item.setCbempass_bid(null);
+					item.setCbempass_brow(null);
+					item.setCbempasscode(null);
+					item.setCbempassid(null);
+				}
+			}
+		}
+		// 将生产报告业务VO转换为单据交换VO(因为UAP还不支持主，子，孙表的VO交换)
+		AggWrChangeVO[] aggChangeVOs = WrBusiVOToChangeVO.changeOnlyQualityVO(aggVOs);
+
+		FinProdInVO[] depositAggVOs = (FinProdInVO[]) PFPubService.runChangeData(MMPacBillTypeConstant.WRCHANGE_BILLTYPE,
+				MMPacBillTypeConstant.DEPOSITE_BILLTYPE, aggChangeVOs, null, PfButtonClickContext.ClassifyByItfdef);
+		return depositAggVOs;
+	}
+	
 }
