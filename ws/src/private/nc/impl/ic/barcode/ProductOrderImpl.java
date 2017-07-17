@@ -12,6 +12,7 @@ import nc.bs.framework.common.NCLocator;
 import nc.bs.ic.barcode.WsQueryBS;
 import nc.bs.pf.pub.PfDataCache;
 import nc.ift.ic.barcode.IProductOrder;
+import nc.itf.mmpac.pmo.extend.IPwrBackFlushServer;
 import nc.itf.mmpac.wr.IWrBusinessService;
 import nc.itf.mmpac.wr.pwr.IPwrMaintainService;
 import nc.itf.uap.pf.IPFBusiAction;
@@ -85,7 +86,7 @@ public class ProductOrderImpl implements IProductOrder {
 				}
 				para.put("Details", details);
 			}
-		} catch (BusinessException e) {
+		} catch (Exception e) {
 			e.printStackTrace();
 			CommonUtil.putFailResult(para, "查询数据库失败：" + e.getMessage());
 			LoggerUtil.error("读取生产订单异常 ", e);
@@ -238,12 +239,26 @@ public class ProductOrderImpl implements IProductOrder {
 					//生产日期
 					//writem.setVbdef1(date);  
 				}
+				
 				//生产报告保存并签字
 				IPwrMaintainService service = NCLocator.getInstance().lookup(IPwrMaintainService.class);
 				AggWrVO[] rstagg = service.insert(new AggWrVO[] {wragg});
 				LoggerUtil.debug("完工报告保存");
 				rstagg = service.audit(rstagg);
+				//下面的方法会审核并且自动倒冲，但是因为开启了新的事物，会导致审核ts检查报异常
+				//包括下面自动倒冲的方法，只要是RequiresNew的都有问题，写不了数据库
+//				IPwrBusinessService operator = NCLocator.getInstance().lookup(IPwrBusinessService.class);
+//		        WrReturnParamVO returnParamVO = operator.auditAndBackFlush_RequiresNew(rstagg);
+//				AggWrVO[] vos = returnParamVO.getVos();
+//				rstagg = this.deletePickVOs(vos);
 				LoggerUtil.debug("完工报告签字");
+				
+				//自动倒冲
+				LoggerUtil.debug("完工报告自动倒冲");
+				IPwrBackFlushServer operator = NCLocator.getInstance().lookup(IPwrBackFlushServer.class);
+				rstagg = operator.autoBackFlush(rstagg);
+				LoggerUtil.debug("完工报告自动倒冲完成");
+				
 				//设置仓库
 				for(AggWrVO agg : rstagg){
 					WrItemVO[] items = (WrItemVO[])agg.getChildren(WrItemVO.class);
@@ -340,7 +355,7 @@ public class ProductOrderImpl implements IProductOrder {
 			para.put("OrderNo", join(billno));
 			CommonUtil.putSuccessResult(para);
 			
-		} catch (BusinessException e) {
+		} catch (Exception e) {
 			e.printStackTrace();
 			CommonUtil.putFailResult(para, "发生异常：" + e.getMessage());
 			LoggerUtil.error("写入完工入库异常", e);
@@ -454,4 +469,20 @@ public class ProductOrderImpl implements IProductOrder {
 		return depositAggVOs;
 	}
 	
+	
+	 /** 自动倒冲成功后删除缓存中的PickVOs
+     * 
+     * @param vos
+     * @return */
+    private AggWrVO[] deletePickVOs(AggWrVO[] vos) {
+        AggWrVO[] aggWrVOs = vos;
+        for (AggWrVO aggVO : aggWrVOs) {
+            WrItemVO[] itemVOs = (WrItemVO[]) aggVO.getChildren(WrItemVO.class);
+            for (WrItemVO wrItemVO : itemVOs) {
+                wrItemVO.setPickvos(null);
+            }
+            aggVO.setChildrenVO(itemVOs);
+        }
+        return aggWrVOs;
+    }
 }
