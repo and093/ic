@@ -229,6 +229,10 @@ public class ReadOutBoundOrder {
 					para.put("Remark", hvo.getVnote());
 					ArrayList<HashMap<String, Object>> bodylist = new ArrayList<HashMap<String, Object>>();
 					for (GeneralOutBodyVO body : bodys) {
+						//如果实发数量为0，则不返回给条码 20170722
+						if(body.getNassistnum() == null || body.getNassistnum().doubleValue() == 0D){
+							continue;
+						} 
 						HashMap<String, Object> bodypara = new HashMap<String, Object>();
 						HashMap<String, Object> pk = WsQueryBS
 								.queryMaterialInfoByPk(body.getCmaterialvid());

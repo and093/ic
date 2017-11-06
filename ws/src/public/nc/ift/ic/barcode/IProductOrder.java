@@ -16,4 +16,12 @@ public interface IProductOrder {
 	 */
 	public String saveProductInbound_requireNew(String xml);
 	
+	
+	/**
+	 * 回滚产成品入库
+	 * @param guid
+	 * @return
+	 */
+	public String rollbackProductInbound_requireNew(String guid);
+	
 }

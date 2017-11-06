@@ -13,7 +13,7 @@ public class BeforeDeleteRule<E extends ICBillVO> extends ICRule<E>{
 			 ICBillBodyVO[] bodys = bill.getBodys();
 			 for(ICBillBodyVO body : bodys){
 				 String scan = body.getVbdef20();
-				 if(scan != null && !"~".equals(scan) && scan.length() > 0){
+				 if(scan != null && !"~".equals(scan) && scan.length() > 0 && !"0".equals(scan)){
 					 ExceptionUtils.wrappBusinessException("表体行号" + body.getCrowno() + "有扫码数量，单据不允许删除");
 				 }
 			 }

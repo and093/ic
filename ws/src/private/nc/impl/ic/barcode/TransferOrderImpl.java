@@ -187,6 +187,16 @@ public class TransferOrderImpl implements ITransferOrder {
 			bvo.setVchangerate(materialMap.get("measrate"));
 			bvo.setNassistnum(ScanQty);
 			bvo.setNnum(ScanQty.multiply(getVchangerate(bvo.getVchangerate())));
+			
+			LoggerUtil.error("-----------------  ");
+			LoggerUtil.error("数量：" + bvo.getNassistnum());
+			LoggerUtil.error("主数量：" + bvo.getNnum());
+			LoggerUtil.error("换算率：" + bvo.getVchangerate());
+			LoggerUtil.error("单位：" + bvo.getCastunitid());
+			LoggerUtil.error("主单位：" + bvo.getCunitid());
+			LoggerUtil.error("-----------------  ");
+			
+			
 			// 判断物料是否启用了批次
 			if (WsQueryBS.getWholemanaflag(bvo.getCmaterialoid(), bvo.getPk_org())) {
 				// 批次号
@@ -614,8 +624,11 @@ public class TransferOrderImpl implements ITransferOrder {
 			for (int i = 0; i < inbodys.length; i++) {
 				GeneralInBodyVO inbody = inbodys[i];
 				inbody.setCrowno(String.valueOf((i + 1) * 10));
-				inbody.setNassistnum(inbody.getNshouldassistnum());
-				inbody.setNnum(inbody.getNshouldnum());
+//				inbody.setNassistnum(inbody.getNshouldassistnum());
+//				inbody.setNnum(inbody.getNshouldnum());
+				//实收数量改为不填，手工修改 20170722
+				inbody.setNassistnum(null);
+				inbody.setNnum(null);
 				inbody.setVtransfercode("4A-02");
 				// 批次号
 				if(inbody.getVbatchcode() != null){

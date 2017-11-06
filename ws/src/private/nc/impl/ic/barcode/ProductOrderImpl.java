@@ -12,13 +12,16 @@ import nc.bs.framework.common.NCLocator;
 import nc.bs.ic.barcode.WsQueryBS;
 import nc.bs.pf.pub.PfDataCache;
 import nc.ift.ic.barcode.IProductOrder;
+import nc.itf.ic.m46.IProductInMaitain;
 import nc.itf.mmpac.pmo.extend.IPwrBackFlushServer;
 import nc.itf.mmpac.wr.IWrBusinessService;
 import nc.itf.mmpac.wr.pwr.IPwrMaintainService;
+import nc.itf.pubapp.pub.smart.IBillQueryService;
 import nc.itf.uap.pf.IPFBusiAction;
 import nc.itf.uap.pf.IPfExchangeService;
 import nc.itf.uap.pf.busiflow.PfButtonClickContext;
 import nc.jdbc.framework.processor.ColumnProcessor;
+import nc.jdbc.framework.processor.MapListProcessor;
 import nc.md.persist.framework.MDPersistenceService;
 import nc.pub.ic.barcode.CommonUtil;
 import nc.pub.ic.barcode.FreeMarkerUtil;
@@ -111,6 +114,9 @@ public class ProductOrderImpl implements IProductOrder {
 		String receiver = obj.getString("Receiver"); //收货人
 		String date = obj.getString("Date"); //单据日期
 		JSONArray arrays = obj.getJSONArray("items");
+		
+		//记录每次调用的id,用于条码系统回滚时删除数据
+		String guid = obj.getString("Guid");
 		
 		IPFBusiAction pf = NCLocator.getInstance().lookup(IPFBusiAction.class);
 		
@@ -209,6 +215,9 @@ public class ProductOrderImpl implements IProductOrder {
 				headvo.setVtrantypecode("55A4-01");
 				headvo.setVtrantypeid(PfDataCache.getBillType("55A4-01").getPk_billtypeid());
 				headvo.setFbillstatus(1);  //自由态
+				
+				headvo.setVdef18(guid); //记录回滚id号  20170724
+				
 				WrItemVO[] writems = (WrItemVO[])wragg.getChildren(WrItemVO.class);
 				for(int i = 0; i < writems.length; i++){
 					WrItemVO writem = writems[i];
@@ -236,6 +245,7 @@ public class ProductOrderImpl implements IProductOrder {
 					writem.setVbdef20(teamCode);
 					headvo.setVdef20(teamCode);
 					writem.setVbdef19(WsQueryBS.getProductModelByCode(productionMode));
+					
 					//生产日期
 					//writem.setVbdef1(date);  
 				}
@@ -305,6 +315,9 @@ public class ProductOrderImpl implements IProductOrder {
 							fbb.setStatus(VOStatus.NEW);
 							fbb.setCrowno(String.valueOf((++rowno) * 10));
 							fbb.setCgeneralhid(finprodvo.getPrimaryKey()); 
+							
+							fbb.setVbdef18(guid); //记录回滚id号 20170724
+							
 							newBodyList.add(fbb);
 						}
 					}
@@ -335,6 +348,9 @@ public class ProductOrderImpl implements IProductOrder {
 	//						finheadvo.setCdptid(pk_dept);
 	//						finheadvo.setCdptvid(pk_vid);
 	//						finheadvo.setStatus(VOStatus.UPDATED);
+							
+							finheadvo.setVdef18(guid); //记录回滚id号 20170724
+							
 							FinProdInBodyVO[] finProdInBodyVOs = (FinProdInBodyVO[]) finprodvo.getChildren(FinProdInBodyVO.class);
 							String pk_org = finheadvo.getPk_org();
 							for (FinProdInBodyVO bvo : finProdInBodyVOs) {
@@ -470,8 +486,8 @@ public class ProductOrderImpl implements IProductOrder {
 	}
 	
 	
-	 /** 自动倒冲成功后删除缓存中的PickVOs
-     * 
+	 /** 
+     * 自动倒冲成功后删除缓存中的PickVOs
      * @param vos
      * @return */
     private AggWrVO[] deletePickVOs(AggWrVO[] vos) {
@@ -485,4 +501,104 @@ public class ProductOrderImpl implements IProductOrder {
         }
         return aggWrVOs;
     }
+
+    /**
+	 * 回滚产成品入库
+	 * @param guid
+	 * @return
+	 */
+	@Override
+	public String rollbackProductInbound_requireNew(String guid) {
+		
+		LoggerUtil.debug("回滚产成品入库 rollbackProductInbound_requireNew " + guid);
+		HashMap<String, Object> para = new HashMap<String, Object>();
+		CommonUtil.putSuccessResult(para);
+		if(guid == null){
+			CommonUtil.putFailResult(para, "guid为空");
+		} else {
+			try{ 
+				BaseDAO dao = new BaseDAO();
+				IBillQueryService query = NCLocator.getInstance().lookup(IBillQueryService.class);
+				IProductInMaitain proInMaitain = NCLocator.getInstance().lookup(IProductInMaitain.class);
+				
+				//1.删除整张产成品入库
+				StringBuffer sql = new StringBuffer();
+				sql.append("  select vbillcode, cgeneralhid, fbillflag, nvl(vdef2,'N') vdef2  ")
+				.append("     from ic_finprodin_h  ")
+				.append("    where  ")
+				.append("      nvl(dr, 0) = 0  ")
+				.append("      and vdef18 = '"+guid+"' ");
+				Object rst = dao.executeQuery(sql.toString(), new MapListProcessor());
+				if(rst != null){
+					List bills = (List)rst;
+					for(int i = 0; i < bills.size(); i++){
+						HashMap bill = (HashMap)bills.get(i);
+						String cgeneralhid = (String)bill.get("cgeneralhid");
+						Integer fbillflag = (Integer)bill.get("fbillflag");
+						String vdef2 = (String)bill.get("vdef2");
+						if(fbillflag == 4 || "Y".equals(vdef2)){
+							throw new BusinessException("产成品入库单" +bill.get("vbillcode")+ "已经审核或者入库，不能回滚");
+						}
+						FinProdInVO proInVO = query.querySingleBillByPk(FinProdInVO.class, cgeneralhid);
+						InvocationInfoProxy.getInstance().setGroupId(proInVO.getHead().getPk_group());
+						proInMaitain.delete(new FinProdInVO[]{proInVO});
+						LoggerUtil.debug("删除产成品入库" + bill.get("vbillcode"));
+					}
+				}
+				
+				//2.修改产成品入库表体
+				String sql1 = "select cgeneralhid from ic_finprodin_b where nvl(dr,0) = 0 and vbdef18 ='"+guid+"'";
+				Object rst1 = dao.executeQuery(sql1, new MapListProcessor());
+				if(rst1 != null){
+					List bills = (List)rst;
+					for(int i = 0; i < bills.size(); i++){
+						HashMap bill = (HashMap)bills.get(i);
+						FinProdInVO proInOriVO = query.querySingleBillByPk(FinProdInVO.class, (String)bill.get("cgeneralhid"));
+						if(proInOriVO == null){
+							continue;
+						}
+						FinProdInVO ProInNewVO = (FinProdInVO)proInOriVO.clone();
+						FinProdInBodyVO[] bodys = ProInNewVO.getBodys();
+						InvocationInfoProxy.getInstance().setGroupId(proInOriVO.getHead().getPk_group());
+						int deleteNum = 0;
+						for(FinProdInBodyVO body : bodys){
+							if(guid.equals(body.getVbdef18())){
+								body.setStatus(VOStatus.DELETED);
+								deleteNum ++;
+							}
+						}
+						if(deleteNum == bodys.length){
+							proInMaitain.delete(new FinProdInVO[]{proInOriVO});
+						} else {
+							proInMaitain.update(new FinProdInVO[]{ProInNewVO}, new FinProdInVO[]{proInOriVO});
+						}
+						LoggerUtil.debug("修改成品入库" + proInOriVO.getHead().getVbillcode());
+					}
+				}
+				
+				//3.删除完工报告
+				IPwrMaintainService service = NCLocator.getInstance().lookup(IPwrMaintainService.class);
+				List<AggWrVO> list = (List<AggWrVO>) MDPersistenceService
+						.lookupPersistenceQueryService().queryBillOfVOByCond(
+								AggWrVO.class, "nvl(dr,0) = 0 and vdef18 = '"+guid+"'", true, false);
+				if(list != null && list.size() > 0){
+					AggWrVO[] aggwr = list.toArray(new AggWrVO[0]);
+					InvocationInfoProxy.getInstance().setGroupId(aggwr[0].getParentVO().getPk_group());
+					//取消审批
+					aggwr = service.unAudit(aggwr);
+					LoggerUtil.debug("取消审批完工报告");
+					//删除
+					service.delete(aggwr);
+					LoggerUtil.debug("删除完工报告");
+				}
+			}catch(Exception e){
+				e.printStackTrace();
+				CommonUtil.putFailResult(para, "发生异常：" + e.getMessage());
+				LoggerUtil.error("回滚产成品入库异常", e);
+			}
+		}
+		String rst = FreeMarkerUtil.process(para,"nc/config/ic/barcode/RollbackProductInbound.fl");
+		LoggerUtil.debug("回滚产成品入库 saveProductInbound_requireNew " + rst);
+		return rst;
+	}
 }

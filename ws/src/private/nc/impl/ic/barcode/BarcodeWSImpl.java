@@ -153,4 +153,19 @@ public class BarcodeWSImpl implements IBarcodeWS {
 		return s.saveTransferOutAndIn_requireNew(xml);
 	}
 
+	/**
+	 * 回滚产成品入库
+	 * @param guid
+	 * @return
+	 */
+	@Override
+	public String RollbackGoodsReceiveNote(String guid) {
+		InvocationInfoProxy.getInstance().setUserDataSource(ResourceUtil.getPro().getProperty("system.dataSource"));
+		String userCode = ResourceUtil.getPro().getProperty("system.user");
+		String cuserid = WsQueryBS.getUseridByCode(userCode);
+		InvocationInfoProxy.getInstance().setUserId(cuserid);
+		IProductOrder s = NCLocator.getInstance().lookup(IProductOrder.class);
+		return s.rollbackProductInbound_requireNew(guid);
+	}
+
 }

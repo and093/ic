@@ -7,6 +7,7 @@ import nc.bs.dao.DAOException;
 import nc.jdbc.framework.SQLParameter;
 import nc.jdbc.framework.processor.ColumnProcessor;
 import nc.jdbc.framework.processor.MapProcessor;
+import nc.pub.ic.barcode.LoggerUtil;
 
 /**
  * 提供给ws接口的公共查询类
@@ -44,7 +45,7 @@ public class WsQueryBS {
 				.append(" and a.pk_marbasclass = c.pk_marbasclass ")
 				.append(" and a.pk_material = d.pk_material ")
 				.append(" and nvl(a.dr,0) = 0 ")
-				.append(" and d.isprodmeasdoc = 'Y' and nvl(d.dr,0) = 0 ")
+				.append(" and nvl(d.isprodmeasdoc,'N') = 'Y' and nvl(d.dr,0) = 0 ")
 				.append(" and a.pk_material = '" + pk_material + "' ");
 		Object rst = dao.executeQuery(sql.toString(), new MapProcessor());
 		if (rst != null) {
@@ -324,13 +325,14 @@ public class WsQueryBS {
 			.append(" where a.pk_material = b.pk_material  ")
 			.append(" and b.pk_measdoc = c.pk_measdoc ")
 			.append(" and a.def8 = '"+productCode+"' ")
-			.append(" and c.name = '箱' ")
+			.append(" and nvl(b.isstockmeasdoc,'N') = 'Y' ")
 			.append(" and nvl(a.dr,0) = 0 ");
+		LoggerUtil.error("queryMaterialInfoByCode：" + sql.toString());
 		Object rst = dao.executeQuery(sql.toString(), new MapProcessor());
 		if (rst != null) {
-			para.putAll((HashMap) rst);
+			para.putAll((HashMap) rst);  
 		}
-		return para;
+		return para; 
 	}
 	
 	/**

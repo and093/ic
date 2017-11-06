@@ -16,7 +16,7 @@ public class BeforeUpdateRule<E extends ICBillVO> implements ICompareRule<E> {
 			for (ICBillBodyVO body : bodys) {
 				String scan = body.getVbdef20();
 				UFDouble nscanNum = null;
-				if (scan != null && !"~".equals(scan) && scan.length() > 0) {
+				if (scan != null && !"~".equals(scan) && scan.length() > 0 && !"0".equals(scan)) {
 					nscanNum = new UFDouble(scan);
 				}
 				int status = body.getStatus();

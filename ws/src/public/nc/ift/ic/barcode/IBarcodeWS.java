@@ -23,6 +23,7 @@ public interface IBarcodeWS {
 	 */
 	public String PostGoodsReceiveNote(String xml);
 	
+	
 	/**
 	 * 读取出库单，类型包括销售出库，其他出库和调拨出库
 	 * @param transationType
@@ -75,4 +76,12 @@ public interface IBarcodeWS {
 	 * @return
 	 */
 	public String PostTransferOutAndInNote(String xml);
+	
+	/**
+	 * 回滚产成品入库
+	 * @param guid
+	 * @return
+	 */
+	public String RollbackGoodsReceiveNote(String guid);
+	
 }

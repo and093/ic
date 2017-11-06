@@ -167,6 +167,20 @@ targetNamespace="http://barcode.ic.ift.nc/IBarcodeWS">
              </xsd:sequence>  
          </xsd:complexType>
      </xsd:element>
+	<xsd:element name="RollbackGoodsReceiveNote">
+         <xsd:complexType>
+            <xsd:sequence>
+				<xsd:element name="string"  minOccurs="0" nillable="true" type="xsd:string"/>
+             </xsd:sequence>  
+         </xsd:complexType>
+     </xsd:element>
+	<xsd:element name="RollbackGoodsReceiveNoteResponse">
+         <xsd:complexType>
+            <xsd:sequence>
+				<xsd:element name="return"  minOccurs="0" nillable="true" type="xsd:string"/>
+             </xsd:sequence>  
+         </xsd:complexType>
+     </xsd:element>
    </xsd:schema>
 </wsdl:types>
     <wsdl:message name="GetProductInfoByCodeRequest">
@@ -229,6 +243,12 @@ targetNamespace="http://barcode.ic.ift.nc/IBarcodeWS">
     <wsdl:message name="PostTransferOutAndInNoteResponse">
         <wsdl:part name="parameters"  element="ns0:PostTransferOutAndInNoteResponse"/>
     </wsdl:message>
+    <wsdl:message name="RollbackGoodsReceiveNoteRequest">
+        <wsdl:part name="parameters"  element="ns0:RollbackGoodsReceiveNote"/>
+    </wsdl:message>
+    <wsdl:message name="RollbackGoodsReceiveNoteResponse">
+        <wsdl:part name="parameters"  element="ns0:RollbackGoodsReceiveNoteResponse"/>
+    </wsdl:message>
 
     <wsdl:portType name="IBarcodeWSPortType">
         <wsdl:operation name="GetProductInfoByCode">
@@ -270,6 +290,10 @@ targetNamespace="http://barcode.ic.ift.nc/IBarcodeWS">
         <wsdl:operation name="PostTransferOutAndInNote">
             <wsdl:input message="ns0:PostTransferOutAndInNoteRequest" wsaw:Action="urn:PostTransferOutAndInNote"/>
             <wsdl:output message="ns0:PostTransferOutAndInNoteResponse" wsaw:Action="urn:PostTransferOutAndInNoteResponse"/>
+        </wsdl:operation>
+        <wsdl:operation name="RollbackGoodsReceiveNote">
+            <wsdl:input message="ns0:RollbackGoodsReceiveNoteRequest" wsaw:Action="urn:RollbackGoodsReceiveNote"/>
+            <wsdl:output message="ns0:RollbackGoodsReceiveNoteResponse" wsaw:Action="urn:RollbackGoodsReceiveNoteResponse"/>
         </wsdl:operation>
     </wsdl:portType>
     
@@ -359,6 +383,15 @@ targetNamespace="http://barcode.ic.ift.nc/IBarcodeWS">
         </wsdl:operation>
         <wsdl:operation name="PostTransferOutAndInNote">
             <soap:operation soapAction="urn:PostTransferOutAndInNote" style="document"/>
+            <wsdl:input>
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap:body use="literal"/>
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="RollbackGoodsReceiveNote">
+            <soap:operation soapAction="urn:RollbackGoodsReceiveNote" style="document"/>
             <wsdl:input>
                 <soap:body use="literal"/>
             </wsdl:input>
